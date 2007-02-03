@@ -1,0 +1,23 @@
+/*$Id$*/
+
+.button-table {
+  width: 100%;
+}
+.button-table tr.new {
+  background-color: #feebed;
+}
+.button-table td{
+  vertical-align: top;
+}
+.button-table th.content {
+  width: 50%;
+}
+.sel-action {
+  text-align: right;
+}
+.sel-action div {
+  display: inline;
+}
+#editor-demo {
+  width: 94%;
+}
