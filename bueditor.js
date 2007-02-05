@@ -112,11 +112,11 @@ editor.instance = function (tid, index) {
   }
   this.makeSelection = function (start, end) {
     if (end<start) end = start;
-    editor['_selMake'+editor.mode](this.textArea, start, end);
+    editor.selMake(this.textArea, start, end);
     if (editor.dialog.esp) editor.dialog.esp = {start : start, end : end};
   }
   this.posSelection = function () {
-    return editor.dialog.esp ? editor.dialog.esp : editor['_selPos'+editor.mode](this.textArea);
+    return editor.dialog.esp ? editor.dialog.esp : editor.selPos(this.textArea);
   }
   this.buttonsDisabled = function (state, bindex) {
     for (var i=0; b=this.buttons[i]; i++) {
@@ -202,7 +202,7 @@ editor.dialog.content = function (content) {
 editor.parseTag = function (text, tag) {
   var result, arr = [], attr = [];
   var closed = !(tag=='img' || tag=='input' || tag=='br' || tag=='hr');
-  var re = new RegExp('^<'+ tag +'([^>]*)'+ (closed ? ('>(([\r\n]|.)*)<\/'+tag) : '') +'>$');
+  var re = new RegExp('^<'+ tag +'([^>]*)'+ (closed ? ('>((.|[\r\n])*)<\/'+tag) : '') +'>$');
   if (result = re.exec(text)) {
     if ((arr = result[1].split('"')).length>1) {
       for (var i=0; typeof(arr[i+1])!='undefined'; i+=2) attr[arr[i].replace(/\s|\=/g, '')] = arr[i+1];
@@ -224,52 +224,45 @@ editor.textToDOM = function (text) {
   return editor.DC.childNodes;
 }
 
-
-// browser specific functions. _selPosX = selection start & end, _selMakeX = make selection.
-
-//mode 0 - selection handling not-supported
-editor._selPos0 = function (T) {
-  return {start : T.value.length, end : T.value.length};
+// browser specific functions.
+if (editor.mode == 0) {//mode 0 - selection handling not-supported
+  editor.selPos = function (T) {return {start : T.value.length, end : T.value.length};}
+  editor.selMake = function (T, start, end) {}
 }
-editor._selMake0 = function (T, start, end) {}
-
-//mode 1 - Firefox, opera, safari
-editor._selPos1 = function (T) {
-  return {start : T.selectionStart||0, end : T.selectionEnd||0};
+else if (editor.mode == 1) {//mode 1 - Firefox, opera, safari.
+  editor.selPos = function (T) { return {start : T.selectionStart||0, end : T.selectionEnd||0};}
+  editor.selMake = function (T, start, end) {T.setSelectionRange(start, end);}
 }
-editor._selMake1 = function (T, start, end) {
-  T.setSelectionRange(start, end);
-}
-
-//mode 2 - IE.
-editor._selPos2 = function (T) {
-  T.focus();
-  var val = T.value.replace(/\r\n/g, '\n');
-  var mark = '~`^'; //dummy text.
-  for (var i = 0; val.indexOf(mark) != -1; i++) mark += mark.charAt(i); //make sure mark is unique.
-  var mlen = mark.length;
-  var range = document.selection.createRange();
-  var bm = range.getBookmark();
-  var slen = range.text.replace(/\r\n/g, '\n').length;
-  range.text = mark;
-  var tmp = T.value.replace(/\r\n/g, '\n');
-  var start = tmp.indexOf(mark);
-  for (var i = 0; tmp.charAt(start+i+mlen)=='\n'; i++);
-  var end = start+slen;
-  for (; val.charAt(end)=='\n'; end++);
-  end -= i;
-  T.value = val;
-  if (start == end && !val.charAt(end)) range.collapse(false);//bookmark has problems with a cursor at the end
-  else range.moveToBookmark(bm);
-  range.select();
-  return {start : start, end : end};
-} 
-editor._selMake2 = function (T, start, end) {
-  range = T.createTextRange();
-  range.collapse();
-  range.moveEnd('character', end);
-  range.moveStart('character', start);
-  range.select();
+else if (editor.mode == 2) {//mode 2 - IE.
+  editor.selPos = function (T) {
+    T.focus();
+    var val = T.value.replace(/\r\n/g, '\n');
+    var mark = '~`^'; //dummy text.
+    for (var i = 0; val.indexOf(mark) != -1; i++) mark += mark.charAt(i); //make sure mark is unique.
+    var mlen = mark.length;
+    var range = document.selection.createRange();
+    var bm = range.getBookmark();
+    var slen = range.text.replace(/\r\n/g, '\n').length;
+    range.text = mark;
+    var tmp = T.value.replace(/\r\n/g, '\n');
+    var start = tmp.indexOf(mark);
+    for (var i = 0; tmp.charAt(start+i+mlen)=='\n'; i++);
+    var end = start+slen;
+    for (; val.charAt(end)=='\n'; end++);
+    end -= i;
+    T.value = val;
+    if (start == end && !val.charAt(end)) range.collapse(false);//bookmark has problems with a cursor at the end
+    else range.moveToBookmark(bm);
+    range.select();
+    return {start : start, end : end};
+  }
+  editor.selMake = function (T, start, end) {
+    range = T.createTextRange();
+    range.collapse();
+    range.moveEnd('character', end);
+    range.moveStart('character', start);
+    range.select();
+  }
 }
 
 if (isJsEnabled()) {

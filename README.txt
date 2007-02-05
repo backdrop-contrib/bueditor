@@ -163,7 +163,7 @@ Create a selection by selecting the characters between the indexes "start" and "
 E.posSelection():
 Returns the index values of selection start and selection end.
 Returns {start: X, end: Y} where X is the start index and Y is the end index.
-Note: No selection is also an empty selection where start=end=caret position.
+Note: No selection is also a selection where start=end=caret position.
 
 E.buttonsDisabled(state, bindex):
 Dynamically enable/disable buttons of the instance.
@@ -252,8 +252,9 @@ Teaser break:
 Inserts Drupal teaser break which is <!--break-->
 
 Preview:
-Previews the selected text or the whole textarea content if there is no selection. Note that, lines and paragraphs
-does not break automatically which you can discover comparing with Drupal preview.
+Previews selection, or the whole content if there is no selection. Lines and paragraphs break automatically as in 
+Drupal preview.  If you want a pure HTML preview, create a button that calls the preview function with any argument:
+eDefPreview('full');//no conversion of new lines. preview is based on pure HTML.
 
 Help:
 Displays the title(hint) for each button in the editor.
@@ -283,7 +284,7 @@ userForm += '<input type="submit" value="Submit" /></form>';
 editor.dialog.open('User Input', userForm);
 
 How to create a button to insert XHTML compliant Underlined text?
-Since <u> is not XHTML comliant, you should use CSS. First of all, you need to define a class in your theme's 
+Since <u> is not XHTML compliant, you should use CSS. First of all, you need to define a class in your theme's 
 CSS file, for instance; 
 .underlined-text {text-decoration: underline;}
 As the above class exists, you can use it in your button content:
