@@ -1,6 +1,43 @@
 // $Id$
 //collection of functions required for editor default buttons.
 
+//Automatically break new lines as in Drupal preview. ported from original php function at http://photomatt.net/scripts/autop
+function eDefAutoP(txt, br) {
+  var br = typeof br == 'undefined' ? 1 : br;
+  var txt = txt||'';
+  if (txt.indexOf('\n') == -1) return txt;
+	txt += '\n'; // just to make things a little easier, pad the end
+	txt = txt.replace(/<br \/>\s*<br \/>/g, '\n\n');
+	var blocks = '(table|thead|tfoot|caption|colgroup|tbody|tr|td|th|div|dl|dd|dt|ul|ol|li|pre|select|form|blockquote|address|math|style|script|object|input|param|p|h[1-6])';
+	txt = txt.replace(new RegExp('(<' + blocks + '[^>]*>)', 'g'), '\n$1');
+	txt = txt.replace(new RegExp('(<\/' + blocks + '>)', 'g'), '$1\n\n');
+	txt = txt.replace(/\r\n|\r/g, '\n'); // cross-platform newlines
+	txt = txt.replace(/\n\n+/g, '\n\n'); // take care of duplicates
+	txt = txt.replace(/\n?((.|\n)+?)\n\s*\n/g, '<p>$1</p>\n'); // make paragraphs
+  txt = txt.replace(/\n?((.|\n)+?)$/, '<p>$1</p>\n'); //including one at the end
+	txt = txt.replace(/<p>\s*?<\/p>/g, ''); // under certain strange conditions it could create a P of entirely whitespace
+	txt = txt.replace(/<p>(<div[^>]*>\s*)/g, '$1<p>');
+	txt = txt.replace(/<p>([^<]+)\s*?(<\/(div|address|form)[^>]*>)/g, '<p>$1</p>$2');
+	txt = txt.replace(new RegExp('<p>\s*(<\/?' + blocks + '[^>]*>)\s*<\/p>', 'g'), '$1');
+	txt = txt.replace(/<p>(<li.+?)<\/p>/g, '$1'); // problem with nested lists
+	txt = txt.replace(/<p><blockquote([^>]*)>/g, '<blockquote$1><p>');
+	txt = txt.replace(/<\/blockquote><\/p>/g, '</p></blockquote>');
+	txt = txt.replace(new RegExp('<p>\s*(<\/?' + blocks + '[^>]*>)', 'g'), '$1');
+	txt = txt.replace(new RegExp('(<\/?' + blocks + '[^>]*>)\s*<\/p>', 'g'), '$1');
+	if (br) {
+		txt = txt.replace(/<(script|style)(.|\n)*?<\/\1>/g, function($0) {return $0.replace(/\n/g, '<PNL />')});
+		txt = txt.replace(/(<br \/>)?\s*\n/g, '<br />\n'); // optionally make line breaks
+		txt = txt.replace(/<PNL \/>/g, '\n');
+	}
+	txt = txt.replace(new RegExp('(<\/?' + blocks + '[^>]*>)\s*<br \/>', 'g'), '$1');
+	txt = txt.replace(/<br \/>(\s*<\/?(p|li|div|dl|dd|dt|th|pre|td|ul|ol)[^>]*>)/g, '$1');
+	if (txt.indexOf('<pre') != -1) {
+		txt = txt.replace(/(<pre(.|\n)*?>)((.|\n)*?)<\/pre>/g, function($0, $1, $2, $3) {return $1.replace(/\\([\'\"\\])/g, '$1') + $3.replace(/<p>/g, '\n').replace(/<\/p>|<br \/>/g, '').replace(/\\([\'\"\\])/g, '$1') + '</pre>'}); //'
+  }
+	txt = txt.replace(/\n<\/p>$/g, '</p>');
+	return txt;
+}
+
 //enclose each line in the given text with the given tags.
 function eDefProcessLines(text, tagA, tagB) {
   return tagA+ text.replace(/(\r?\n)/g, tagB+'$1'+tagA) +tagB;
@@ -27,7 +64,7 @@ function eDefTxtClass(txt, c) {
   return txt+' class="'+c+'"';
 }
 
-//return a table row containing the attribute list as cell. eDefHtmlRow(cell1, cell2 ...), cell = [content, attributes]
+//return a table row of cells(attributes of the function). eDefHtmlRow(cell1, cell2 ...), cell = [content, attributes]
 function eDefHtmlRow() {
   var a, cells = '';
   for (var i=0; a=arguments[i]; i++) cells += eDefHtmlCell(a[0], a[1]);
@@ -38,8 +75,8 @@ function eDefHtmlCell(value, atxt) {
   return '<td'+ (atxt||'')+'>'+ (value||'') +'</td>';
 }
 
-//Previews the selected text in the textarea. If there is no selection, previews the whole content.
-function eDefPreview() {
+//Previews the selected text in the textarea. If there is no selection, previews the whole content. By default lines and paragraphs break automatically. Pure HTML preview is eDefPreview('full')
+function eDefPreview(NoAutoP) {
   var P, E = editor.active, T = E.textArea, B = E.buttons[E.bindex];
   if (E.preview) {
     P = E.preview;
@@ -53,12 +90,12 @@ function eDefPreview() {
     E.preview = P;
   }
   if (P.style.display == 'none') {
-    var S = E.getSelection();
+    var html = NoAutoP ? E.getSelection()||T.value : eDefAutoP(E.getSelection()||T.value);
     if (editor.mode != 2) editor.G['pos'+T.id] = E.posSelection();
     P.style.display = 'block';
     P.style.height = T.style.height||(T.offsetHeight+'px');
     P.style.width = T.style.width||(T.offsetWidth+'px');
-    P.innerHTML = '<div class="node"><div class="content">'+ (S ? S : T.value) +'</div></div>';
+    P.innerHTML = '<div class="node"><div class="content">'+ html +'</div></div>';
     T.style.display = 'none';
     addClass(B, 'stay-clicked');
     E.buttonsDisabled(true, E.bindex);
@@ -69,7 +106,7 @@ function eDefPreview() {
     P.innerHTML = '';
     P.style.display = 'none';
     T.style.display = 'block';
-    if (editor.mode!=2) E.makeSelection(editor.G['pos'+T.id].start, editor.G['pos'+T.id].end);
+    if (editor.mode != 2) E.makeSelection(editor.G['pos'+T.id].start, editor.G['pos'+T.id].end);
   }
 }
 
@@ -144,7 +181,7 @@ function eDefImceFinish(url, width, height, fsize, win) {
 function eDefHelp() {
   var b, E = editor.active;
   if (typeof editor.G.help == 'undefined') {
-    editor.G.help = '<table style="width: 400px">';
+    editor.G.help = '<table id="editor-help">';
     for (var i=0; b=E.buttons[i]; i++) {
       editor.G.help += '<tr><td><input type="'+b.type+'" class="'+b.className+'"'+(b.src?'src="'+b.src+'"' : 'value="'+b.value+'"')+' /></td><td>'+b.title+'</td></tr>';
     }
