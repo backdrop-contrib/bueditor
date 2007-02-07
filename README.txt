@@ -207,7 +207,7 @@ including them inline, allows browser caching and reduces page load time.
 Since buttons may have php code that makes them change dynamically, md5 is used to track the changes in buttons 
 script. If there is a matching file in the folder, it is loaded. Otherwise, a new file is created and loaded. If file loading 
 fails, buttons are included as inline script.
-Note: The files older than 15 days are cleaned in each cron run.
+Note: Files older than 15 days are cleaned in each cron run.
 
 
 - KNOWN ISSUES
@@ -243,10 +243,12 @@ Italic:
 Encloses the selected text with the tag <em>
 
 Ordered list:
-Converts the lines in the selected text to a numbered list. It is also possible to start a new list with no selection.
+Converts the lines in the selected text to a numbered list. It is also possible to start a new list with no selection. 
+If the selection is an ordered list which was previosly created by this button, the lines in the text are restored.
 
 Unordered list:
-Converts the lines in the selected text to a bulleted list. It is also possible to start a new list with no selection.
+Converts the lines in the selected text to a bulleted list. It is also possible to start a new list with no selection. 
+If the selection is an unordered list which was previosly created by this button, the lines in the text are restored.
 
 Teaser break:
 Inserts Drupal teaser break which is <!--break-->
