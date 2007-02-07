@@ -40,12 +40,15 @@ function eDefAutoP(txt, br) {
 
 //enclose each line in the given text with the given tags.
 function eDefProcessLines(text, tagA, tagB) {
-  return tagA+ text.replace(/(\r?\n)/g, tagB+'$1'+tagA) +tagB;
+  return tagA+ text.replace(/(\r?\n|\r)/g, tagB+'$1'+tagA) +tagB;
 }
-//enclose lines in the selected text with inA and inB and then enclose the resulting text with outA and outB.
+//enclose lines in the selected text with inA and inB and then enclose the resulting text with outA and outB. If the selected text is processed before, restore it.
 function eDefSelProcessLines(outA, inA, inB, outB) {
-  var E = editor.active, sel = E.getSelection();
-  if (sel) E.replaceSelection(outA+eDefProcessLines(sel, inA, inB)+outB, 'end');
+  var match, E = editor.active, sel = E.getSelection().replace(/\r\n|\r/, '\n');
+  if (match = sel.match(new RegExp('^'+ outA + inA +'((.|\n)*)'+ inB + outB +'$'))) {
+    E.replaceSelection(match[1].replace(new RegExp(inB +'\n'+ inA, 'g'), '\n'));
+  }
+  else if (sel) E.replaceSelection(outA+eDefProcessLines(sel, inA, inB)+outB);
   else E.tagSelection(outA+inA, inB+outB);
 }
 //returns form input html. atxt contains additional attributes
