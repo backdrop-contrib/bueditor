@@ -528,13 +528,14 @@ function bueditor_settle($editor) {
  */
 function bueditor_js_buttons($dir, $buttons) {
   $str = 'editor.path="'. base_path() . $dir .'/";editor.buttons='. drupal_to_js($buttons);
-  $file = $dir.'/temp/'.md5($str).'.js';
-  if (file_exists($file) || (arg(0) != 'admin' && bueditor_save_data($str, $file))) {
-    drupal_add_js($file);
+  if (variable_get('file_downloads', '') != FILE_DOWNLOADS_PRIVATE) {
+    $file = file_directory_path() .'/bueditor/'. md5($str) .'.js';
+    if (file_exists($file) || (arg(0) != 'admin' && bueditor_save_data($str, $file))) {
+      drupal_add_js($file);
+      return $file;
+    }
   }
-  else {
-    drupal_set_html_head('<script type="text/javascript"> '. $str .' </script>');
-  }
+  drupal_set_html_head('<script type="text/javascript"> '. $str .' </script>');
 }
 
 /**
@@ -620,8 +621,7 @@ function bueditor_rolesort($r1, $r2) {
  * Implementation of hook_cron.
  */
 function bueditor_cron() {
-  $dir = drupal_get_path('module', 'bueditor').'/temp';
-  if (is_dir($dir) && $handle = @opendir($dir)) {
+  if (is_dir($dir=file_directory_path().'/bueditor') && $handle = @opendir($dir)) {
     $age = 15*24*60*60;// clean files older than 15 days.
     $now = time();
     while (($file = readdir($handle)) !== FALSE) {
