@@ -201,9 +201,9 @@ for the editor having the name "editorFoo".
 
 
 - EDITOR TEMP DIRECTORY
-After starting to use the editor, you might notice that an extra folder named as temp in editor directory is created.
-This directory is used to store javascript files that contain buttons of your editors. Including them in a file instead of 
-including them inline, allows browser caching and reduces page load time.
+After starting to use the editor, you might notice that an extra folder named as bueditor in system file directory is 
+created. This directory is used to store javascript files that contain buttons of your editors. Including them in a file 
+instead of including them inline, allows browser caching and reduces page load time.
 Since buttons may have php code that makes them change dynamically, md5 is used to track the changes in buttons 
 script. If there is a matching file in the folder, it is loaded. Otherwise, a new file is created and loaded. If file loading 
 fails, buttons are included as inline script.
