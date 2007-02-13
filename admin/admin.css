@@ -3,7 +3,7 @@
 .button-table {
   width: 100%;
 }
-.button-table tr.new {
+.button-table tr.new-button {
   background-color: #feebed;
 }
 .button-table td{
@@ -17,6 +17,9 @@
 }
 .sel-action div {
   display: inline;
+}
+.sel-action select, .sel-action input {
+  margin: 0px;
 }
 #editor-demo {
   width: 94%;

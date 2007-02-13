@@ -100,11 +100,11 @@ function eDefPreview(NoAutoP) {
     P.style.width = T.style.width||(T.offsetWidth+'px');
     P.innerHTML = '<div class="node"><div class="content">'+ html +'</div></div>';
     T.style.display = 'none';
-    addClass(B, 'stay-clicked');
+    $(B).addClass('stay-clicked');
     E.buttonsDisabled(true, E.bindex);
   }
   else {
-    removeClass(B, 'stay-clicked');
+    $(B).removeClass('stay-clicked');
     E.buttonsDisabled(false);
     P.innerHTML = '';
     P.style.display = 'none';
