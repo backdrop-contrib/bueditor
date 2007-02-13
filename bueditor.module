@@ -2,15 +2,6 @@
 // $Id$
 
 /**
- * Implementation of hook_help().
- */
-function bueditor_help($section) {
-  if ($section == 'admin/modules#description') {
-    return t('A plain textarea editor aiming to facilitate code writing.');
-  }
-}
-
-/**
  * Implementation of hook_menu().
  */
 function bueditor_menu($may_cache) {
@@ -57,7 +48,7 @@ function bueditor_admin() {
   $output = '<h2 class="title">'. t('Available editors'). '</h2>';
   $output .= theme('table', $header, $rows);
 
-  $output .= drupal_get_form('bueditor_form_admin', bueditor_form_admin());
+  $output .= drupal_get_form('bueditor_form_admin');
   return $output;
 }
 
@@ -101,14 +92,14 @@ function bueditor_form_admin_submit($form_id, $edit) {
  */
 function theme_bueditor_form_admin($form) {
   $header = array(t('User role'), t('Weight'), t('Assigned editor'));
-  $rows = isset($form['user1editor']) ? array(array(t('user #1'), '---', form_render($form['user1editor']))) : array();
+  $rows = isset($form['user1editor']) ? array(array(t('user #1'), '---', drupal_render($form['user1editor']))) : array();
   foreach (bueditor_sorted_roles() as $rid=>$role) {
-    $rows[] = array(form_render($form['roles'][$rid]['name']), form_render($form['roles'][$rid]['weight']), form_render($form['roles'][$rid]['editor']));
+    $rows[] = array(drupal_render($form['roles'][$rid]['name']), drupal_render($form['roles'][$rid]['weight']), drupal_render($form['roles'][$rid]['editor']));
   }
   $output = '<h2 class="title">'. t('User access settings'). '</h2>';
   $output .= theme('table', $header, $rows);
   $output .= '<div class="form-item"><div class="description">'. t('Assign editors to user roles. For users who have <strong>multiple roles</strong>, <strong>weight</strong> property will determine the assigned editor. Lighter roles that are placed upper will take the precedence. So, an administrator role should be placed over other roles by having a smaller weight, ie. -10.') .'</div></div>';
-  $output .= form_render($form);
+  $output .= drupal_render($form);
   return $output;
 }
 
@@ -151,14 +142,14 @@ function bueditor_form_button($button=NULL) {
  */
 function bueditor_get_form_editor() {
   $path = drupal_get_path('module', 'bueditor');
-  theme_add_style($path.'/admin/admin.css');
+  drupal_add_css($path.'/admin/admin.css');
   drupal_add_js($path.'/admin/admin.js');
-  drupal_set_html_head('<script type="text/javascript"> var editorPath = "'. base_path(). $path .'/"; </script>');
-  $help = '<div class="help">'. t('To add a new button, you can either specify it at the bottom of the button list or import a CSV file which contains previosly exported buttons. For more information about buttons and editor API please read %readme.', array('%readme' => l('README.txt', $path.'/README.txt'))) .'</div>';
+  drupal_add_js('var editorPath = "'. base_path(). $path .'/";', 'inline');
+  $help = '<div class="help">'. t('To add a new button, you can either specify it at the bottom of the button list or import a CSV file which contains previosly exported buttons. For more information about buttons and editor API please read !readme.', array('!readme' => l('README.txt', $path.'/README.txt'))) .'</div>';
   if (bueditor_settle(bueditor_editors(arg(3)))) {
     $demo = '<h2 class="title">'. t('Demo'). '</h2><div class="form-item"><textarea cols="60" rows="20" id="editor-demo" class="form-textarea editor-textarea">DEMO</textarea></div>';
   }
-  return $help.drupal_get_form('bueditor_form_editor', bueditor_form_editor()).$demo;
+  return $help.drupal_get_form('bueditor_form_editor').$demo;
 }
 
 /**
@@ -206,7 +197,7 @@ function bueditor_form_editor() {
     '#options' => array('' => t('... selecteds'), 'delete' => t('Delete'), 'export' => t('Export')),
     '#default_value' => 'none',
   );
-  $form['go'] = array('#type' => 'submit', '#value' => t('Go'), '#attributes' => array('id' =>'edit-go'));
+  $form['go'] = array('#type' => 'submit', '#value' => t('Go'), '#id' =>'edit-go');
   $form['submit'] = array('#type' => 'submit', '#value' => t('Save'),);
   $form['buecsv'] = array('#type' => 'file', '#title' => t('CSV file containing the buttons'),);
   $form['import'] = array('#type' => 'submit', '#value' => t('Import'),);
@@ -224,23 +215,23 @@ function theme_bueditor_form_editor($form) {
     $new = substr($bid, 0, 3)=='new';
     if (is_array($button['title'])) {
       $cells = array();
-      $cells[] = form_render($form['button'][$bid]['title']);
-      $cells[] = form_render($form['button'][$bid]['content']);
-      $cells[] = form_render($form['button'][$bid]['icon']). form_render($form['button'][$bid]['caption']);
-      $cells[] = form_render($form['button'][$bid]['accesskey']);
-      $cells[] = form_render($form['button'][$bid]['weight']);
-      $cells[] = $new ? '<a>'.t('new').'</a>' : form_render($form['checks'][$bid]);
-      $rows[] = $new ? array('data' => $cells, 'class' => 'new', 'title' => t('Add new button')) : $cells;
+      $cells[] = drupal_render($form['button'][$bid]['title']);
+      $cells[] = drupal_render($form['button'][$bid]['content']);
+      $cells[] = drupal_render($form['button'][$bid]['icon']). drupal_render($form['button'][$bid]['caption']);
+      $cells[] = drupal_render($form['button'][$bid]['accesskey']);
+      $cells[] = drupal_render($form['button'][$bid]['weight']);
+      $cells[] = $new ? '<a>'.t('new').'</a>' : drupal_render($form['checks'][$bid]);
+      $rows[] = $new ? array('data' => $cells, 'class' => 'new-button', 'title' => t('Add new button')) : $cells;
     }
   }
   $table = theme('table', $header, $rows, array('class' => 'button-table', 'id' => 'button-table'));
-  $vis = theme('fieldset', array('#title' => t('Visibility settings'), '#children' => form_render($form['editor']['pages']). form_render($form['editor']['excludes']), '#collapsible' => TRUE, '#collapsed' => $eid != 'new',));
-  $selaction = '<div class="sel-action">'. form_render($form['selaction']) . form_render($form['go']) .'</div>';
-  $output = form_render($form['editor']['name']) . ($eid == 'new' ? $vis : '');
+  $vis = theme('fieldset', array('#title' => t('Visibility settings'), '#children' => drupal_render($form['editor']['pages']). drupal_render($form['editor']['excludes']), '#collapsible' => TRUE, '#collapsed' => $eid != 'new',));
+  $selaction = '<div class="sel-action">'. drupal_render($form['selaction']) . drupal_render($form['go']) .'</div>';
+  $output = drupal_render($form['editor']['name']) . ($eid == 'new' ? $vis : '');
   $output .= '<h2 class="title">'. t('Buttons') .'</h2>'.$table.$selaction;
-  $output .= form_render($form['submit']) . ($eid == 'new' ? '' : $vis);
-  $output .= theme('fieldset', array('#title' => t('Import Buttons'), '#children' => form_render($form['buecsv']). form_render($form['import']), '#collapsible' => TRUE, '#collapsed' => TRUE,));
-  $output .= form_render($form);
+  $output .= drupal_render($form['submit']) . ($eid == 'new' ? '' : $vis);
+  $output .= theme('fieldset', array('#title' => t('Import Buttons'), '#children' => drupal_render($form['buecsv']). drupal_render($form['import']), '#collapsible' => TRUE, '#collapsed' => TRUE,));
+  $output .= drupal_render($form);
   return $output;
 }
 
@@ -249,11 +240,11 @@ function theme_bueditor_form_editor($form) {
  */
 function bueditor_form_editor_submit($form_id, $edit) {
   $eid = $edit['editor']['eid'];
-  switch ($_POST['op']) {
+  switch ($edit['op']) {
 
     case t('Save'):
       $eid = bueditor_editor_add($edit['editor']);
-      foreach ($_POST['edit']['button'] as $bid=>$button) {
+      foreach ($_POST['button'] as $bid=>$button) {
         $button['bid'] = $bid;
         $button['eid'] = $eid;
         bueditor_button_add($button);
@@ -360,14 +351,18 @@ function bueditor_editor_delete($eid) {
  */
 function bueditor_confirm_delete() {
   $editor = bueditor_editors(arg(3));
-  if ($_POST['edit']['confirm']) {
+  if ($_POST['confirm']) {
     bueditor_editor_delete($editor->eid);
-    drupal_set_message(t('%name has been deleted.', array('%name' => theme('placeholder', $editor->name))));
+    drupal_set_message(t('!name editor has been deleted.', array('!name' => theme('placeholder', $editor->name))));
     drupal_goto('admin/settings/bueditor');
   }
   else {
-    return confirm_form('bueditor_confirm_delete', $form, t('Are you sure you want to delete %name?', array('%name' => theme('placeholder', $editor->name))), 'admin/settings/bueditor', t('All buttons and settings for this editor will be removed.').' '.t('This action cannot be undone.'), t('Delete'));
+    return drupal_get_form('bueditor_confirm_delete_form', $editor->name);
   }
+}
+
+function bueditor_confirm_delete_form($name) {
+  return confirm_form($form, t('Are you sure you want to delete the editor !name?', array('!name' => theme('placeholder', $name))), 'admin/settings/bueditor', t('All buttons and settings for this editor will be removed.').' '.t('This action cannot be undone.'), t('Delete'), t('Cancel'));
 }
 
 /**
@@ -511,7 +506,7 @@ function bueditor_textarea($element) {
 function bueditor_settle($editor) {
   if ($editor->eid && count($buttons = bueditor_buttons_processed($editor->eid))) {
     $dir = drupal_get_path('module', 'bueditor');
-    theme_add_style($dir .'/bueditor.css');
+    drupal_add_css($dir .'/bueditor.css');
     drupal_add_js($dir .'/bueditor.js');
     bueditor_js_buttons($dir, $buttons);
     bueditor_js_library($dir.'/library');//load common js files.
@@ -535,7 +530,7 @@ function bueditor_js_buttons($dir, $buttons) {
       return $file;
     }
   }
-  drupal_set_html_head('<script type="text/javascript"> '. $str .' </script>');
+  drupal_add_js($str, 'inline');
 }
 
 /**

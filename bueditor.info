@@ -1,0 +1,4 @@
+; $Id$
+name = "BUEditor"
+description = "A plain textarea editor aiming to facilitate code writing."
+

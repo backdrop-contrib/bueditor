@@ -68,3 +68,14 @@ function bueditor_install() {
       (9, 1, 'Get help on button functionality.', 'js: eDefHelp();', 'help.png', 'H', '10');");
   }
 }
+
+/**
+* Implementation of hook_uninstall().
+*/
+function bueditor_uninstall() {
+  db_query('DROP TABLE {bueditor_buttons}');
+  db_query('DROP TABLE {bueditor_editors}');
+  db_query("DELETE FROM {sequences} WHERE name='bueditor_editors_eid'");
+  variable_del('bueditor_user1');
+  variable_del('bueditor_roles');
+}
