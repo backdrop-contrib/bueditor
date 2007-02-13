@@ -220,7 +220,6 @@ editor.textToDOM = function (text) {
     document.body.appendChild(editor.DC);
   }
   editor.DC.innerHTML = text;
-  setTimeout('', 20);//innerhtml takes action
   return editor.DC.childNodes;
 }
 
