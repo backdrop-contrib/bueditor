@@ -6,16 +6,18 @@ var editor = { instances : [], buttons : [], path : '', G : {}, dialog : {}, mod
 editor.bpr = 20; //maximum # of buttons per row.
 
 editor.initiate = function () {
-  var i, ec, ins, j = 0, template = editor.template();
-  $('textarea.editor-textarea').each(function () {
-    ec = document.createElement('div');
-    ec.id = 'editor-'+ j;
-    ec.className = 'editor-container';
-    ec.innerHTML = template.replace(/\%n/g, j);
-    this.parentNode.insertBefore(ec, this);
-    editor.instances[j] = new editor.instance(this.id, j);
-    j++;
-  });
+  var i, txt, ec, ins, j = 0, txts = document.getElementsByTagName('textarea'), template = editor.template();
+  for (i=0; txt=txts[i]; i++) {
+    if (txt.className && (' '+ txt.className +' ').indexOf(' editor-textarea ') != -1) {
+      ec = document.createElement('div');
+      ec.id = 'editor-'+ j;
+      ec.className = 'editor-container';
+      ec.innerHTML = template.replace(/\%n/g, j);
+      txt.parentNode.insertBefore(ec, txt);
+      editor.instances[j] = new editor.instance(txt.id, j);
+      j++;
+    }
+  }
   editor.active = editor.instances[0];
   // if there is more than 1 editor., enable/disable accesskeys according to state of the textareas.
   if (editor.instances.length>1) {
@@ -171,9 +173,9 @@ editor.dialog.open = function (title, content) {
   this.editor = editor.active;
   this.editor.buttonsDisabled(true);
   this.esp = this.editor.posSelection();
-  var pos = Drupal.absolutePosition(this.editor.textArea);
-  this.el.style.top = pos.y + 'px';
-  this.el.style.left = pos.x + 'px';
+  var ta = this.editor.textArea;
+  this.el.style.top = editor.absPos(ta, 'y') + 'px';
+  this.el.style.left = editor.absPos(ta, 'x') + 'px';
   this.el.style.display = 'block';
 }
 editor.dialog.close = function () {
@@ -221,6 +223,14 @@ editor.textToDOM = function (text) {
   return editor.DC.childNodes;
 }
 
+//return absolute position of element el on the axis(x or y)
+editor.absPos = function (el, axis) {
+  var prop = axis=='x' ? 'offsetLeft' : 'offsetTop';
+  var pos = el[prop]||0;
+  while (el = el.offsetParent) pos += el[prop];
+  return pos;
+}
+
 // browser specific functions.
 if (editor.mode == 0) {//mode 0 - selection handling not-supported
   editor.selPos = function (T) {return {start : T.value.length, end : T.value.length};}
@@ -262,6 +272,7 @@ else if (editor.mode == 2) {//mode 2 - IE.
   }
 }
 
+//initiate
 if (Drupal.jsEnabled) {
   $(document).ready(editor.initiate);
 }
