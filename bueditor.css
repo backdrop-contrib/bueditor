@@ -34,6 +34,7 @@
   position: absolute;
   border: 1px solid #000;
   font: 12px verdana;
+  width: auto;
 }
 #editor-dialog tr.head {
   font-weight: bold;
