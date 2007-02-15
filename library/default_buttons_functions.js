@@ -5,7 +5,7 @@
 function eDefAutoP(txt, br) {
   var br = typeof br == 'undefined' ? 1 : br;
   var txt = txt||'';
-  if (txt.indexOf('\n') == -1) return txt;
+  if (!txt.match(/\n|\r/)) return txt;
 	txt += '\n'; // just to make things a little easier, pad the end
 	txt = txt.replace(/<br \/>\s*<br \/>/g, '\n\n');
 	var blocks = '(table|thead|tfoot|caption|colgroup|tbody|tr|td|th|div|dl|dd|dt|ul|ol|li|pre|select|form|blockquote|address|math|style|script|object|input|param|p|h[1-6])';
@@ -42,7 +42,7 @@ function eDefAutoP(txt, br) {
 function eDefProcessLines(text, tagA, tagB) {
   return tagA+ text.replace(/(\r?\n|\r)/g, tagB+'$1'+tagA) +tagB;
 }
-//enclose lines in the selected text with inA and inB and then enclose the resulting text with outA and outB. If the selected text is processed before, restore it.
+//enclose lines in the selected text with inA and inB and then enclose the resulting text with outA and outB. If the selected text was processed before, restore it.
 function eDefSelProcessLines(outA, inA, inB, outB) {
   var match, E = editor.active, sel = E.getSelection().replace(/\r\n|\r/, '\n');
   if (match = sel.match(new RegExp('^'+ outA + inA +'((.|\n)*)'+ inB + outB +'$'))) {
@@ -100,11 +100,11 @@ function eDefPreview(NoAutoP) {
     P.style.width = T.style.width||(T.offsetWidth+'px');
     P.innerHTML = '<div class="node"><div class="content">'+ html +'</div></div>';
     T.style.display = 'none';
-    $(B).addClass('stay-clicked');
+    B.className += ' stay-clicked';
     E.buttonsDisabled(true, E.bindex);
   }
   else {
-    $(B).removeClass('stay-clicked');
+    B.className = B.className.replace(/ stay\-clicked$/, '');
     E.buttonsDisabled(false);
     P.innerHTML = '';
     P.style.display = 'none';
