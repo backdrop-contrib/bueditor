@@ -5,26 +5,25 @@ if (Drupal.jsEnabled) {
 }
 
 function editorAdminInitiate() {
-  var sel, sels = eById('button-table').getElementsByTagName('select');
-  for (var i=0; sel=sels[i]; i++) {
-    if (sel.id.substr(sel.id.length-5)=='-icon') {
-      sel.onchange = function () { editorIconCap(this) };
-      editorIconCap(sel);
+  $('#button-table select').each(function () {
+    if (this.id.substr(this.id.length-5)=='-icon') {
+      $(this).change(function () { editorIconCap(this) });
+      editorIconCap(this);
     }
-  }
-  if (eById('button-table').rows[1].cells[5].getElementsByTagName('input').length) {
-    eById('button-table').rows[0].cells[5].innerHTML = '<input type="checkbox" onclick="editorCheckAll(this.checked)">';
-    eById('edit-go').onclick = editorGoSelected;
+  });
+  if ($('#button-table').get(0).rows[1].cells[5].getElementsByTagName('input').length) {
+    $('#button-table').get(0).rows[0].cells[5].innerHTML = '<input type="checkbox" onclick="editorCheckAll(this.checked)">';
+    $('#edit-go').click(editorGoSelected);
   }
   else {
-    eById('edit-go').style.display = 'none';
-    eById('edit-selaction').style.display = 'none';
+    $('#edit-go').css('display', 'none');
+    $('#edit-selaction').css('display', 'none');
   }
 }
 
 function editorIconCap(input) {
   input.parentNode.lastChild.tagName=='IMG' ? input.parentNode.removeChild(input.parentNode.lastChild) : '';
-  var cap = eById('edit-button-'+ input.id.split('-')[2] +'-caption');
+  var cap = $('#edit-button-'+ input.id.split('-')[2] +'-caption').get(0);
   if (input.value) {
     cap.style.display =  'none';
     var img = document.createElement('img');
@@ -38,26 +37,15 @@ function editorIconCap(input) {
 }
 
 function editorCheckAll(state) {
-  var chk, chks = eById('button-table').tBodies[0].getElementsByTagName('input');
-  for (var i=0; chk=chks[i]; i++) {
-    if (chk.type == 'checkbox') {
-      chk.checked = state;
-    }
-  }
+  $('#button-table tbody input[@type=checkbox]').each(function () {this.checked = state});
 }
 
 function editorGoSelected() {
-  if (eById('edit-selaction').selectedIndex) {
-    var chk, chks = eById('button-table').tBodies[0].getElementsByTagName('input');
+  if ($('#edit-selaction').get(0).selectedIndex) {
+    var chk, chks = $('#button-table tbody input[@type=checkbox]');
     for (var i=0; chk=chks[i]; i++) {
-      if (chk.type == 'checkbox' && chk.checked) {
-        return true;
-      }
+      if (chk.checked) return true;
     }
   }
   return false;
-}
-
-function eById(id) {
-  return document.getElementById(id);
 }
