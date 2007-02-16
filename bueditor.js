@@ -5,73 +5,20 @@ var editor = { instances : [], buttons : [], path : '', G : {}, dialog : {}, mod
 
 editor.bpr = 20; //maximum # of buttons per row.
 
+//process textareas that have "editor-textarea" class.
 editor.initiate = function () {
-  var i, txt, ec, ins, j = 0, txts = document.getElementsByTagName('textarea'), template = editor.template();
-  for (i=0; txt=txts[i]; i++) {
-    if (txt.className && (' '+ txt.className +' ').indexOf(' editor-textarea ') != -1) {
-      ec = document.createElement('div');
-      ec.id = 'editor-'+ j;
-      ec.className = 'editor-container';
-      ec.innerHTML = template.replace(/\%n/g, j);
-      txt.parentNode.insertBefore(ec, txt);
-      editor.instances[j] = new editor.instance(txt.id, j);
-      j++;
+  var i, T, Ts = document.getElementsByTagName('textarea');
+  for (i=0; T=Ts[i]; i++) {
+    if (T.className && (' '+ T.className +' ').indexOf(' editor-textarea ') != -1) {
+      editor.processTextarea(T);
     }
   }
-  editor.active = editor.instances[0];
-  // if there is more than 1 editor., enable/disable accesskeys according to state of the textareas.
-  if (editor.instances.length>1) {
-    for (i=0; ins=editor.instances[i]; i++) {
-      ins.textArea.onfocus = function () { 
-        if (!(editor.active == this.editor || editor.dialog.editor)) {
-          editor.active.accesskeys(false);
-          this.editor.accesskeys(true);
-          editor.active = this.editor;
-        }
-      }
-      if (editor.active != ins) ins.accesskeys(false);
-    }
-  }
-  //initiate editor dialog html object
-  editor.dialog.el = document.createElement('table');
-  with(editor.dialog.el) {
-    with(insertRow(0)) {
-      className = 'head even';
-      with(insertCell(0)) {className = 'title'; innerHTML = 'Untitled';}
-      with(insertCell(1)) {className = 'close'; innerHTML = '<a>x</a>';}
-    }
-    with(insertRow(1)) {
-      className = 'body odd';
-      with(insertCell(0)) {className = 'content'; colSpan = 2;}
-    }
-    rows[0].onmousedown = function (e) {
-      var e = e||window.event;
-      var D = editor.dialog.el;
-      var X = e.clientX-parseInt(D.style.left||0);
-      var Y = e.clientY-parseInt(D.style.top||0);
-      document.onmousemove = function (e) {
-        var e = e||window.event;
-        D.style.left = (e.clientX-X) + 'px';
-        D.style.top = (e.clientY-Y) + 'px';
-        return false;
-      }
-      document.onmouseup = function (e) {
-        document.onmousemove = null;
-        document.onmouseup = null;
-      }
-      return false;
-    }
-    rows[0].cells[1].firstChild.onclick = function() {editor.dialog.close();}
-    id = 'editor-dialog';
-    style.position = 'absolute';
-    style.display = 'none';
-  }
-  document.body.appendChild(editor.dialog.el);
 }
 
-editor.instance = function (tid, index) {
+//create an editor instance
+editor.instance = function (T, index) {
   this.index = index;
-  this.textArea = document.getElementById(tid);
+  this.textArea = T;
   this.textArea.editor = this;
   this.buttons = document.getElementById('editor-'+index).getElementsByTagName('input');
   this.bindex = null;//latest clicked button index
@@ -130,13 +77,14 @@ editor.instance = function (tid, index) {
   }
 }
 
+//execute button's click event
 editor.buttonClick = function (eindex, bindex) {
   try {
     var E = editor.active = editor.instances[eindex];
     E.bindex = bindex;
     var b = editor.buttons[bindex];
     var content = b[1];
-    editor.dialog.close();//restore sel. pos. for ie.
+    editor.dialog.close();
     if (b[4]) b[4](); //execute button script.
     else if (content) {
       var arr = content.split('%TEXT%');
@@ -149,20 +97,91 @@ editor.buttonClick = function (eindex, bindex) {
   return false;
 }
 
+//return html of editor buttons
 editor.template = function () {
-  var b, output = '';
-  //editor.buttons is an array of arrays with index values 0-title, 1-content, 2-icon, 3-accesskey, 4-button function
+  if (typeof editor.tplHTML != 'undefined') return editor.tplHTML;
+  editor.tplHTML = '';
   for (var i=0; b=editor.buttons[i]; i++) {
-    if (i && i%editor.bpr==0) output += '<br />';
+    if (i && i%editor.bpr==0) editor.tplHTML += '<br />';
     if (b[1].substr(0, 3) == 'js:') b[4] = new Function(b[1].substr(3));
     var inner = b[2].length>2 ? ('type="image" src="'+ editor.path +'icons/'+ b[2] +'" class="editor-image-button"') : ('type="button" value="'+ b[2] +'" class="editor-text-button"');
-    output += '<input '+ inner +' onclick="editor.buttonClick(%n, '+ i +'); return false;" id="editor-%n-button-'+ i +'" title="'+ b[0] +'" accesskey="'+ b[3] +'" />';
+    editor.tplHTML += '<input '+ inner +' onclick="editor.buttonClick(%n, '+ i +'); return false;" id="editor-%n-button-'+ i +'" title="'+ b[0] +'" accesskey="'+ b[3] +'" />';
   }
-  return output;
+  return editor.tplHTML;
 }
 
-editor.processText = function (text) {
-  return editor.mode == 2 ? text.replace(/\r\n/g, '\n') : text;
+//integrate the editor into textarea T
+editor.processTextarea = function (T) {
+  if (T.editor) return;
+  var index = editor.instances.length;
+  var ec = document.createElement('div');
+  ec.id = 'editor-'+ index;
+  ec.className = 'editor-container';
+  ec.innerHTML = editor.template().replace(/\%n/g, index);
+  T.parentNode.insertBefore(ec, T);
+  var E = editor.instances[index] = new editor.instance(T, index);
+  T.onfocus = function () { 
+    if (!(editor.active == this.editor || editor.dialog.editor)) {
+      editor.active.accesskeys(false);
+      this.editor.accesskeys(true);
+      editor.active = this.editor;
+    }
+  }
+  if (index==0) {
+    editor.createDialog();
+    editor.active = E;
+  }
+  else E.accesskeys(false);
+}
+
+//remove editor from textarea T
+editor.restoreTextarea = function (T) {
+  if (T.editor) {
+    var ec = document.getElementById('editor-'+T.editor.index);
+    ec.parentNode.removeChild(ec);
+    editor.instances[T.editor.index] = null;
+    T.onfocus = null;
+    T.editor = null;
+  }
+}
+
+//create editor dialog html object
+editor.createDialog = function () {
+  if (typeof editor.dialog.el != 'undefined') return;
+  editor.dialog.el = document.createElement('table');
+  with(editor.dialog.el) {
+    with(insertRow(0)) {
+      className = 'head even';
+      with(insertCell(0)) {className = 'title'; innerHTML = 'Untitled';}
+      with(insertCell(1)) {className = 'close'; innerHTML = '<a>x</a>';}
+    }
+    with(insertRow(1)) {
+      className = 'body odd';
+      with(insertCell(0)) {className = 'content'; colSpan = 2;}
+    }
+    rows[0].onmousedown = function (e) {
+      var e = e||window.event;
+      var D = editor.dialog.el;
+      var X = e.clientX-parseInt(D.style.left||0);
+      var Y = e.clientY-parseInt(D.style.top||0);
+      document.onmousemove = function (e) {
+        var e = e||window.event;
+        D.style.left = (e.clientX-X) + 'px';
+        D.style.top = (e.clientY-Y) + 'px';
+        return false;
+      }
+      document.onmouseup = function (e) {
+        document.onmousemove = null;
+        document.onmouseup = null;
+      }
+      return false;
+    }
+    rows[0].cells[1].firstChild.onclick = function() {editor.dialog.close();}
+    id = 'editor-dialog';
+    style.position = 'absolute';
+    style.display = 'none';
+  }
+  document.body.appendChild(editor.dialog.el);
 }
 
 //dialog functions
@@ -270,6 +289,9 @@ else if (editor.mode == 2) {//mode 2 - IE.
     range.moveStart('character', start);
     range.select();
   }
+}
+editor.processText = function (text) {
+  return editor.mode == 2 ? text.replace(/\r\n/g, '\n') : text;
 }
 
 //initiate
