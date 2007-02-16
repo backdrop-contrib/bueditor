@@ -152,7 +152,7 @@ if cursor is not defined, the selection is preserved containing the replaced tex
 
 E.tagSelection(left, right, cursor):
 Encloses the selected text in the textarea with the given left and right texts.
-The optional second argument specifies the position of the caret after enclosing.
+The optional third argument specifies the position of the caret after enclosing.
 if cursor='start', it is placed at the begining of the selected text.
 if cursor='end', it is placed at the end of the selected text.
 if cursor is not defined, the selection is preserved.
@@ -208,6 +208,7 @@ Since buttons may have php code that makes them change dynamically, md5 is used 
 script. If there is a matching file in the folder, it is loaded. Otherwise, a new file is created and loaded. If file loading 
 fails, buttons are included as inline script.
 Note: Files older than 15 days are cleaned in each cron run.
+If download method is PRIVATE, buttons are always included inline.
 
 
 - KNOWN ISSUES
@@ -220,11 +221,12 @@ This is becouse FF does not allow dynamic adjustment of accesskeys.
 
 New line character:
 Since new line is represented by different characters (\r, \r\n, \n) on different platforms, there may be some 
-unexpected behaviour of the editor in some platform-browser combos regarding the cursor position after text insertion/replacement. Specify new line characters as "\n", if you have to use any in your scripts.
+unexpected behaviour of the editor in some platform-browser combos regarding the cursor position after text 
+insertion/replacement. Specify new line characters as "\n", if you have to use any in your scripts.
 
 
 - DEFAULT BUTTONS
-UBEditor comes with a few default buttons that may help you extend the editor:
+BUEditor comes with a few default buttons that may help you extend the editor:
 
 Insert/edit image:
 Inserts image html after getting the src, width, height, alt attributes from the user. If IMCE module is installed, 
