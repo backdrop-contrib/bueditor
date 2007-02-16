@@ -104,7 +104,13 @@ dialog object of the editor used like a pop-up window for getting user input or 
 It has its own variables and methods. See EDITOR DIALOG
 
 
-- EDITOR CUSTOM FUNCTIONS
+- EDITOR MTHODS
+editor.processTextarea(T):
+integrates the editor into the textarea T. This can be used for dynamic editor integration at any time after page load.
+
+editor.restoreTextarea(T):
+disintegrates the editor from the textarea T.
+
 editor.parseTag(text, tag):
 checks if the text is a proper HTML object of the given tag. If so, return an object containing attributes and
 inner HTML of the tag. Return null if it doesn't match. This is used for checking if the selected text is a proper tag.
