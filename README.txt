@@ -104,7 +104,7 @@ dialog object of the editor used like a pop-up window for getting user input or 
 It has its own variables and methods. See EDITOR DIALOG
 
 
-- EDITOR MTHODS
+- EDITOR METHODS
 editor.processTextarea(T):
 integrates the editor into the textarea T. This can be used for dynamic editor integration at any time after page load.
 
