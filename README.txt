@@ -9,7 +9,7 @@ Buttons can be customized to generate code snippets, html tags, bbcode tags etc.
 
 - HOW TO INSTALL:
 1) Copy editor directory to your modules directory.
-2) Enable the module at: admin/modules.
+2) Enable the module at module administration page.
 3) Add/edit editors and buttons at: admin/settings/bueditor.
 4) There is the default editor you can use as a starting point.
 5) You may install IMCE module to use it as a file/image browser in editor's image & link dialogs.
@@ -47,8 +47,11 @@ There are three types of buttons regarding the CONTENT property;
 - HTML BUTTONS
 These are used for directly inserting plain text or html into the textarea.
 It is possible to use the selected text in the textarea by using the place holder %TEXT%
-For example, the button content is "<p>%TEXT%</p>" and it is clicked after selecting the "Hello world!"
-text in the textarea. Then the result is "<p>Hello world!</p>" with the selection preserved.
+For example, assume that the button content is:
+<p>%TEXT%</p>
+and it is clicked after selecting the "Hello world!" text in the textarea. Then the result is:
+<p>Hello world!</p>
+with the selection preserved.
 Multiple occurances of %TEXT% is possible and each will be replaced by the selected text. 
 These type of buttons are useful for simple html tags or other tag systems like BBCode.
 Note: if you want to insert some text containing the phrase %TEXT%, use a javascript button.
@@ -293,8 +296,16 @@ userForm += '<input type="submit" value="Submit" /></form>';
 //open editor dialog with a title and the user form.
 editor.dialog.open('User Input', userForm);
 
-How to create a button to insert XHTML compliant Underlined text?
-Since <u> is not XHTML compliant, you should use CSS. First of all, you need to define a class in your theme's 
+This example uses a form which is more suitable for complex user input. If you want to get just a single input you 
+may consider using javascript prompt(). Here is an example that gets image URL as a user input
+js:
+var url = prompt('URL', '');//prompt for URL
+var code = '<img src="'+ url +'" />';//put the url into the code.
+editor.active.replaceSelection(code);//replace the selection with the code.
+
+
+How to create a button to insert XHTML-compatible Underlined text?
+Since <u> is not XHTML-compatible, you should use CSS. First of all, you need to define a class in your theme's 
 CSS file, for instance; 
 .underlined-text {text-decoration: underline;}
 As the above class exists, you can use it in your button content:
