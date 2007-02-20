@@ -9,7 +9,7 @@ editor.bpr = 20; //maximum # of buttons per row.
 editor.initiate = function () {
   var i, T, Ts = document.getElementsByTagName('textarea');
   for (i=0; T=Ts[i]; i++) {
-    if (T.className && (' '+ T.className +' ').indexOf(' editor-textarea ') != -1) {
+    if ( T.className && (' '+ T.className +' ').indexOf(' editor-textarea ')+1) {
       editor.processTextarea(T);
     }
   }
@@ -112,7 +112,7 @@ editor.template = function () {
 
 //integrate the editor into textarea T
 editor.processTextarea = function (T) {
-  if (T.editor) return;
+  if (T.editor || T.style.display == 'none' || T.style.visibility == 'hidden') return;
   var index = editor.instances.length;
   var ec = document.createElement('div');
   ec.id = 'editor-'+ index;
@@ -295,6 +295,7 @@ editor.processText = function (text) {
 }
 
 //initiate
-if (Drupal.jsEnabled) {
-  $(document).ready(editor.initiate);
+if (document.getElementsByTagName && document.createElement  && document.getElementById) {
+  var wload = window.onload;
+  window.onload = typeof(wload)=='function' ? function() {wload(); editor.initiate();} : editor.initiate();
 }
