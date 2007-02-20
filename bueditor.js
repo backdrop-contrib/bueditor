@@ -104,7 +104,7 @@ editor.template = function () {
   for (var i=0; b=editor.buttons[i]; i++) {
     if (i && i%editor.bpr==0) editor.tplHTML += '<br />';
     if (b[1].substr(0, 3) == 'js:') b[4] = new Function(b[1].substr(3));
-    var inner = b[2].length>2 ? ('type="image" src="'+ editor.path +'icons/'+ b[2] +'" class="editor-image-button"') : ('type="button" value="'+ b[2] +'" class="editor-text-button"');
+    var inner = b[2].search(/\.(png|gif|jpg|jpeg)$/i) != -1 ? ('type="image" src="'+ editor.path +'icons/'+ b[2] +'" class="editor-image-button"') : ('type="button" value="'+ b[2] +'" class="editor-text-button"');
     editor.tplHTML += '<input '+ inner +' onclick="editor.buttonClick(%n, '+ i +'); return false;" id="editor-%n-button-'+ i +'" title="'+ b[0] +'" accesskey="'+ b[3] +'" />';
   }
   return editor.tplHTML;
@@ -297,5 +297,5 @@ editor.processText = function (text) {
 //initiate
 if (document.getElementsByTagName && document.createElement  && document.getElementById) {
   var wload = window.onload;
-  window.onload = typeof(wload)=='function' ? function() {wload(); editor.initiate();} : editor.initiate();
+  window.onload = typeof(wload)=='function' ? function() {wload(); editor.initiate();} : editor.initiate;
 }

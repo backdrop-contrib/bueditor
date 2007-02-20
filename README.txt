@@ -30,7 +30,7 @@ You can add buttons to an editor by two methods;
 TITLE: Title or name of the button. Displayed as a hint on mouse over. Required.
 CONTENT: Html or javascript code that is processed when the button is clicked. This can also be
 php code that is pre evaluated and return html or javascript code. See BUTTON TYPES.
-ICON: Image or text(2-lettered caption) to display the button.
+ICON: Image or text to display the button.
 KEY: Accesskey that is supported by some browsers as a shortcut on web pages. With the right
 key combinations users can fire the button's click event. Use Alt+KEY in Internet Explorer, and
 Shift+Alt+KEY in Firefox.
@@ -225,7 +225,7 @@ Accesskeys in Internet Explorer:
 Pressing an accesskey(Alt+KEY) when there is a selection, deselects it with preserving the caret position.
 
 Accesskeys in Firefox:
-If there is multiple editors in the page, accesskeys(Shift+Alt+KEY) will work on only the first editor instance. 
+If there are multiple editors in the page, accesskeys(Shift+Alt+KEY) will work on only the first editor instance. 
 This is becouse FF does not allow dynamic adjustment of accesskeys.
 
 New line character:

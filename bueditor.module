@@ -122,9 +122,8 @@ function bueditor_form_button($button=NULL) {
     '#default_value' => $button->icon,
   );
   $form['caption'] = array('#type' => 'textfield',
-    '#default_value' => strlen($button->icon)<3 ? $button->icon : '',
-    '#size' => 2,
-    '#maxlength' => 2,
+    '#default_value' => bueditor_isimage($button->icon) ? '' : $button->icon,
+    '#size' => 6,
   );
   $form['accesskey'] = array('#type' => 'textfield',
     '#default_value' => $button->accesskey,
@@ -425,7 +424,7 @@ function bueditor_icons() {
   $dir = drupal_get_path('module', 'bueditor').'/icons';
   if ($handle = @opendir($dir)) {
     while (($file = readdir($handle)) !== FALSE) {
-      if (preg_match('/\.(png|gif|jpg|jpeg)$/', $file)) {
+      if (bueditor_isimage($file)) {
         $icons[$file] = $file;
       }
     }
@@ -626,4 +625,11 @@ function bueditor_cron() {
     }
     closedir($handle);
   }
+}
+
+/**
+ * check if the icon is image.(just a string check, not a file check)
+ */
+function bueditor_isimage($text) {
+  return preg_match('/\.(png|gif|jpg|jpeg)$/i', $text);
 }
