@@ -79,38 +79,12 @@ function eDefHtmlCell(value, atxt) {
 }
 
 //Previews the selected text in the textarea. If there is no selection, previews the whole content. By default lines and paragraphs break automatically. Pure HTML preview is eDefPreview('full')
-function eDefPreview(NoAutoP) {
-  var P, E = editor.active, T = E.textArea, B = E.buttons[E.bindex];
-  if (E.preview) {
-    P = E.preview;
-  }
-  else {
-    P = document.createElement('div');
-    P.className = 'preview';
-    P.style.display = 'none';
-    P.style.overflow = 'auto';
-    T.parentNode.insertBefore(P, T);
-    E.preview = P;
-  }
-  if (P.style.display == 'none') {
-    var html = NoAutoP ? E.getSelection()||T.value : eDefAutoP(E.getSelection()||T.value);
-    if (editor.mode != 2) editor.G['pos'+T.id] = E.posSelection();
-    P.style.display = 'block';
-    P.style.height = T.style.height||(T.offsetHeight+'px');
-    P.style.width = T.style.width||(T.offsetWidth+'px');
-    P.innerHTML = '<div class="node"><div class="content">'+ html +'</div></div>';
-    T.style.display = 'none';
-    B.className += ' stay-clicked';
-    E.buttonsDisabled(true, E.bindex);
-  }
-  else {
-    B.className = B.className.replace(/ stay\-clicked$/, '');
-    E.buttonsDisabled(false);
-    P.innerHTML = '';
-    P.style.display = 'none';
-    T.style.display = 'block';
-    if (editor.mode != 2) E.makeSelection(editor.G['pos'+T.id].start, editor.G['pos'+T.id].end);
-  }
+function eDefPreview(pureHTML) {
+  var E = editor.active, T = E.textArea;
+  var html = E.getSelection() || E.getContent();
+  html = pureHTML ? html : eDefAutoP(html);
+  html = '<div class="preview" style="width: '+ T.offsetWidth +'px; height: '+ T.offsetHeight +'px; overflow: auto;"><div class="node"><div class="content">'+ html +'</div></div></div>';
+  editor.dialog.open(E.buttons[E.bindex].title, html);
 }
 
 //Insert the data in the given form to the textarea. Link and image dialogs use this function.
