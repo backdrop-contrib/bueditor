@@ -191,15 +191,17 @@ editor.dialog.open = function (title, content) {
   this.content(content);
   this.editor = editor.active;
   this.editor.buttonsDisabled(true);
+  this.editor.buttons[this.editor.bindex].className += ' stay-clicked';
   this.esp = this.editor.posSelection();
-  var ta = this.editor.textArea;
-  this.el.style.top = editor.absPos(ta, 'y') + 'px';
-  this.el.style.left = editor.absPos(ta, 'x') + 'px';
+  this.el.style.left = editor.absPos(this.editor.textArea, 'x') +'px';
+  this.el.style.top = editor.absPos(this.editor.textArea, 'y')-25 +'px';
   this.el.style.display = 'block';
 }
 editor.dialog.close = function () {
   if (this.editor) {
     this.editor.buttonsDisabled(false);
+    var B = this.editor.buttons[this.editor.bindex];
+    B.className = B.className.replace(/ stay\-clicked$/, '');
     if (this.editor == editor.active) {// restore previous states
       if (editor.mode == 2) this.editor.makeSelection(this.esp.start, this.esp.end); // selection for IE
       else this.editor.focus(); // focus for FF
