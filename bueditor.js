@@ -231,17 +231,6 @@ editor.parseTag = function (text, tag) {
   return null;
 }
 
-//return an array of DOM elements corresponding to the given text.
-editor.textToDOM = function (text) {
-  if (!editor.DC) { //dom container
-    editor.DC = document.createElement('div');
-    editor.DC.style.display = 'none';
-    document.body.appendChild(editor.DC);
-  }
-  editor.DC.innerHTML = text;
-  return editor.DC.childNodes;
-}
-
 //return absolute position of element el on the axis(x or y)
 editor.absPos = function (el, axis) {
   var prop = axis=='x' ? 'offsetLeft' : 'offsetTop';

@@ -120,11 +120,6 @@ inner HTML of the tag. Return null if it doesn't match. This is used for checkin
 editor.parseTag('<a href="foo">bar</a>', 'a') -> returns {attributes:{href:foo}, innerHTML:bar}
 editor.parseTag('<p>foo</p>', 'div') -> returns null
 
-editor.textToDOM(text):
-text is inserted as innerHTML to an existing invisible HTML object. Then the childNodes of the object is 
-returned, which is an array of DOM objects corresponding to the given text. This is for just reading purposes. 
-The returned objects or their parent object should not be modified.
-
 
 - EDITOR INSTANCE (a must-read for javascript button creators)
 Each editor running on the page for a textarea is called an instance. Editor instances have their own variables 
