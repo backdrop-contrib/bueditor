@@ -9,7 +9,7 @@ editor.bpr = 20; //maximum # of buttons per row.
 editor.initiate = function () {
   var i, T, Ts = document.getElementsByTagName('textarea');
   for (i=0; T=Ts[i]; i++) {
-    if ( T.className && (' '+ T.className +' ').indexOf(' editor-textarea ')+1) {
+    if (editor.hasClass(T, 'editor-textarea')) {
       editor.processTextarea(T);
     }
   }
@@ -91,7 +91,7 @@ editor.buttonClick = function (eindex, bindex) {
       if (arr.length==2) E.tagSelection(arr[0], arr[1]);
       else E.replaceSelection(arr.length==1 ? content : arr.join(E.getSelection()), 'end');
     }
-    if (!(editor.dialog.editor || E.textArea.style.display=='none')) E.focus();
+    if (!editor.hasClass(E.buttons[bindex], 'stay-clicked')) E.focus();
   }
   catch (e) { alert(e.name +': '+ e.message); }
   return false;
@@ -191,7 +191,7 @@ editor.dialog.open = function (title, content) {
   this.content(content);
   this.editor = editor.active;
   this.editor.buttonsDisabled(true);
-  this.editor.buttons[this.editor.bindex].className += ' stay-clicked';
+  editor.addClass(this.editor.buttons[this.editor.bindex], 'stay-clicked');
   this.esp = this.editor.posSelection();
   this.el.style.left = editor.absPos(this.editor.textArea, 'x') +'px';
   this.el.style.top = editor.absPos(this.editor.textArea, 'y')-25 +'px';
@@ -200,8 +200,7 @@ editor.dialog.open = function (title, content) {
 editor.dialog.close = function () {
   if (this.editor) {
     this.editor.buttonsDisabled(false);
-    var B = this.editor.buttons[this.editor.bindex];
-    B.className = B.className.replace(/ stay\-clicked$/, '');
+    editor.delClass(this.editor.buttons[this.editor.bindex], 'stay-clicked');
     if (this.editor == editor.active) {// restore previous states
       if (editor.mode == 2) this.editor.makeSelection(this.esp.start, this.esp.end); // selection for IE
       else this.editor.focus(); // focus for FF
@@ -239,6 +238,17 @@ editor.absPos = function (el, axis) {
   var pos = el[prop]||0;
   while (el = el.offsetParent) pos += el[prop];
   return pos;
+}
+
+//css class functions.
+editor.hasClass = function (el, name) {
+  return el.className && (' '+ el.className +' ').indexOf(' '+name+' ') != -1;
+}
+editor.addClass = function (el, name) {
+  if (!editor.hasClass(el, name)) el.className += ' '+name;
+}
+editor.delClass = function (el, name) {
+  if (editor.hasClass(el, name)) el.className = el.className.replace(new RegExp('(^| +)'+name+'( +|$)', 'g'), ' ');
 }
 
 // browser specific functions.
