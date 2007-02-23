@@ -51,6 +51,9 @@
   cursor: pointer;
   font-size: 1.3em;
 }
+#editor-dialog tbody {
+  border: none;
+}
 
 #editor-help {
   width: 400px;
