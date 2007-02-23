@@ -221,8 +221,7 @@ editor.dialog.content = function (content) {
 //if the given text matches html syntax of the given tag, return attributes and innerHMTL of it, otherwise return null.
 editor.parseTag = function (text, tag) {
   var result, arr = [], attr = [];
-  var closed = !(tag=='img' || tag=='input' || tag=='br' || tag=='hr');
-  var re = new RegExp('^<'+ tag +'([^>]*)'+ (closed ? ('>((.|[\r\n])*)<\/'+tag) : '') +'>$');
+  var re = new RegExp('^<'+ tag +'([^>]*)'+ (editor.inArray(tag, ['img', 'input', 'hr', 'br']) ? '' : ('>((.|[\r\n])*)<\/'+tag)) +'>$');
   if (result = re.exec(text)) {
     if ((arr = result[1].split('"')).length>1) {
       for (var i=0; typeof(arr[i+1])!='undefined'; i+=2) attr[arr[i].replace(/\s|\=/g, '')] = arr[i+1];
@@ -249,6 +248,11 @@ editor.addClass = function (el, name) {
 }
 editor.delClass = function (el, name) {
   if (editor.hasClass(el, name)) el.className = el.className.replace(new RegExp('(^| +)'+name+'( +|$)', 'g'), ' ');
+}
+
+//in_array implementation
+editor.inArray = function (obj, arr) {
+  for (var i in arr) if (arr[i] == obj) return true;
 }
 
 // browser specific functions.
