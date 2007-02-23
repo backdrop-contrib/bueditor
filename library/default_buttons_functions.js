@@ -44,43 +44,57 @@ function eDefProcessLines(text, tagA, tagB) {
 }
 //enclose lines in the selected text with inA and inB and then enclose the resulting text with outA and outB. If the selected text was processed before, restore it.
 function eDefSelProcessLines(outA, inA, inB, outB) {
-  var match, E = editor.active, sel = E.getSelection().replace(/\r\n|\r/, '\n');
-  if (match = sel.match(new RegExp('^'+ outA + inA +'((.|\n)*)'+ inB + outB +'$'))) {
+  var match, E = editor.active, sel = E.getSelection().replace(/\r\n|\r/g, '\n');
+  if (!sel) E.tagSelection(outA+inA, inB+outB);
+  else if (match = sel.match(new RegExp('^'+ outA + inA +'((.|\n)*)'+ inB + outB +'$'))) {
     E.replaceSelection(match[1].replace(new RegExp(inB +'\n'+ inA, 'g'), '\n'));
   }
-  else if (sel) E.replaceSelection(outA+eDefProcessLines(sel, inA, inB)+outB);
-  else E.tagSelection(outA+inA, inB+outB);
-}
-//returns form input html. atxt contains additional attributes
-function eDefHtmlInput(type, name, value, size, atxt) {
-  return '<input type="'+ type +'" name="'+ (name||'') +'" value="'+ (value||'') +'" size="'+ (size||'') +'" '+ (atxt||'') +' />';
-}
-function eDefHtmlInputT(name, value, size, atxt) {
-  return eDefHtmlInput('text', name, value, size, eDefTxtClass(atxt, 'form-item'));
-}
-function eDefHtmlInputB(name, value, size, atxt) {
-  return eDefHtmlInput('button', name, value, size, eDefTxtClass(atxt, 'form-submit'));
-}
-function eDefTxtClass(txt, c) {
-  var txt = txt||'';
-  if (txt && txt.indexOf('class="')!=-1) return txt.replace(/(class\=\")/, '$1'+c+' ');
-  return txt+' class="'+c+'"';
+  else E.replaceSelection(outA+eDefProcessLines(sel, inA, inB)+outB);
 }
 
-//return a table row of cells(attributes of the function). eDefHtmlRow(cell1, cell2 ...), cell = [content, attributes]
-function eDefHtmlRow() {
-  var a, cells = '';
-  for (var i=0; a=arguments[i]; i++) cells += eDefHtmlCell(a[0], a[1]);
-  return '<tr>'+ cells +'</tr>';
+//return html for the given tag.
+function eDefHTML(tag, innerHTML, attributes) {
+  var attributes = attributes||[];
+  var html = '<'+ tag;
+  for (var i in attributes) {
+    html += attributes[i] == null ? '' : ' '+ i +'="'+ attributes[i] +'"';
+  }
+  html += editor.inArray(tag, ['img', 'input', 'hr', 'br']) ? ' />' : '>'+ innerHTML +'</'+ tag +'>';
+  return html;
 }
-// return a table cell containing the given value and having the given attributes
-function eDefHtmlCell(value, atxt) {
-  return '<td'+ (atxt||'')+'>'+ (value||'') +'</td>';
+
+//returns form input html.
+function eDefInput(type, name, value, attributes) {
+  var a = {'type': type, 'name': name, 'value': value||''}, b = attributes||{};
+  for (var i in b) a[i] = b[i];
+  return eDefHTML('input', '', a);
+}
+function eDefInputText(name, value, size) {
+  return eDefInput('text', name, value, {'size': size||null});
+}
+function eDefInputSubmit(name, value) {
+  return eDefInput('submit', name, value);
+}
+
+//return a table row containing the cells(arguments of the function). eDefRow(cell1, cell2 ...)
+function eDefRow(cells, attributes) {
+  var cell, html = '';
+  for (var i=0; cell=cells[i]; i++) {
+    html += cell['data'] ? eDefHTML('td', cell['data'], cell['attributes']) : eDefHTML('td', cell);
+  }
+  return eDefHTML('tr', html, attributes);
+}
+function eDefTable(rows, attributes) {
+  var row, html = '';
+  for (var i=0; row=rows[i]; i++) {
+    html += row['data'] ? eDefRow(row['data'], row['attributes']) : eDefRow(row);
+  }
+  return eDefHTML('table', html, attributes);
 }
 
 //Previews the selected text in the textarea. If there is no selection, previews the whole content. By default lines and paragraphs break automatically. Pure HTML preview is eDefPreview('full')
 function eDefPreview(NoAutoP) {
-  var P, E = editor.active, T = E.textArea, B = E.buttons[E.bindex];
+  var P, E = editor.active, T = E.textArea;
   if (E.preview) {
     P = E.preview;
   }
@@ -99,11 +113,11 @@ function eDefPreview(NoAutoP) {
     P.style.width = T.style.width||(T.offsetWidth+'px');
     P.innerHTML = '<div class="node"><div class="content">'+ html +'</div></div>';
     T.style.height = '1px';
-    B.className += ' stay-clicked';
     E.buttonsDisabled(true, E.bindex);
+    editor.addClass(E.buttons[E.bindex], 'stay-clicked');
   }
   else {
-    B.className = B.className.replace(/ stay\-clicked$/, '');
+    editor.delClass(E.buttons[E.bindex], 'stay-clicked');
     E.buttonsDisabled(false);
     T.style.height = P.style.height;
     P.style.display = 'none';
@@ -112,80 +126,77 @@ function eDefPreview(NoAutoP) {
 
 //Insert the data in the given form to the textarea. Link and image dialogs use this function.
 function eDefFileInsert(form, type) {
-  var el = form.elements, E = editor.active;
-  var o = editor.G.selObj||{attributes : []};
+  var el, file = editor.G.selFile||{attributes: []}, E = editor.active;
+  for (var i=0; el = form.elements[i]; i++) {
+    if (el.name.substr(0, 5) == 'file_') {
+      file.attributes[el.name.substr(5)] = el.value == '' ? (editor.inArray(el.name, ['file_src', 'file_alt']) ? '' : null) : el.value;
+    }
+  }
   editor.dialog.close();
   if (type == 'image') {
-    var def = ['src', 'width', 'height', 'alt'];
-    var img = '<img';
-    for(var i in def) o.attributes[def[i]] = el[def[i]].value;
-    for(var i in o.attributes) img += ' '+ i +'="'+ o.attributes[i] +'"';
-    img += ' />';
-    E.replaceSelection(img);
+    E.replaceSelection(eDefHTML('img', '', file.attributes));
   }
   else if (type == 'link') {
-    var a = '<a';
-    var def = ['href', 'title'];
-    for(var i in def) o.attributes[def[i]] = el[def[i]].value;
-    for(var i in o.attributes) if (o.attributes[i]) a += ' '+ i +'="'+ o.attributes[i] +'"';
-    a += '>';
-    editor.G.selObj ? E.replaceSelection(a + o.innerHTML +'</a>') : E.tagSelection(a, '</a>');
+    if (typeof file.innerHTML == 'string') {
+      E.replaceSelection(eDefHTML('a', file.innerHTML, file.attributes));
+    }
+    else {
+      var a = eDefHTML('a', '', file.attributes);
+      E.tagSelection(a.substr(0, a.length-4), '</a>');
+    }
   }
-  editor.G.selObj = null;
+  editor.G.selFile = null;
 }
 
-//Open file insertion dialog of the given type. L containes translated interface text. brwURL is URL of the file browser
-function eDefFileDialog(type, L, brwURL) {
-  var brwButton = brwURL ? eDefHtmlInput('button', 'brw', L.brw, '', 'class="file-browser" onclick="eDefFileBrowser(\''+ brwURL +'\', \''+ type +'\', this.form)"') : '';
-  var content = '<form name="eDialogForm" onsubmit="eDefFileInsert(this, \''+ type +'\'); return false;"><div class="form-item"><table>';
+//file dialog for the type. labels are interface texts. browser is URL of the file browser.
+function eDefFileDialog(type, labels, bURL) {
+  var row, html, sel = editor.active.getSelection();
+  var field = ({image : {name: 'src', tag: 'img'}, link : {name: 'href', tag: 'a'}})[type];
+  var bButton = bURL ? ' '+eDefInput('button', 'brw', labels.brw, {onclick: 'eDefFileBrowser(\''+ bURL +'\', this.form.elements[\'file_'+ field.name +'\'].value, \''+ type +'\')'}) : '';
+  var file = (editor.G.selFile = editor.parseTag(sel, field.tag)||{attributes: []}).attributes;
+  var rows = [[labels.url, eDefInputText('file_'+ field.name, file[field.name], 25)+bButton]];
   if (type == 'image') {
-    editor.G.selObj = editor.parseTag(editor.active.getSelection(), 'img');
-    var i = editor.G.selObj ? editor.G.selObj.attributes : {};
-    content += eDefHtmlRow([L.url], [eDefHtmlInputT('src', i.src, 25)+' '+brwButton]);
-    content += eDefHtmlRow([L.w+' x '+L.h], [eDefHtmlInputT('width', i.width, 3)+' x '+eDefHtmlInputT('height', i.height, 3)]);
-    content += eDefHtmlRow([L.alt], [eDefHtmlInputT('alt', i.alt, 25)]);
+    rows[rows.length] = [labels.w +' x '+ labels.h, eDefInputText('file_width', file.width, 3) +' x '+ eDefInputText('file_height', file.height, 3)];
+    rows[rows.length] = [labels.alt, eDefInputText('file_alt', file.alt, 25)];
   }
   else if (type == 'link') {
-    editor.G.selObj = editor.parseTag(editor.active.getSelection(), 'a');
-    var a = editor.G.selObj ? editor.G.selObj.attributes : {};
-    content += eDefHtmlRow([L.url], [eDefHtmlInputT('href', a.href, 25)+' '+brwButton]);
-    content += eDefHtmlRow([L.tt], [eDefHtmlInputT('title', a.title, 25)]);
+    rows[rows.length] = [labels.tt, eDefInputText('file_title', file.title, 25)];
   }
-  content += '</table><div>'+ eDefHtmlInput('submit', 'ok', L.ok, '') +'</div></div></form>';
-  editor.dialog.open(L.title, content);
+  for (var i=3; i<arguments.length; i++) rows[rows.length] = arguments[i];//insert additional arguments as rows.
+  html = eDefTable(rows) + eDefHTML('div', eDefInputSubmit('ok', labels.ok));
+  html = eDefHTML('form', html, {name: 'eDefForm', onsubmit: 'eDefFileInsert(this, \''+ type +'\'); return false;'});
+  editor.dialog.open(labels.title, html);
 }
 
-//open the file browser of the given type using the given URL.
-function eDefFileBrowser(brwURL, type, form) {
-  var fields = {image : 'src', link : 'href'};
-  eDefImceUrl = form ? form.elements[fields[type]].value : '';
-  window.open(brwURL, 'eDef', 'width=640, height=480, resizable=1');
+//open the file browser.
+function eDefFileBrowser(bURL, fURL, type) {
+  eDefImceUrl = fURL;
+  window.open(bURL, 'eDef', 'width=640, height=480, resizable=1');
 }
 
 //IMCE custom URL and custom finishing function. IMCE js API.
 var eDefImceUrl = '';
 function eDefImceFinish(url, width, height, fsize, win) {
-  var el = document.forms['eDialogForm'].elements;
-  if (el['src']) {
-    el['src'].value = url;
-    el['width'].value = width;
-    el['height'].value = height;
+  var el = document.forms['eDefForm'].elements;
+  if (el['file_src']) {
+    el['file_src'].value = url;
+    el['file_width'].value = width;
+    el['file_height'].value = height;
   }
-  else if (el['href']) {
-    el['href'].value = url;
+  else if (el['file_href']) {
+    el['file_href'].value = url;
   }
   win.close();
 }
 
 //Display help text(button title) for each button of the editor.
 function eDefHelp() {
-  var b, E = editor.active;
+  var b, rows = [], E = editor.active;
   if (typeof editor.G.help == 'undefined') {
-    editor.G.help = '<table id="editor-help">';
     for (var i=0; b=E.buttons[i]; i++) {
-      editor.G.help += '<tr><td><input type="'+b.type+'" class="'+b.className+'"'+(b.src?'src="'+b.src+'"' : 'value="'+b.value+'"')+' /></td><td>'+b.title+'</td></tr>';
+      rows[i] = [eDefInput(b.type,'', b.value||'', {'class': b.className, src: b.src||null}), b.title];
     }
-    editor.G.help += '</table>';
+    editor.G.help = eDefTable(rows, {id: 'editor-help'});
   }
   editor.dialog.open(editor.buttons[E.bindex][0], editor.G.help);
 }
