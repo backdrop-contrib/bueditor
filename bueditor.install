@@ -78,4 +78,5 @@ function bueditor_uninstall() {
   db_query("DELETE FROM {sequences} WHERE name='bueditor_editors_eid'");
   variable_del('bueditor_user1');
   variable_del('bueditor_roles');
+  variable_del('bueditor_cron_last');
 }
