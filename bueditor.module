@@ -612,18 +612,22 @@ function bueditor_rolesort($r1, $r2) {
 }
 
 /**
- * Implementation of hook_cron.
+ * Implementation of hook_cron. Clean button script files for every 15 days
  */
 function bueditor_cron() {
-  if (is_dir($dir=file_directory_path().'/bueditor') && $handle = @opendir($dir)) {
-    $age = 15*24*60*60;// clean files older than 15 days.
+  if (variable_get('file_downloads', '') != FILE_DOWNLOADS_PRIVATE) {
     $now = time();
-    while (($file = readdir($handle)) !== FALSE) {
-      if (substr($file, -3) == '.js' && ($now-filemtime($dir.'/'.$file))>$age) {
-        @unlink($dir.'/'.$file);
+    $period = 15*24*60*60;
+    $last = variable_get('bueditor_cron_last', 0);
+    if (($now - $last) > $period && is_dir($dir = file_directory_path().'/bueditor') && $handle = @opendir($dir)) {
+      while (($file = readdir($handle)) !== FALSE) {
+        if (substr($file, -3) == '.js') {
+          @unlink($dir.'/'.$file);
+        }
       }
+      closedir($handle);
+      variable_set('bueditor_cron_last', $now);
     }
-    closedir($handle);
   }
 }
 
