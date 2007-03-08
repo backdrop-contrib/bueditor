@@ -38,6 +38,10 @@ function eDefAutoP(txt, br) {
 	return txt;
 }
 
+//escape regular expression specific chaacters
+function eDefRegEsc(text) {
+  return text.replace(/([\\\^\$\*\+\?\.\(\)\[\]\{\}\|])/g, '\\$1');
+}
 //enclose each line in the given text with the given tags.
 function eDefProcessLines(text, tagA, tagB) {
   return tagA+ text.replace(/(\r?\n|\r)/g, tagB+'$1'+tagA) +tagB;
@@ -46,8 +50,8 @@ function eDefProcessLines(text, tagA, tagB) {
 function eDefSelProcessLines(outA, inA, inB, outB) {
   var match, E = editor.active, sel = E.getSelection().replace(/\r\n|\r/g, '\n');
   if (!sel) E.tagSelection(outA+inA, inB+outB);
-  else if (match = sel.match(new RegExp('^'+ outA + inA +'((.|\n)*)'+ inB + outB +'$'))) {
-    E.replaceSelection(match[1].replace(new RegExp(inB +'\n'+ inA, 'g'), '\n'));
+  else if (match = sel.match(new RegExp('^'+ eDefRegEsc(outA) + eDefRegEsc(inA) +'((.|\n)*)'+ eDefRegEsc(inB) + eDefRegEsc(outB) +'$'))) {
+    E.replaceSelection(match[1].replace(new RegExp(eDefRegEsc(inB) +'\n'+ eDefRegEsc(inA), 'g'), '\n'));
   }
   else E.replaceSelection(outA+eDefProcessLines(sel, inA, inB)+outB);
 }
