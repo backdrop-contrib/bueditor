@@ -27,7 +27,8 @@ You can add buttons to an editor by two methods;
 
 
 - BUTTON PROPERTIES
-TITLE: Title or name of the button. Displayed as a hint on mouse over. Required.
+TITLE: Title or name of the button. Displayed as a hint on mouse over. Required. A title can be made
+translatable(using t() of drupal) by prefixing it with "t:". Ex: t:Bold turns into t('Bold')
 CONTENT: Html or javascript code that is processed when the button is clicked. This can also be
 php code that is pre evaluated and return html or javascript code. See BUTTON TYPES.
 ICON: Image or text to display the button.

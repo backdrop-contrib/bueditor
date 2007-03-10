@@ -411,6 +411,7 @@ function bueditor_buttons_processed($eid) {
         continue;
       }
     }
+    $button->title = substr($button->title, 0, 2) == 't:' ? t(trim(substr($button->title, 2))) : $button->title;
     $processed[] = array($button->title, $button->content, $button->icon, $button->accesskey);
   }
   return $processed;
