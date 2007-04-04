@@ -194,7 +194,6 @@ function bueditor_form_editor() {
   //action for selected buttons
   $form['selaction'] = array('#type' => 'select',
     '#options' => array('' => t('... selecteds'), 'delete' => t('Delete'), 'export' => t('Export')),
-    '#default_value' => 'none',
   );
   $form['go'] = array('#type' => 'submit', '#value' => t('Go'), '#id' =>'edit-go');
   $form['submit'] = array('#type' => 'submit', '#value' => t('Save'),);
