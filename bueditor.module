@@ -144,7 +144,7 @@ function bueditor_get_form_editor() {
   drupal_add_css($path.'/admin/admin.css');
   drupal_add_js($path.'/admin/admin.js');
   drupal_add_js('var editorPath = "'. base_path(). $path .'/";', 'inline');
-  $help = '<div class="help">'. t('To add a new button, you can either specify it at the bottom of the button list or import a CSV file which contains previosly exported buttons. For more information about buttons and editor API please read !readme.', array('!readme' => l('README.txt', $path.'/README.txt'))) .'</div>';
+  $help = '<div class="help">'. t('To add a new button, you can either specify it at the bottom of the button list or import a CSV file which contains previosly exported buttons. For more information about buttons and editor API please read !readme.', array('!readme' => '<a href="'. base_path() . $path .'/README.txt">README.txt</a>')) .'</div>';
   if (bueditor_settle(bueditor_editors(arg(3)))) {
     $demo = '<h2 class="title">'. t('Demo'). '</h2><div class="form-item"><textarea cols="60" rows="20" id="editor-demo" class="form-textarea editor-textarea">DEMO</textarea></div>';
   }
