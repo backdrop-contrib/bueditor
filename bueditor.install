@@ -28,6 +28,7 @@ function bueditor_install() {
         PRIMARY KEY (bid),
         KEY eid (eid)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+      db_query("INSERT INTO {sequences} (name, id) VALUES ('bueditor_editors_eid', 1);");
       $created = TRUE;
       break;
     case 'pgsql':
@@ -49,13 +50,14 @@ function bueditor_install() {
         weight smallint NOT NULL default '0',
         PRIMARY KEY (bid)
       )");
-      $created = TRUE;
       db_query("CREATE INDEX {bueditor_buttons}_eid_idx ON bueditor_buttons(eid);");
+      db_query("ALTER SEQUENCE {bueditor_editors}_eid_seq MINVALUE 2 RESTART 2");
+      db_query("ALTER SEQUENCE {bueditor_buttons}_bid_seq MINVALUE 10 RESTART 10");
+      $created = TRUE;
       break;
   }
   if ($created) {
     db_query("INSERT INTO {bueditor_editors} (eid, name, pages, excludes) VALUES (1, 'default', 'node/add/*\nnode/*/edit\ncomment/reply/*', 'edit-log');");
-    db_query("INSERT INTO {sequences} (name, id) VALUES ('bueditor_editors_eid', 1);");
     db_query("INSERT INTO {bueditor_buttons} (bid, eid, title, content, icon, accesskey, weight) VALUES
       (1, 1, 'Insert/edit image', 'php:\n\$imce_url = function_exists(\'imce_menu\') && user_access(\'access imce\') ? url(\'imce/browse\') : \'\';\n\$L = drupal_to_js(array(\'title\'=>t(\'Insert/edit image\'), \'url\'=>t(\'Image URL\'), \'w\'=>t(\'Width\'), \'h\'=>t(\'Height\'), \'alt\'=>t(\'Alternative text\'), \'ok\'=>t(\'OK\'), \'brw\'=>t(\'Browse\')));\n\nreturn \"js: eDefFileDialog(\'image\', \$L, \'\$imce_url\');\";', 'image.png', 'M', '-10'),
       (2, 1, 'Insert/edit link', 'php:\n\$imce_url = function_exists(\'imce_menu\') && user_access(\'access imce\') ? url(\'imce/browse\') : \'\';\n\$L = drupal_to_js(array(\'title\'=>t(\'Insert/edit link\'), \'url\'=>t(\'Link href\'), \'tt\'=>t(\'Title text\'), \'ok\'=>t(\'OK\'), \'brw\'=>t(\'Browse\')));\n\nreturn \"js: eDefFileDialog(\'link\', \$L, \'\$imce_url\');\";', 'link.png', 'L', '-10'),
@@ -75,7 +77,9 @@ function bueditor_install() {
 function bueditor_uninstall() {
   db_query('DROP TABLE {bueditor_buttons}');
   db_query('DROP TABLE {bueditor_editors}');
-  db_query("DELETE FROM {sequences} WHERE name='bueditor_editors_eid'");
+  if ($GLOBALS['db_type'] == 'mysql' || $GLOBALS['db_type'] == 'mysqli') {
+    db_query("DELETE FROM {sequences} WHERE name='bueditor_editors_eid'");
+  }
   variable_del('bueditor_user1');
   variable_del('bueditor_roles');
   variable_del('bueditor_cron_last');
