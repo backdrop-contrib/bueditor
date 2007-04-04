@@ -28,7 +28,7 @@
 
 /*#editor-dialog tr.(head|body|odd|even) td.(title|close|content)*/
 #editor-dialog {
-  z-index: 100;
+  z-index: 10;
   position: absolute;
   border: 1px solid #000;
   font: 12px verdana;
