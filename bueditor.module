@@ -12,6 +12,7 @@ function bueditor_menu($may_cache) {
       'title' => 'BUEditor',
       'access' => user_access('administer site configuration'),
       'callback' => 'bueditor_admin',
+      'description' => t('Customize your text editor.'),
     );
   }
   else if (arg(2)=='bueditor' && arg(1)=='settings' && arg(0)=='admin') {
