@@ -26,8 +26,8 @@
   border-color: #f00;
 }
 
-/*#editor-dialog tr.(head|body|odd|even) td.(title|close|content)*/
-#editor-dialog {
+/*.editor-popup tr.(head|body|odd|even) td.(title|close|content)*/
+.editor-popup {
   z-index: 10;
   position: absolute;
   border: 1px solid #000;
@@ -35,23 +35,24 @@
   width: auto;
   text-align: left;
 }
-#editor-dialog tr.head {
+.editor-popup tr.head {
   font-weight: bold;
+  border-top: 1px solid #000;
   cursor: move;
 }
-#editor-dialog td.title {
+.editor-popup td.title {
   font-size: 1.1em;
   padding-right: 10px;
 }
-#editor-dialog td.close {
+.editor-popup td.close {
   text-align: right;
   padding-right: 4px;
 }
-#editor-dialog td.close a {
+.editor-popup td.close a {
   cursor: pointer;
   font-size: 1.3em;
 }
-#editor-dialog tbody {
+.editor-popup tbody {
   border: none;
 }
 
