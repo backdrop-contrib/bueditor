@@ -1,9 +1,15 @@
 // $Id$
 
 // initiate editor variable that will hold other variables and fuctions.
-var editor = { instances : [], buttons : [], path : '', G : {}, dialog : {}, mode : (window.getSelection || document.getSelection) ? 1 : ( document.selection && document.selection.createRange ? 2 : 0 )};
-
-editor.bpr = 20; //maximum # of buttons per row.
+var editor = {instances: [],
+  buttons: [],
+  popups: [],
+  path: '',
+  G: {},
+  dialog: {},
+  mode: (window.getSelection || document.getSelection) ? 1 : ( document.selection && document.selection.createRange ? 2 : 0 ),
+  bpr: 20 //maximum # of buttons per row.
+};
 
 //process textareas that have "editor-textarea" class.
 editor.initiate = function () {
@@ -128,8 +134,9 @@ editor.processTextarea = function (T) {
     }
   }
   if (index==0) {
-    editor.createDialog();
     editor.active = E;
+    editor.dialog.popup = editor.createPopup('editor-dialog');
+    editor.dialog.popup.close = function () {editor.dialog.close();}
   }
   else E.accesskeys(false);
 }
@@ -145,14 +152,21 @@ editor.restoreTextarea = function (T) {
   }
 }
 
-//create editor dialog html object
-editor.createDialog = function () {
-  if (typeof editor.dialog.el != 'undefined') return;
-  editor.dialog.el = document.createElement('table');
-  with(editor.dialog.el) {
+//create editor popup object
+editor.openPopup = function (id, title, content) {
+  var popup = editor.createPopup(id);
+  popup.open(title, content);
+  return popup;
+}
+editor.createPopup = function (pid) {
+  if (editor.popups[pid]) {
+    return editor.popups[pid];
+  }
+  var popup = editor.popups[pid] = document.createElement('table');
+  with(popup) {
     with(insertRow(0)) {
       className = 'head even';
-      with(insertCell(0)) {className = 'title'; innerHTML = 'Untitled';}
+      with(insertCell(0)) {className = 'title';}
       with(insertCell(1)) {className = 'close'; innerHTML = '<a>x</a>';}
     }
     with(insertRow(1)) {
@@ -161,13 +175,13 @@ editor.createDialog = function () {
     }
     rows[0].onmousedown = function (e) {
       var e = e||window.event;
-      var D = editor.dialog.el;
-      var X = e.clientX-parseInt(D.style.left||0);
-      var Y = e.clientY-parseInt(D.style.top||0);
+      var P = editor.popups[pid];
+      var X = e.clientX-parseInt(P.style.left||0);
+      var Y = e.clientY-parseInt(P.style.top||0);
       document.onmousemove = function (e) {
         var e = e||window.event;
-        D.style.left = (e.clientX-X) + 'px';
-        D.style.top = (e.clientY-Y) + 'px';
+        P.style.left = (e.clientX-X) + 'px';
+        P.style.top = (e.clientY-Y) + 'px';
         return false;
       }
       document.onmouseup = function (e) {
@@ -176,29 +190,42 @@ editor.createDialog = function () {
       }
       return false;
     }
-    rows[0].cells[1].firstChild.onclick = function() {editor.dialog.close();}
-    id = 'editor-dialog';
+    rows[0].cells[1].firstChild.onclick = function() {
+      editor.popups[pid].close();
+    }
+    id = pid;
+    className = 'editor-popup';
     style.position = 'absolute';
     style.display = 'none';
   }
-  document.body.appendChild(editor.dialog.el);
+  popup.open = function (title, content) {
+    this.rows[0].cells[0].innerHTML = title||'';
+    this.rows[1].cells[0].innerHTML = content||'';
+    this.style.left = editor.absPos(editor.active.textArea, 'x') +'px';
+    this.style.top = editor.absPos(editor.active.textArea, 'y')-25 +'px';
+    this.style.display = 'block';
+  }
+  popup.close = function () {
+    this.style.display = 'none';
+  }
+  document.body.appendChild(popup);
+  return popup;
 }
 
 //dialog functions
 editor.dialog.open = function (title, content) {
   if (this.editor) this.close();
-  this.title(title);
-  this.content(content);
   this.editor = editor.active;
   this.editor.buttonsDisabled(true);
   editor.addClass(this.editor.buttons[this.editor.bindex], 'stay-clicked');
   this.esp = this.editor.posSelection();
-  this.el.style.left = editor.absPos(this.editor.textArea, 'x') +'px';
-  this.el.style.top = editor.absPos(this.editor.textArea, 'y')-25 +'px';
-  this.el.style.display = 'block';
+  this.popup.open(title, content);
+  this.oldfocus = this.editor.textArea.onfocus;
+  this.editor.textArea.onfocus = function () {this.blur();}
 }
 editor.dialog.close = function () {
   if (this.editor) {
+    this.editor.textArea.onfocus = this.oldfocus;
     this.editor.buttonsDisabled(false);
     editor.delClass(this.editor.buttons[this.editor.bindex], 'stay-clicked');
     if (this.editor == editor.active) {// restore previous states
@@ -207,14 +234,8 @@ editor.dialog.close = function () {
     }
     this.editor = null;
     this.esp = null;
-    this.el.style.display = 'none';
+    this.popup.style.display = 'none';
   }
-}
-editor.dialog.title = function (title) {
-  this.el.rows[0].cells[0].innerHTML = title||'';
-}
-editor.dialog.content = function (content) {
-  this.el.rows[1].cells[0].innerHTML = content||'';
 }
 
 //custom functions
