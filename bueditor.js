@@ -91,7 +91,7 @@ editor.buttonClick = function (eindex, bindex) {
     var b = editor.buttons[bindex];
     var content = b[1];
     editor.dialog.close();
-    if (b[4]) b[4](); //execute button script.
+    if (b[4]) b[4](E); //execute button script.
     else if (content) {
       var arr = content.split('%TEXT%');
       if (arr.length==2) E.tagSelection(arr[0], arr[1]);
@@ -109,7 +109,7 @@ editor.template = function () {
   editor.tplHTML = '';
   for (var i=0; b=editor.buttons[i]; i++) {
     if (i && i%editor.bpr==0) editor.tplHTML += '<br />';
-    if (b[1].substr(0, 3) == 'js:') b[4] = new Function(b[1].substr(3));
+    if (b[1].substr(0, 3) == 'js:') b[4] = new Function('E', b[1].substr(3));
     var inner = b[2].search(/\.(png|gif|jpg|jpeg)$/i) != -1 ? ('type="image" src="'+ editor.path +'icons/'+ b[2] +'" class="editor-image-button"') : ('type="button" value="'+ b[2] +'" class="editor-text-button"');
     editor.tplHTML += '<input '+ inner +' onclick="editor.buttonClick(%n, '+ i +'); return false;" id="editor-%n-button-'+ i +'" title="'+ b[0] +'" accesskey="'+ b[3] +'" />';
   }
