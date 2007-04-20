@@ -141,17 +141,6 @@ editor.processTextarea = function (T) {
   else E.accesskeys(false);
 }
 
-//remove editor from textarea T
-editor.restoreTextarea = function (T) {
-  if (T.editor) {
-    var ec = document.getElementById('editor-'+T.editor.index);
-    ec.parentNode.removeChild(ec);
-    editor.instances[T.editor.index] = null;
-    T.onfocus = null;
-    T.editor = null;
-  }
-}
-
 //create editor popup object
 editor.openPopup = function (id, title, content) {
   var popup = editor.createPopup(id);
