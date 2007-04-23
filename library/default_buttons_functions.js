@@ -38,7 +38,7 @@ function eDefAutoP(txt, br) {
 	return txt;
 }
 
-//escape regular expression specific chaacters
+//escape regular expression specific characters
 function eDefRegEsc(text) {
   return text.replace(/([\\\^\$\*\+\?\.\(\)\[\]\{\}\|])/g, '\\$1');
 }
@@ -56,7 +56,7 @@ function eDefSelProcessLines(outA, inA, inB, outB) {
   else E.replaceSelection(outA+eDefProcessLines(sel, inA, inB)+outB);
 }
 
-//return html for the given tag.
+//return html for the given tag. attributes having value=null are not printed.
 function eDefHTML(tag, innerHTML, attributes) {
   var attributes = attributes||[];
   var html = '<'+ tag;
@@ -80,18 +80,28 @@ function eDefInputSubmit(name, value) {
   return eDefInput('submit', name, value);
 }
 
-//return a table row containing the cells(arguments of the function). eDefRow(cell1, cell2 ...)
+//returns selectbox. options is the object having property:value pairs.
+function eDefSelectBox(name, value, options, attributes) {
+  var options = options||[], output = '';
+  for (var i in options) {
+    output += eDefHTML('option', options[i], {value: i, selected: i == value ? 'selected' : null});
+  }
+  typeof(attributes) == 'object' ? (attributes.name = name) : (attributes = {'name': name});
+  return eDefHTML('select', output, attributes);
+}
+
+//return a table row containing the cells(array of strings or objects(data:string, attributes:object))
 function eDefRow(cells, attributes) {
-  var cell, html = '';
-  for (var i=0; cell=cells[i]; i++) {
-    html += cell['data'] ? eDefHTML('td', cell['data'], cell['attributes']) : eDefHTML('td', cell);
+  var html = '';
+  for (var i in cells) {
+    html += typeof(cells[i]) == 'string'  ? eDefHTML('td', cells[i]) : eDefHTML('td', cells[i]['data'], cells[i]['attributes']);
   }
   return eDefHTML('tr', html, attributes);
 }
 function eDefTable(rows, attributes) {
   var row, html = '';
   for (var i=0; row=rows[i]; i++) {
-    html += row['data'] ? eDefRow(row['data'], row['attributes']) : eDefRow(row);
+    html += typeof(row['data']) == 'undefined' ? eDefRow(row) : eDefRow(row['data'], row['attributes']);
   }
   return eDefHTML('table', html, attributes);
 }
@@ -130,7 +140,7 @@ function eDefPreview(NoAutoP) {
 
 //Insert the data in the given form to the textarea. Link and image dialogs use this function.
 function eDefFileInsert(form, type) {
-  var el, file = editor.G.selFile||{attributes: []}, E = editor.active;
+  var el, file = eDefSelFile||{attributes: []}, E = editor.active;
   for (var i=0; el = form.elements[i]; i++) {
     if (el.name.substr(0, 5) == 'file_') {
       file.attributes[el.name.substr(5)] = el.value == '' ? (editor.inArray(el.name, ['file_src', 'file_alt']) ? '' : null) : el.value;
@@ -149,15 +159,15 @@ function eDefFileInsert(form, type) {
       E.tagSelection(a.substr(0, a.length-4), '</a>');
     }
   }
-  editor.G.selFile = null;
+  eDefSelFile = null;
 }
 
-//file dialog for the type. labels are interface texts. browser is URL of the file browser.
+//file dialog for the type. labels are interface texts. bURL is the URL of the file browser.
 function eDefFileDialog(type, labels, bURL) {
   var row, html, sel = editor.active.getSelection();
   var field = ({image : {name: 'src', tag: 'img'}, link : {name: 'href', tag: 'a'}})[type];
   var bButton = bURL ? ' '+eDefInput('button', 'brw', labels.brw, {onclick: 'eDefFileBrowser(\''+ bURL +'\', this.form.elements[\'file_'+ field.name +'\'].value, \''+ type +'\')'}) : '';
-  var file = (editor.G.selFile = editor.parseTag(sel, field.tag)||{attributes: []}).attributes;
+  var file = (eDefSelFile = editor.parseTag(sel, field.tag)||{attributes: []}).attributes;
   var rows = [[labels.url, eDefInputText('file_'+ field.name, file[field.name], 25)+bButton]];
   if (type == 'image') {
     rows[rows.length] = [labels.w +' x '+ labels.h, eDefInputText('file_width', file.width, 3) +' x '+ eDefInputText('file_height', file.height, 3)];
@@ -196,11 +206,11 @@ function eDefImceFinish(url, width, height, fsize, win) {
 //Display help text(button title) for each button of the editor.
 function eDefHelp() {
   var b, rows = [], E = editor.active;
-  if (typeof editor.G.help == 'undefined') {
+  if (typeof eDefHelpHTML == 'undefined') {
     for (var i=0; b=E.buttons[i]; i++) {
       rows[i] = [eDefInput(b.type,'', b.value||'', {'class': b.className, src: b.src||null}), b.title];
     }
-    editor.G.help = eDefTable(rows, {id: 'editor-help'});
+    eDefHelpHTML = eDefTable(rows, {id: 'editor-help'});
   }
-  editor.dialog.open(editor.buttons[E.bindex][0], editor.G.help);
+  editor.dialog.open(editor.buttons[E.bindex][0], eDefHelpHTML);
 }
