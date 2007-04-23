@@ -1,15 +1,9 @@
 // $Id$
 
 // initiate editor variable that will hold other variables and fuctions.
-var editor = {instances: [],
-  buttons: [],
-  popups: [],
-  path: '',
-  G: {},
-  dialog: {},
+var editor = {instances: [], buttons: [], popups: [], path: '', dialog: {}, bpr: 20, //# of buttons per row.
   mode: (window.getSelection || document.getSelection) ? 1 : ( document.selection && document.selection.createRange ? 2 : 0 ),
-  bpr: 20 //maximum # of buttons per row.
-};
+}
 
 //process textareas that have "editor-textarea" class.
 editor.initiate = function () {
@@ -141,13 +135,13 @@ editor.processTextarea = function (T) {
   else E.accesskeys(false);
 }
 
-//create editor popup object
+//create/open editor popup object
 editor.openPopup = function (id, title, content) {
   var popup = editor.createPopup(id);
   popup.open(title, content);
   return popup;
 }
-editor.createPopup = function (pid) {
+editor.createPopup = function (pid, ptitle, pcontent) {
   if (editor.popups[pid]) {
     return editor.popups[pid];
   }
@@ -155,12 +149,12 @@ editor.createPopup = function (pid) {
   with(popup) {
     with(insertRow(0)) {
       className = 'head even';
-      with(insertCell(0)) {className = 'title';}
+      with(insertCell(0)) {className = 'title'; innerHTML = ptitle||''}
       with(insertCell(1)) {className = 'close'; innerHTML = '<a>x</a>';}
     }
     with(insertRow(1)) {
       className = 'body odd';
-      with(insertCell(0)) {className = 'content'; colSpan = 2;}
+      with(insertCell(0)) {className = 'content'; colSpan = 2; innerHTML = pcontent||''}
     }
     rows[0].onmousedown = function (e) {
       var e = e||window.event;
@@ -187,12 +181,15 @@ editor.createPopup = function (pid) {
     style.position = 'absolute';
     style.display = 'none';
   }
-  popup.open = function (title, content) {
-    this.rows[0].cells[0].innerHTML = title||'';
-    this.rows[1].cells[0].innerHTML = content||'';
-    this.style.left = editor.absPos(editor.active.textArea, 'x') +'px';
-    this.style.top = editor.absPos(editor.active.textArea, 'y')-25 +'px';
+  popup.open = function (title, content, keeppos) {
+    if (typeof(title) == 'string') this.rows[0].cells[0].innerHTML = title;
+    if (typeof(content) == 'string') this.rows[1].cells[0].innerHTML = content;
+    if (!keeppos) {
+      this.style.left = editor.absPos(editor.active.textArea, 'x') +'px';
+      this.style.top = editor.absPos(editor.active.textArea, 'y')-25 +'px';
+    }
     this.style.display = 'block';
+    this.ed = editor.active;
   }
   popup.close = function () {
     this.style.display = 'none';
