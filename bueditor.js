@@ -2,7 +2,7 @@
 
 // initiate editor variable that will hold other variables and fuctions.
 var editor = {instances: [], buttons: [], popups: [], path: '', dialog: {}, bpr: 20, //# of buttons per row.
-  mode: (window.getSelection || document.getSelection) ? 1 : ( document.selection && document.selection.createRange ? 2 : 0 ),
+  mode: (window.getSelection || document.getSelection) ? 1 : ( document.selection && document.selection.createRange ? 2 : 0 )
 }
 
 //process textareas that have "editor-textarea" class.
@@ -260,6 +260,11 @@ editor.delClass = function (el, name) {
 //in_array implementation
 editor.inArray = function (obj, arr) {
   for (var i in arr) if (arr[i] == obj) return true;
+}
+
+//escape regular expression specific characters
+editor.regEsc = function (text) {
+  return text.replace(/([\\\^\$\*\+\?\.\(\)\[\]\{\}\|])/g, '\\$1');
 }
 
 // browser specific functions.
