@@ -537,7 +537,7 @@ function bueditor_js_buttons($dir, $buttons) {
  * Save data to a file. return true on success.
  */
 function bueditor_save_data($data, $file) {
-  return file_check_directory(dirname($file), FILE_CREATE_DIRECTORY) && ($fp = @fopen($file, 'w')) && @fwrite($fp, $data) && @fclose($fp) && @chmod($file, 0664);
+  return file_check_directory($dir = dirname($file), FILE_CREATE_DIRECTORY) && ($fp = @fopen($file, 'w')) && @fwrite($fp, $data) && @fclose($fp) && @chmod($file, 0664);
 }
 
 /**
