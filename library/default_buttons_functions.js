@@ -102,7 +102,7 @@ function eDefTable(rows, attributes) {
   return eDefHTML('table', html, attributes);
 }
 
-//Previews the selected text in the textarea. If there is no selection, previews the whole content. By default lines and paragraphs break automatically. Pure HTML preview is eDefPreview('full')
+//Previews the selected text in the textarea. If there is no selection, previews the whole content. By default, lines and paragraphs break automatically. Pure HTML preview is eDefPreview('full')
 function eDefPreview(NoAutoP) {
   var P, E = editor.active, T = E.textArea;
   if (E.preview) {
@@ -134,48 +134,21 @@ function eDefPreview(NoAutoP) {
   }
 }
 
-//Insert the data in the given form to the textarea. Link and image dialogs use this function.
-function eDefFileInsert(form, type) {
-  var el, file = eDefSelFile||{attributes: []}, E = editor.active;
-  for (var i=0; el = form.elements[i]; i++) {
-    if (el.name.substr(0, 5) == 'file_') {
-      file.attributes[el.name.substr(5)] = el.value == '' ? (editor.inArray(el.name, ['file_src', 'file_alt']) ? '' : null) : el.value;
+//Display help text(button title) for each button of the editor.
+function eDefHelp() {
+  var b, rows = [], E = editor.active;
+  if (typeof eDefHelpHTML == 'undefined') {
+    for (var i=0; b=E.buttons[i]; i++) {
+      rows[i] = [eDefInput(b.type,'', b.value||'', {'class': b.className, src: b.src||null}), b.title];
     }
+    eDefHelpHTML = eDefTable(rows, {id: 'editor-help'});
   }
-  editor.dialog.close();
-  if (type == 'image') {
-    E.replaceSelection(eDefHTML('img', '', file.attributes));
-  }
-  else if (type == 'link') {
-    if (typeof file.innerHTML == 'string') {
-      E.replaceSelection(eDefHTML('a', file.innerHTML, file.attributes));
-    }
-    else {
-      var a = eDefHTML('a', '', file.attributes);
-      E.tagSelection(a.substr(0, a.length-4), '</a>');
-    }
-  }
-  eDefSelFile = null;
+  editor.dialog.open(editor.buttons[E.bindex][0], eDefHelpHTML);
 }
 
-//file dialog for the type. labels are interface texts. bURL is the URL of the file browser.
-function eDefFileDialog(type, labels, bURL) {
-  var row, html, sel = editor.active.getSelection();
-  var field = ({image : {name: 'src', tag: 'img'}, link : {name: 'href', tag: 'a'}})[type];
-  var bButton = bURL ? ' '+eDefInput('button', 'brw', labels.brw, {onclick: 'eDefFileBrowser(\''+ bURL +'\', this.form.elements[\'file_'+ field.name +'\'].value, \''+ type +'\')'}) : '';
-  var file = (eDefSelFile = editor.parseTag(sel, field.tag)||{attributes: []}).attributes;
-  var rows = [[labels.url, eDefInputText('file_'+ field.name, file[field.name], 25)+bButton]];
-  if (type == 'image') {
-    rows[rows.length] = [labels.w +' x '+ labels.h, eDefInputText('file_width', file.width, 3) +' x '+ eDefInputText('file_height', file.height, 3)];
-    rows[rows.length] = [labels.alt, eDefInputText('file_alt', file.alt, 25)];
-  }
-  else if (type == 'link') {
-    rows[rows.length] = [labels.tt, eDefInputText('file_title', file.title, 25)];
-  }
-  for (var i=3; i<arguments.length; i++) rows[rows.length] = arguments[i];//insert additional arguments as rows.
-  html = eDefTable(rows) + eDefHTML('div', eDefInputSubmit('ok', labels.ok));
-  html = eDefHTML('form', html, {name: 'eDefForm', onsubmit: 'eDefFileInsert(this, \''+ type +'\'); return false;'});
-  editor.dialog.open(labels.title, html);
+//html for file browser button..
+function eDefBrowseButton(url, field, text, type) {
+  return url ? eDefInput('button', 'brw', text||'Browse', {onclick: 'eDefFileBrowser(\''+ url +'\', this.form.elements[\''+ field +'\'].value, \''+ type +'\')'}) : '';
 }
 
 //open the file browser.
@@ -188,25 +161,82 @@ function eDefFileBrowser(bURL, fURL, type) {
 var eDefImceUrl = '';
 function eDefImceFinish(url, width, height, fsize, win) {
   var el = document.forms['eDefForm'].elements;
-  if (el['file_src']) {
-    el['file_src'].value = url;
-    el['file_width'].value = width;
-    el['file_height'].value = height;
-  }
-  else if (el['file_href']) {
-    el['file_href'].value = url;
+  var val = {src: url, href: url, width: width, height: height}
+  for (var i in val) {
+    if (el['attr_'+i]) el['attr_'+i].value = val[i];
   }
   win.close();
 }
 
-//Display help text(button title) for each button of the editor.
-function eDefHelp() {
-  var b, rows = [], E = editor.active;
-  if (typeof eDefHelpHTML == 'undefined') {
-    for (var i=0; b=E.buttons[i]; i++) {
-      rows[i] = [eDefInput(b.type,'', b.value||'', {'class': b.className, src: b.src||null}), b.title];
+//open a dialog for any tag to get user input for the given attributes(fields).
+function eDefTagDialog(tag, fields, dtitle, stitle) {
+  var field, title, html, rows = [], obj = editor.parseTag(editor.active.getSelection(), tag)||{attributes: []};
+  for (var i=0; field=fields[i]; i++) {
+    if (typeof(field) == 'string') field = {name: field};
+    title  = typeof(field['title']) == 'string' ? field['title'] : field['name'].substr(0, 1).toUpperCase() + field['name'].substr(1);
+    html = eDefAttrField(field, obj.attributes[field['name']]);
+    while (field['getnext'] && (field = fields[++i])) {
+      if (typeof(field) == 'string') field = {name: field};
+      html += eDefAttrField(field, obj.attributes[field['name']]);
     }
-    eDefHelpHTML = eDefTable(rows, {id: 'editor-help'});
+    rows[rows.length] = [title, html];
   }
-  editor.dialog.open(editor.buttons[E.bindex][0], eDefHelpHTML);
+  html = eDefTable(rows, {'class': 'editor-tagedit'}) +'<br />'+ eDefHTML('input', '', {type: 'submit', value: stitle||null});
+  html = eDefHTML('form', html, {name: 'eDefForm', onsubmit: 'eDefTagInsert(\''+ tag +'\', this); return false;'});
+  editor.dialog.open(dtitle||(tag.toUpperCase() +' Tag Dialog'), html);
+}
+
+//return form element html for a given attribute(field)
+function eDefAttrField(field, value) {
+  var value = typeof(value) == 'string' ? value : (field['value']||'');
+  var html = field['prefix']||'';
+  if (field['type'] == 'select') {
+    html += eDefSelectBox('attr_'+ field['name'], value, field['options'], field['attributes']);
+  }
+  else {
+    html += eDefInput('text', 'attr_'+ field['name'], value, field['attributes']);
+  }
+  return html + (field['suffix']||'');
+}
+
+//create and insert the html for the tag with user-supplied form values.
+function eDefTagInsert(tag, form) {try {
+  var name, el, obj = editor.parseTag(editor.active.getSelection(), tag)||{attributes: []};
+  for (var i=0; el = form.elements[i]; i++) {
+    if (el.name.substr(0, 5) == 'attr_') {
+      name = el.name.substr(5);
+      obj.attributes[name] = el.value == '' ? (tag == 'img' && editor.inArray(name, ['src', 'alt']) ? '' : null) : el.value;
+    }
+  }
+  editor.dialog.close();
+  if (typeof(obj.innerHTML) == 'string' || editor.inArray(tag, ['img', 'input', 'hr', 'br'])) {
+    editor.active.replaceSelection(eDefHTML(tag, obj.innerHTML, obj.attributes));
+  }
+  else {
+    var txt = eDefHTML(tag, '', obj.attributes);
+    editor.active.tagSelection(txt.substr(0, txt.length-tag.length-3), '</'+ tag +'>');
+  }
+} catch(e){}}
+
+
+//THIS IS HERE FOR BACKWARD COMPATIBILITY.
+//eDefFileDialog is deprecated. the new eDefTagDialog allows to open dialogs for any tag and any attribute.
+//file dialog for the type. labels are interface texts. bURL is the URL of the file browser.
+function eDefFileDialog(type, L, bURL) {
+  if (type == 'image'){
+    var form = [
+      {name: 'src', title: L.url, 'suffix': eDefBrowseButton(bURL, 'attr_src', L.brw, 'image')},
+      {name: 'width', title: L.w +' x '+ L.h, suffix: ' x ', getnext: true, attributes: {size: 3}},
+      {name: 'height', attributes: {size: 3}},
+      {name: 'alt', title: L.alt}
+    ];
+    eDefTagDialog('img', form, L.title, L.ok);
+  }
+  else if (type == 'link') {
+    var form = [
+      {name: 'href', title: L.url, 'suffix': eDefBrowseButton(bURL, 'attr_href', L.brw, 'link')},
+      {name: 'title', title: L.tt}
+    ];
+    eDefTagDialog('a', form, L.title, L.ok);
+  }
 }
