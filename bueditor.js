@@ -60,7 +60,7 @@ editor.instance = function (T, index) {
   this.makeSelection = function (start, end) {
     if (end<start) end = start;
     editor.selMake(this.textArea, start, end);
-    if (editor.dialog.esp) editor.dialog.esp = {start : start, end : end};
+    if (editor.dialog.esp) editor.dialog.esp = {start: start, end: end};
   }
   this.posSelection = function () {
     return editor.dialog.esp ? editor.dialog.esp : editor.selPos(this.textArea);
@@ -225,19 +225,6 @@ editor.dialog.close = function () {
 }
 
 //custom functions
-//if the given text matches html syntax of the given tag, return attributes and innerHMTL of it, otherwise return null.
-editor.parseTag = function (text, tag) {
-  var result, arr = [], attr = [];
-  var re = new RegExp('^<'+ tag +'([^>]*)'+ (editor.inArray(tag, ['img', 'input', 'hr', 'br']) ? '' : ('>((.|[\r\n])*)<\/'+tag)) +'>$');
-  if (result = re.exec(text)) {
-    if ((arr = result[1].split('"')).length>1) {
-      for (var i=0; typeof(arr[i+1])!='undefined'; i+=2) attr[arr[i].replace(/\s|\=/g, '')] = arr[i+1];
-    }
-    return {attributes : attr, innerHTML : result[2]||''};
-  }
-  return null;
-}
-
 //return absolute position of element el on the axis(x or y)
 editor.absPos = function (el, axis) {
   var prop = axis=='x' ? 'offsetLeft' : 'offsetTop';
@@ -269,11 +256,11 @@ editor.regEsc = function (text) {
 
 // browser specific functions.
 if (editor.mode == 0) {//mode 0 - selection handling not-supported
-  editor.selPos = function (T) {return {start : T.value.length, end : T.value.length};}
+  editor.selPos = function (T) {return {start: T.value.length, end: T.value.length};}
   editor.selMake = function (T, start, end) {}
 }
 else if (editor.mode == 1) {//mode 1 - Firefox, opera, safari.
-  editor.selPos = function (T) { return {start : T.selectionStart||0, end : T.selectionEnd||0};}
+  editor.selPos = function (T) { return {start: T.selectionStart||0, end: T.selectionEnd||0};}
   editor.selMake = function (T, start, end) {T.setSelectionRange(start, end);}
 }
 else if (editor.mode == 2) {//mode 2 - IE.
@@ -297,7 +284,7 @@ else if (editor.mode == 2) {//mode 2 - IE.
     if (start == end && !val.charAt(end)) range.collapse(false);//bookmark has problems with a cursor at the end
     else range.moveToBookmark(bm);
     range.select();
-    return {start : start, end : end};
+    return {start: start, end: end};
   }
   editor.selMake = function (T, start, end) {
     range = T.createTextRange();
