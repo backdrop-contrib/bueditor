@@ -169,8 +169,8 @@ function eDefImceFinish(url, width, height, fsize, win) {
 }
 
 //open a dialog for any tag to get user input for the given attributes(fields).
-function eDefTagDialog(tag, fields, dtitle, stitle) {
-  var field, title, html, rows = [], obj = editor.parseTag(editor.active.getSelection(), tag)||{attributes: []};
+function eDefTagDialog(tag, fields, dtitle, stitle, func) {
+  var field, title, html, rows = [], obj = eDefParseTag(editor.active.getSelection(), tag)||{attributes: []};
   for (var i=0; field=fields[i]; i++) {
     if (typeof(field) == 'string') field = {name: field};
     title  = typeof(field['title']) == 'string' ? field['title'] : field['name'].substr(0, 1).toUpperCase() + field['name'].substr(1);
@@ -182,7 +182,7 @@ function eDefTagDialog(tag, fields, dtitle, stitle) {
     rows[rows.length] = [title, html];
   }
   html = eDefTable(rows, {'class': 'editor-tagedit'}) +'<br />'+ eDefHTML('input', '', {type: 'submit', value: stitle||null});
-  html = eDefHTML('form', html, {name: 'eDefForm', onsubmit: 'eDefTagInsert(\''+ tag +'\', this); return false;'});
+  html = eDefHTML('form', html, {name: 'eDefForm', onsubmit: (func||'eDefTagInsert')+'(\''+ tag +'\', this); return false;'});
   editor.dialog.open(dtitle||(tag.toUpperCase() +' Tag Dialog'), html);
 }
 
@@ -201,7 +201,7 @@ function eDefAttrField(field, value) {
 
 //create and insert the html for the tag with user-supplied form values.
 function eDefTagInsert(tag, form) {try {
-  var name, el, obj = editor.parseTag(editor.active.getSelection(), tag)||{attributes: []};
+  var name, el, obj = eDefParseTag(editor.active.getSelection(), tag)||{attributes: []};
   for (var i=0; el = form.elements[i]; i++) {
     if (el.name.substr(0, 5) == 'attr_') {
       name = el.name.substr(5);
@@ -217,6 +217,20 @@ function eDefTagInsert(tag, form) {try {
     editor.active.tagSelection(txt.substr(0, txt.length-tag.length-3), '</'+ tag +'>');
   }
 } catch(e){}}
+
+
+//if the given text matches html syntax of the given tag, return attributes and innerHMTL of it, otherwise return null.
+eDefParseTag = function (text, tag) {
+  var result, arr = [], attr = [];
+  var re = new RegExp('^<'+ tag +'([^>]*)'+ (editor.inArray(tag, ['img', 'input', 'hr', 'br']) ? '' : ('>((.|[\r\n])*)<\/'+tag)) +'>$');
+  if (result = re.exec(text)) {
+    if ((arr = result[1].split('"')).length>1) {
+      for (var i=0; typeof(arr[i+1])!='undefined'; i+=2) attr[arr[i].replace(/\s|\=/g, '')] = arr[i+1];
+    }
+    return {attributes : attr, innerHTML : result[2]||''};
+  }
+  return null;
+}
 
 
 //THIS IS HERE FOR BACKWARD COMPATIBILITY.
