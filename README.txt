@@ -27,8 +27,8 @@ You can add buttons to an editor by two methods;
 
 
 - BUTTON PROPERTIES
-TITLE: Title or name of the button. Displayed as a hint on mouse over. Required. A title can be made
-translatable(using t() of drupal) by prefixing it with "t:". Ex: t:Bold turns into t('Bold')
+TITLE:(required) Title or name of the button. Displayed as a hint on mouse over. A title can be translated
+by prefixing it with "t:". Ex: t:Bold turns into t('Bold')
 CONTENT: Html or javascript code that is processed when the button is clicked. This can also be
 php code that is pre evaluated and return html or javascript code. See BUTTON TYPES.
 ICON: Image or text to display the button.
@@ -95,14 +95,6 @@ editor.active is widely used in javascript buttons since the methods of the curr
 using it. Each editor instance has its own variables and methods that can(should) be used by javascript buttons. 
 See EDITOR INSTANCE
 
-editor.G:
-container variable for creating global variables or functions. It can be useful while writing javascript 
-buttons since their code runs in a function and variables created with "var" keyword are local.
-examle content;
-js:
-editor.G.foo = 'global text';//can be reached globally. (also used as editor.G['foo'])
-var foo = 'local text';//can only be reached inside the function.
-
 editor.dialog:
 dialog object of the editor used like a pop-up window for getting user input or displaying data.
 It has its own variables and methods. See EDITOR DIALOG
@@ -112,14 +104,17 @@ It has its own variables and methods. See EDITOR DIALOG
 editor.processTextarea(T):
 integrates the editor into the textarea T. This can be used for dynamic editor integration at any time after page load.
 
-editor.restoreTextarea(T):
-disintegrates the editor from the textarea T.
+editor.openPopup(id, title, content):
+opens a pop-up dialog having the given "id", titled as "title" and containing the "content". Returns the js object
+representing the pop-up(a html table object).
+This pop-up object has its internal "open(title, content, keeppos)" and "close()" methods which can be used for 
+further open and close operations. if "keeppos" is set, pop-up opens at previos position, otherwise position is reset.
+Since pop-up object is a html table object, it has all the methods and properties of a regular table.
+The difference between a pop-up and editor.dialog is that editor.dialog can only have one instance visible at a time,
+and it doesnt allow textarea editing when it is open.
 
-editor.parseTag(text, tag):
-checks if the text is a proper HTML object of the given tag. If so, return an object containing attributes and
-inner HTML of the tag. Return null if it doesn't match. This is used for checking if the selected text is a proper tag.
-editor.parseTag('<a href="foo">bar</a>', 'a') -> returns {attributes:{href:foo}, innerHTML:bar}
-editor.parseTag('<p>foo</p>', 'div') -> returns null
+editor.createPopup(id, title, content):
+This method is used by openPopup method. Creates and returns the pop-up object for further use.(does not open it)
 
 
 - EDITOR INSTANCE (a must-read for javascript button creators)
@@ -127,7 +122,8 @@ Each editor running on the page for a textarea is called an instance. Editor ins
 and methods that make it easy to edit textarea content. Active instance on the page can be accessed by the 
 variable "editor.active".
 
-Lets assume that we assigned editor.active to a variable E (var E = editor.active) in our js button's content.
+Lets assume that we assigned editor.active to a variable E  in our js button's content(actually we dont need this
+anymore since the button function is now called with the parameter E).
 Here are the VARIABLES of the istance E:
 
 E.textArea: textarea of the instance as an HTML object.
@@ -277,16 +273,67 @@ php: return;/*
 and the last line:
 */
 
+How to extend image or link dialogs to get values for other attributes of "img" and "a" tags from the user?
+How to create a dialog for any tag just like image or link dialogs?
+
+There is the eDefTagDialog(tag, fields, dtitle, stitle, func) function in default buttons library to create a dialog for
+any tag. 
+tag -> tag name
+fields -> an array of attributes that are eiter strings or objects.
+dtitle -> dialog title. if not specified, "(tag) Tag Dialog" is used.
+stitle -> laber for submit button. if not specified, browser decides on it.
+func -> name of the function that will be executed after submission instead of the default one. (for advanced use)
+
+The simplest form, for example:
+eDefTagDialog('div', ['id', 'class', 'style']);
+will create a DIV Tag Dialog requesting values of attributes id, class and style. It will also detect if the selection
+is a proper DIV tag, and if so, will put the values of attributes to the corresponding fields. After submission, it will
+enclose/replace the selection in textarea.
+
+You might have noticed that fields in image/link dialogs are declared as objects not asstrings. That's a
+customized form of declaring attributes. It is ideal to use an object if you want
+- a field type other than textfield (type: 'select', options: {'left': 'Left', 'right': 'Right'}) - only select is supported.
+- a custom label (title: 'Image URL')
+- a default value (value: ' ')
+- some prefix or suffix text or html (prefix: '[ ', suffix: ' ]')
+- to join two fields in a single line like in image width & height fields (getnext: true)
+- to set custom attributes for the field (attributes: {size: 10, style: 'width: 200px'})
+The field object must have a name property that specifies the attribute name. {name: 'href'}
+
+So lets add an "align" attribute field to the image dialog(note that it's not XHTML compliant):
+
+The field object to pass to eDefTagDialog is;
+{
+  name: 'align',//required
+  title: 'Image align', // if we dont set it, it will be set as 'Align' automatically.(name whose first letter is uppercase)
+  type: 'select', // we use a selectbox instead of a plain textfield.
+  options: {'': '', left: 'Left', right: 'Right', center: 'Center'} // set options in the form-> {attribute-value: 'Visible value'}
+}
+
+Lets add it to the form in the image button's content:
+
+var form = [
+ {name: 'src', title: 'Image URL'},
+ {name: 'width', title: 'Width x Height', suffix: ' x ', getnext: true, attributes: {size: 3}},
+ {name: 'height', attributes: {size: 3}},
+ {name: 'alt', title: 'Alternative text'},
+ {name: 'align', title: 'Image align', type: 'select', options: {'': '', left: 'Left', right: 'Right', center: 'Center'}} //align
+];
+eDefTagDialog('img', form, 'Insert/edit image', 'OK');
+
+That's it. We now have an image dialog which can also get/set the "align" attribute of an image tag.
+
+
 How to create a button that gets user input and adds it to the textarea?
 Button content should be like this:
 js:
 // function that inserts the user input from the form into the textarea.
-editor.G.getUserInput = function(form) {
+editor.getUserInput = function(form) {
   editor.active.replaceSelection('User input is: '+ form.elements["user_input"].value);
   editor.dialog.close();//close the dialog when done.
 }
 //form html. we define an input field named as "user_input".
-var userForm = '<form onsubmit="editor.G.getUserInput(this); return false;">';//run getUserInput on submission
+var userForm = '<form onsubmit="editor.getUserInput(this); return false;">';//run getUserInput on submission
 userForm += 'Input : <input type="text" name="user_input" />';
 userForm += '<input type="submit" value="Submit" /></form>';
 //open editor dialog with a title and the user form.
