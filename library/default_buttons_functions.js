@@ -102,8 +102,8 @@ function eDefTable(rows, attributes) {
   return eDefHTML('table', html, attributes);
 }
 
-//Previews the selected text in the textarea. If there is no selection, previews the whole content. By default, lines and paragraphs break automatically. Pure HTML preview is eDefPreview('full')
-function eDefPreview(NoAutoP) {
+//Previews the textarea content. By default, lines and paragraphs break automatically. Set NoAutoP=true to preview pure html. Set selOnly=true to preview only the selected text.
+function eDefPreview(NoAutoP, selOnly) {
   var P, E = editor.active, T = E.textArea;
   if (E.preview) {
     P = E.preview;
@@ -117,7 +117,8 @@ function eDefPreview(NoAutoP) {
     E.preview = P;
   }
   if (P.style.display == 'none') {
-    var html = NoAutoP ? E.getSelection()||T.value : eDefAutoP(E.getSelection()||T.value);
+    var html = selOnly ? E.getSelection() : T.value;
+    html = NoAutoP ? html : eDefAutoP(html);
     P.style.display = 'block';
     P.style.height = T.style.height||(T.offsetHeight+'px');
     P.style.width = T.style.width||(T.offsetWidth+'px');
