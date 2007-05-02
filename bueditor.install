@@ -62,7 +62,7 @@ function bueditor_install() {
     db_query("INSERT INTO {bueditor_buttons} (bid, eid, title, content, icon, accesskey, weight) VALUES (5, 1, 'Ordered list. Converts selected lines to a numbered list.', 'js: eDefSelProcessLines(\'<ol>\\\\n\', \' <li>\', \'</li>\', \'\\\\n</ol>\');', 'ol.png', 'O', '-8');");
     db_query("INSERT INTO {bueditor_buttons} (bid, eid, title, content, icon, accesskey, weight) VALUES (6, 1, 'Unordered list. Converts selected lines to a bulleted list.', 'js: eDefSelProcessLines(\'<ul>\\\\n\', \' <li>\', \'</li>\', \'\\\\n</ul>\');', 'ul.png', 'U', '-8');");
     db_query("INSERT INTO {bueditor_buttons} (bid, eid, title, content, icon, accesskey, weight) VALUES (7, 1, 'Teaser break', '<!--break-->', 'teaserbr.png', 'T', '0');");
-    db_query("INSERT INTO {bueditor_buttons} (bid, eid, title, content, icon, accesskey, weight) VALUES (8, 1, 'Preview selection or the whole content.', 'js: eDefPreview();', 'preview.png', 'P', '9');");
+    db_query("INSERT INTO {bueditor_buttons} (bid, eid, title, content, icon, accesskey, weight) VALUES (8, 1, 'Preview textarea content.', 'js: eDefPreview();', 'preview.png', 'P', '9');");
     db_query("INSERT INTO {bueditor_buttons} (bid, eid, title, content, icon, accesskey, weight) VALUES (9, 1, 'Get help on button functionality.', 'js: eDefHelp();', 'help.png', 'H', '10');");
   }
 }

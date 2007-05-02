@@ -257,9 +257,9 @@ Teaser break:
 Inserts Drupal teaser break which is <!--break-->
 
 Preview:
-Previews selection, or the whole content if there is no selection. Lines and paragraphs break automatically as in 
-Drupal preview.  If you want a pure HTML preview, create a button that calls the preview function with any argument:
-eDefPreview('full');//no conversion of new lines. preview is based on pure HTML.
+Previews the textarea content. By default, lines and paragraphs break automatically. Set first argument to true to preview pure html. Set second argument to true to preview only the selected text:
+eDefPreview(true);//no conversion of new lines. preview is based on pure HTML.
+eDefPreview(false, true);//only the selection is previewed.
 
 Help:
 Displays the title(hint) for each button in the editor.
