@@ -269,7 +269,7 @@ function bueditor_editor_theme($form = array()) {
   $path = drupal_get_path('module', 'bueditor');
   drupal_add_css($path.'/admin/admin.css', 'media', 'all', FALSE);//no preprocessing
   drupal_add_js($path.'/admin/admin.js', 'module', 'header', FALSE, TRUE, FALSE);//no preprocessing
-  drupal_add_js('var iconPath = "'. bueditor_path_tr($form['editor']['iconpath']['#value']) .'"', 'inline');
+  drupal_add_js('var iconPath = "'. base_path() . bueditor_path_tr($form['editor']['iconpath']['#value']) .'"', 'inline');
 
   $help = '<div class="help">'. t('To add a new button, you can either specify it at the bottom of the button list or import a CSV file which contains previously exported buttons. For more information about buttons and editor API please read !readme.', array('!readme' => '<a href="'. base_path() . $path .'/README.txt">README.txt</a>')) .'</div>';
   $buttons = theme('table', $header, $rows, array('class' => 'button-table', 'id' => 'button-table'));
