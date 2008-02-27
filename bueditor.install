@@ -6,30 +6,7 @@
  */
 function bueditor_install() {
   drupal_install_schema('bueditor');
-
-  $editor = array('default', "node/add/*\nnode/*/edit\ncomment/reply/*", 'edit-log', '%BUEDITOR/icons', '%BUEDITOR/library');
-
-  $buttons = array();
-  $buttons[] = array(1, 'Insert/edit image', "php:\n\$imce_url = function_exists('imce_access') && imce_access() ? url('imce') : '';\n\nreturn \"js:\nvar B = eDefBrowseButton('\$imce_url', 'attr_src', 'Browse', 'image');\nvar form = [\n {name: 'src', title: 'Image URL', suffix: B},\n {name: 'width', title: 'Width x Height', suffix: ' x ', getnext: true, attributes: {size: 3}},\n {name: 'height', attributes: {size: 3}},\n {name: 'alt', title: 'Alternative text'}\n];\neDefTagDialog('img', form, 'Insert/edit image', 'OK');\n\";", 'image.png', 'M', -10);
-  $buttons[] = array(1, 'Insert/edit link', "php:\n\$imce_url = function_exists('imce_access') && imce_access() ? url('imce') : '';\n\nreturn \"js:\nvar B = eDefBrowseButton('\$imce_url', 'attr_href', 'Browse', 'link');\nvar form = [\n {name: 'href', title: 'Link URL', suffix: B},\n {name: 'html', title: 'Link text'},\n {name: 'title', title: 'Title'}\n];\neDefTagDialog('a', form, 'Insert/edit link', 'OK');\n\";", 'link.png', 'L', -10);
-  $buttons[] = array(1, 'tpl:', '', 'separator.png', '', -8);
-  $buttons[] = array(1, 'Bold', "<strong>%TEXT%</strong>", 'bold.png', 'B', -6);
-  $buttons[] = array(1, 'Italic', "<em>%TEXT%</em>", 'italic.png', 'I', -6);
-  $buttons[] = array(1, 'Headers', "js: eDefTagger([\n ['h1', 'Header1'],\n ['h2', 'Header2'],\n ['h3', 'Header3'],\n ['h4', 'Header4']\n], true, 'li', 'ul', 'slideDown');", 'headers.png', 'H', -5);
-  $buttons[] = array(1, 'tpl:', '', 'separator.png', '', -4);
-  $buttons[] = array(1, 'Ordered list. Converts selected lines to a numbered list.', "js: eDefSelProcessLines('<ol>\\n', ' <li>', '</li>', '\\n</ol>');", 'ol.png', 'O', -2);
-  $buttons[] = array(1, 'Unordered list. Converts selected lines to a bulleted list.', "js: eDefSelProcessLines('<ul>\\n', ' <li>', '</li>', '\\n</ul>');", 'ul.png', 'U', -2);
-  $buttons[] = array(1, 'tpl:', '', 'separator.png', '', 0);
-  $buttons[] = array(1, 'Teaser break', "<!--break-->", 'teaserbr.png', 'T', 2);
-  $buttons[] = array(1, 'Preview', "js: eDefPreview();", 'preview.png', 'P', 6);
-  $buttons[] = array(1, 'Help', "js: eDefHelp('slideDown');", 'help.png', 'F', 10);
-
-  db_query("INSERT INTO {bueditor_editors} (name, pages, excludes, iconpath, librarypath) VALUES ('%s', '%s', '%s', '%s', '%s')", $editor);
-
-  foreach ($buttons as $button) {
-    db_query("INSERT INTO {bueditor_buttons} (eid, title, content, icon, accesskey, weight) VALUES (%d, '%s', '%s', '%s', '%s', %d)", $button);
-  }
-
+  bueditor_insert_latest();
 }
 
 /**
@@ -151,6 +128,37 @@ function bueditor_schema() {
 }
 
 /**
+* Insert the latest form of default editor.
+*/
+function bueditor_insert_latest($name = 'default') {
+
+  //editor
+  db_query("INSERT INTO {bueditor_editors} (name, pages, excludes, iconpath, librarypath) VALUES ('%s', '%s', '%s', '%s', '%s')", array($name, "node/add/*\nnode/*/edit\ncomment/reply/*", 'edit-log', '%BUEDITOR/icons', '%BUEDITOR/library'));
+  $eid = db_last_insert_id('bueditor_editors', 'eid');
+
+  //buttons
+  $buttons = array();
+  $buttons[] = array($eid, 'Insert/edit image', "php:\n\$imce_url = function_exists('imce_access') && imce_access() ? url('imce') : '';\n\nreturn \"js:\nvar B = eDefBrowseButton('\$imce_url', 'attr_src', 'Browse', 'image');\nvar form = [\n {name: 'src', title: 'Image URL', suffix: B},\n {name: 'width', title: 'Width x Height', suffix: ' x ', getnext: true, attributes: {size: 3}},\n {name: 'height', attributes: {size: 3}},\n {name: 'alt', title: 'Alternative text'}\n];\neDefTagDialog('img', form, 'Insert/edit image', 'OK');\n\";", 'image.png', 'M', -10);
+  $buttons[] = array($eid, 'Insert/edit link', "php:\n\$imce_url = function_exists('imce_access') && imce_access() ? url('imce') : '';\n\nreturn \"js:\nvar B = eDefBrowseButton('\$imce_url', 'attr_href', 'Browse', 'link');\nvar form = [\n {name: 'href', title: 'Link URL', suffix: B},\n {name: 'html', title: 'Link text'},\n {name: 'title', title: 'Link title'}\n];\neDefTagDialog('a', form, 'Insert/edit link', 'OK');\n\";", 'link.png', 'L', -10);
+  $buttons[] = array($eid, 'tpl:', '', 'separator.png', '', -8);
+  $buttons[] = array($eid, 'Bold', "<strong>%TEXT%</strong>", 'bold.png', 'B', -6);
+  $buttons[] = array($eid, 'Italic', "<em>%TEXT%</em>", 'italic.png', 'I', -6);
+  $buttons[] = array($eid, 'Headers', "js: eDefTagChooser([\n ['h1', 'Header1'],\n ['h2', 'Header2'],\n ['h3', 'Header3'],\n ['h4', 'Header4']\n], true, 'li', 'ul', 'slideDown');", 'headers.png', 'H', -5);
+  $buttons[] = array($eid, 'tpl:', '', 'separator.png', '', -4);
+  $buttons[] = array($eid, 'Ordered list. Converts selected lines to a numbered list.', "js: eDefSelProcessLines('<ol>\\n', ' <li>', '</li>', '\\n</ol>');", 'ol.png', 'O', -2);
+  $buttons[] = array($eid, 'Unordered list. Converts selected lines to a bulleted list.', "js: eDefSelProcessLines('<ul>\\n', ' <li>', '</li>', '\\n</ul>');", 'ul.png', 'U', -2);
+  $buttons[] = array($eid, 'tpl:', '', 'separator.png', '', 0);
+  $buttons[] = array($eid, 'Teaser break', "<!--break-->", 'teaserbr.png', 'T', 2);
+  $buttons[] = array($eid, 'Preview', "js: eDefPreview();", 'preview.png', 'P', 6);
+  $buttons[] = array($eid, 'Help', "js: eDefHelp('slideDown');", 'help.png', 'F', 10);
+
+  foreach ($buttons as $button) {
+    db_query("INSERT INTO {bueditor_buttons} (eid, title, content, icon, accesskey, weight) VALUES (%d, '%s', '%s', '%s', '%s', %d)", $button);
+  }
+
+}
+
+/**
  * Update from 4|5.x to 6.x
  * Add iconpath and librarypath fields to {bueditor_editors}.
  * Change accesskey field type from char to varchar.
@@ -180,5 +188,6 @@ function bueditor_update_6000() {
   db_add_field($ret, 'bueditor_editors', 'librarypath', $librarypath);
   db_change_field($ret, 'bueditor_buttons', 'accesskey', 'accesskey', $accesskey);
   variable_del('bueditor_cron_last');
+  bueditor_insert_latest('Default 6.x');
   return $ret;
 }
