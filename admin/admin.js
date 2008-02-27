@@ -1,51 +1,33 @@
 // $Id$
 
-if (Drupal.jsEnabled) {
-  $(document).ready(editorAdminInitiate);
-}
-
 function editorAdminInitiate() {
-  $('#button-table select').each(function () {
-    if (this.id.substr(this.id.length-5)=='-icon') {
-      $(this).change(function () { editorIconCap(this) });
-      editorIconCap(this);
+  var table = $('#button-table');
+  table.find('select').each(function () {
+    if (this.id.substr(this.id.length-5) == '-icon') {
+      $(this).change(function() {editorIconCap(this);}).change();
     }
   });
-  if ($('#button-table').get(0).rows[1].cells[5].getElementsByTagName('input').length) {
-    $('#button-table').get(0).rows[0].cells[5].innerHTML = '<input type="checkbox" onclick="editorCheckAll(this.checked)">';
-    $('#edit-go').click(editorGoSelected);
+  if (table.find('input:checkbox').size()) {
+    $('#edit-go').click(function() {
+      return $('#edit-selaction').val() && table.find('input:checkbox:checked').size() ? true : false
+    });
   }
   else {
-    $('#edit-go').css('display', 'none');
-    $('#edit-selaction').css('display', 'none');
+    $('#edit-go,#edit-selaction').hide();
   }
 }
 
-function editorIconCap(input) {
-  input.parentNode.lastChild.tagName=='IMG' ? input.parentNode.removeChild(input.parentNode.lastChild) : '';
-  var cap = $('#edit-button-'+ input.id.split('-')[2] +'-caption').get(0);
-  if (input.value) {
-    cap.style.display =  'none';
-    var img = document.createElement('img');
-    img.src = editorPath +'icons/'+ input.value;
-    img.style.display = 'block';
-    input.parentNode.appendChild(img);
+function editorIconCap(selbox) {
+  var cap = $('#'+ selbox.id.substr(0, selbox.id.length-4) +'caption-wrapper');
+  var img = $(selbox.nextSibling.tagName == 'IMG' ? selbox.nextSibling : document.createElement('img'));
+  if (selbox.value) {
+    cap.hide();
+    img.attr('src', iconPath +'/'+ selbox.value).insertAfter(selbox).css('display', 'block');
   }
   else {
-    cap.style.display =  'block';
+    cap.show();
+    img.hide();
   }
 }
 
-function editorCheckAll(state) {
-  $('#button-table tbody input[@type=checkbox]').each(function () {this.checked = state});
-}
-
-function editorGoSelected() {
-  if ($('#edit-selaction').get(0).selectedIndex) {
-    var chk, chks = $('#button-table tbody input[@type=checkbox]');
-    for (var i=0; chk=chks[i]; i++) {
-      if (chk.checked) return true;
-    }
-  }
-  return false;
-}
+$(document).ready(editorAdminInitiate);

@@ -1,7 +1,7 @@
 // $Id$
 //collection of functions required for editor default buttons.
 
-//Automatically break new lines as in Drupal preview. ported from original php function at http://photomatt.net/scripts/autop
+//Automatically break new lines like in Drupal preview. ported from the php equivalent http://photomatt.net/scripts/autop
 function eDefAutoP(txt, br) {
   var br = typeof br == 'undefined' ? 1 : br;
   var txt = txt||'';
@@ -44,30 +44,32 @@ function eDefProcessLines(text, tagA, tagB) {
 }
 //enclose lines in the selected text with inA and inB and then enclose the resulting text with outA and outB. If the selected text was processed before, restore it.
 function eDefSelProcessLines(outA, inA, inB, outB) {
-  var match, E = editor.active, sel = E.getSelection().replace(/\r\n|\r/g, '\n');
+  var match, E = BUE.active, sel = E.getSelection().replace(/\r\n|\r/g, '\n');
   if (!sel) E.tagSelection(outA+inA, inB+outB);
-  else if (match = sel.match(new RegExp('^'+ editor.regEsc(outA) + editor.regEsc(inA) +'((.|\n)*)'+ editor.regEsc(inB) + editor.regEsc(outB) +'$'))) {
-    E.replaceSelection(match[1].replace(new RegExp(editor.regEsc(inB) +'\n'+ editor.regEsc(inA), 'g'), '\n'));
+  else if (match = sel.match(new RegExp('^'+ eDefRegEsc(outA) + eDefRegEsc(inA) +'((.|\n)*)'+ eDefRegEsc(inB) + eDefRegEsc(outB) +'$'))) {
+    E.replaceSelection(match[1].replace(new RegExp(eDefRegEsc(inB) +'\n'+ eDefRegEsc(inA), 'g'), '\n'));
   }
   else E.replaceSelection(outA+eDefProcessLines(sel, inA, inB)+outB);
 }
 
 //return html for the given tag. attributes having value=null are not printed.
 function eDefHTML(tag, innerHTML, attributes) {
-  var attributes = attributes||[];
+  var attr = attributes||{}, inner = innerHTML||'';
   var html = '<'+ tag;
-  for (var i in attributes) {
-    html += attributes[i] == null ? '' : ' '+ i +'="'+ attributes[i] +'"';
+  for (var i in attr) {
+    html += attr[i] == null ? '' : ' '+ i +'="'+ attr[i] +'"';
   }
-  html += editor.inArray(tag, ['img', 'input', 'hr', 'br']) ? ' />' : '>'+ innerHTML +'</'+ tag +'>';
-  return html;
+  html += eDefNoEnd(tag) ? (' />'+ inner) : ('>'+ inner +'</'+ tag +'>');
+  return tag ? html : inner;
+}
+//check if the tag is non-closing
+function eDefNoEnd(tag) {
+  return !tag || $.inArray(tag, ['img', 'input', 'hr', 'br']) > -1 ? true : false;
 }
 
 //returns form input html.
 function eDefInput(type, name, value, attributes) {
-  var a = {'type': type, 'name': name, 'value': value||''}, b = attributes||{};
-  for (var i in b) a[i] = b[i];
-  return eDefHTML('input', '', a);
+  return eDefHTML('input', '', $.extend({'type': type, 'name': name, 'value': value||null}, attributes));
 }
 function eDefInputText(name, value, size) {
   return eDefInput('text', name, value, {'size': size||null});
@@ -78,12 +80,11 @@ function eDefInputSubmit(name, value) {
 
 //returns selectbox. options is the object having property:value pairs.
 function eDefSelectBox(name, value, options, attributes) {
-  var options = options||[], output = '';
+  var options = options||{}, html = '';
   for (var i in options) {
-    output += eDefHTML('option', options[i], {value: i, selected: i == value ? 'selected' : null});
+    html += eDefHTML('option', options[i], {'value': i, 'selected': i == value ? 'selected' : null});
   }
-  typeof(attributes) == 'object' ? (attributes.name = name) : (attributes = {'name': name});
-  return eDefHTML('select', output, attributes);
+  return eDefHTML('select', html, $.extend({}, attributes, {'name': name}));
 }
 
 //return a table row containing the cells(array of strings or objects(data:string, attributes:object))
@@ -104,154 +105,165 @@ function eDefTable(rows, attributes) {
 
 //Previews the textarea content. By default, lines and paragraphs break automatically. Set NoAutoP=true to preview pure html. Set selOnly=true to preview only the selected text.
 function eDefPreview(NoAutoP, selOnly) {
-  var P, E = editor.active, T = E.textArea;
-  if (E.preview) {
-    P = E.preview;
+  var E = BUE.active, T = $(E.textArea);
+  if (!E.preview) {
+    E.preview = $(document.createElement('div')).addClass('preview').css({'display': 'none', 'overflow': 'auto'}).insertBefore(T);
   }
-  else {
-    P = document.createElement('div');
-    P.className = 'preview';
-    P.style.display = 'none';
-    P.style.overflow = 'auto';
-    T.parentNode.insertBefore(P, T);
-    E.preview = P;
-  }
-  if (P.style.display == 'none') {
-    var html = selOnly ? E.getSelection() : T.value;
+  var P =  E.preview; 
+  if (P.css('display') == 'none') {
+    var html = selOnly ? E.getSelection() : T.val();
     html = NoAutoP ? html : eDefAutoP(html);
-    P.style.display = 'block';
-    P.style.height = T.style.height||(T.offsetHeight+'px');
-    P.style.width = T.style.width||(T.offsetWidth+'px');
-    P.innerHTML = '<div class="node"><div class="content">'+ html +'</div></div>';
-    T.style.height = '1px';
+    P.show().height(T.height()).width(T.width()).html('<div class="node"><div class="content">'+ html +'</div></div>');
+    T.height(1);
     E.buttonsDisabled(true, E.bindex);
-    editor.addClass(E.buttons[E.bindex], 'stay-clicked');
+    $(E.buttons[E.bindex]).addClass('stay-clicked');
   }
   else {
-    editor.delClass(E.buttons[E.bindex], 'stay-clicked');
+    $(E.buttons[E.bindex]).removeClass('stay-clicked');
     E.buttonsDisabled(false);
-    T.style.height = P.style.height;
-    P.style.display = 'none';
+    T.height(P.height());
+    P.hide();
   }
 }
 
-//Display help text(button title) for each button of the editor.
-function eDefHelp() {
-  var b, rows = [], E = editor.active;
-  if (typeof eDefHelpHTML == 'undefined') {
-    for (var i=0; b=E.buttons[i]; i++) {
-      rows[i] = [eDefInput(b.type,'', b.value||'', {'class': b.className, src: b.src||null}), b.title];
+//Display help text(button title) for each button of the BUE.
+function eDefHelp(effect) {
+  var B, rows = [], E = BUE.active;
+  if (typeof E.helpHTML == 'undefined') {
+    for (var i = 0; B = E.buttons[i]; i++) {
+      rows[i] = [eDefInput(B.type, null, B.value||null, {'class': B.className, 'src': B.src||null}), B.title];
     }
-    eDefHelpHTML = eDefTable(rows, {id: 'editor-help'});
+    E.helpHTML = eDefTable(rows, {'id': 'editor-help'});
   }
-  editor.dialog.open(editor.buttons[E.bindex][0], eDefHelpHTML);
+  BUE.quickPop.open(E.helpHTML, effect);
 }
 
 //html for file browser button..
 function eDefBrowseButton(url, field, text, type) {
-  return url ? eDefInput('button', 'brw', text||'Browse', {onclick: 'eDefFileBrowser(\''+ url +'\', this.form.elements[\''+ field +'\'].value, \''+ type +'\')'}) : '';
+  return url ? eDefInput('button', 'brw', text||'Browse', {'onclick': 'eDefFileBrowser(\''+ url +'\', this.form.elements[\''+ field +'\'].value, \''+ type +'\')'}) : '';
 }
 
 //open the file browser.
 function eDefFileBrowser(bURL, fURL, type) {
-  eDefImceUrl = fURL;
-  window.open(bURL, 'eDef', 'width=640, height=480, resizable=1');
+  eDefFileURL = fURL;
+  if (typeof eDefImceWin == 'undefined' || eDefImceWin.closed) {//open popup
+    eDefImceWin = window.open(bURL, '', 'width='+ 760 +',height='+ 560 +',resizable=1');
+    eDefImceWin['imceOnLoad'] = eDefImceLoad;//set a function to be executed when imce loads.
+  }
+  else eDefImceHighlight(eDefImceWin);//if popup is already opened. highlight the file url.
+  eDefImceWin.focus();//bring the popup into view
 }
 
-//IMCE custom URL and custom finishing function. IMCE js API.
-var eDefImceUrl = '';
-function eDefImceFinish(url, width, height, fsize, win) {
+//Executed when imce loads. Sets a send to opearation.(title is "Send to BUEditor". files are send to eDefImceFinish)
+function eDefImceLoad(win) {
+  win.imce.setSendTo(Drupal.t('Send to @app', {'@app': 'BUEditor'}), eDefImceFinish);
+  eDefImceHighlight(win);
+}
+
+//IMCE complete
+function eDefImceFinish(file, win) {
   var el = document.forms['eDefForm'].elements;
-  var val = {src: url, href: url, width: width, height: height}
+  var val = {'src': file.url, 'alt': file.name, 'href': file.url, 'width': file.width, 'height': file.height}
   for (var i in val) {
     if (el['attr_'+i]) el['attr_'+i].value = val[i];
   }
-  win.close();
+  win.blur();//or close()
+}
+
+//IMCE file highlight
+function eDefImceHighlight(win) {
+  var filename = eDefFileURL.substr(eDefFileURL.lastIndexOf('/')+1);
+  if (win.imce.vars.prvid != filename) {//check if its already in preview
+    win.imce.fileClick(filename);//select the file
+  }
 }
 
 //open a dialog for any tag to get user input for the given attributes(fields).
-function eDefTagDialog(tag, fields, dtitle, stitle, func) {
-  var field, title, html, rows = [], obj = eDefParseTag(editor.active.getSelection(), tag)||{attributes: []};
-  for (var i=0; field=fields[i]; i++) {
-    if (typeof(field) == 'string') field = {name: field};
-    title  = typeof(field['title']) == 'string' ? field['title'] : field['name'].substr(0, 1).toUpperCase() + field['name'].substr(1);
-    html = eDefAttrField(field, obj.attributes[field['name']]);
-    while (field['getnext'] && (field = fields[++i])) {
-      if (typeof(field) == 'string') field = {name: field};
-      html += eDefAttrField(field, obj.attributes[field['name']]);
+function eDefTagDialog(tag, fields, dtitle, stitle, func, effect) {
+  var field, title, html, rows = [], sel = BUE.active.getSelection(), obj = eDefParseTag(sel, tag)||{'attributes': {}};
+  for (var i=0; field = fields[i]; i++) {
+    field = typeof(field) == 'string' ? {'name': field} : field;
+    field.value = field.name == 'html' ? (typeof(obj.innerHTML) == 'string' ? obj.innerHTML : sel) : '';
+    title  = typeof(field.title) == 'string' ? field.title : field.name.substr(0, 1).toUpperCase() + field.name.substr(1);
+    html = eDefAttrField(field, obj.attributes[field.name]);
+    while (field.getnext && (field = fields[++i])) {
+      if (typeof(field) == 'string') field = {'name': field};
+      html += eDefAttrField(field, obj.attributes[field.name]);
     }
     rows[rows.length] = [title, html];
   }
-  html = eDefTable(rows, {'class': 'editor-tagedit'}) +'<br />'+ eDefHTML('input', '', {type: 'submit', value: stitle||null});
-  html = eDefHTML('form', html, {name: 'eDefForm', onsubmit: (func||'eDefTagInsert')+'(\''+ tag +'\', this); return false;'});
-  editor.dialog.open(dtitle||(tag.toUpperCase() +' Tag Dialog'), html);
+  html = eDefTable(rows, {'class': 'editor-tagedit'}) +'<br />'+ eDefHTML('input', '', {'type': 'submit', 'value': stitle||null});
+  html = eDefHTML('form', html, {'name': 'eDefForm', 'onsubmit': (func||'eDefTagInsert')+'(\''+ tag +'\', this); return false;'});
+  BUE.dialog.open(dtitle||(tag.toUpperCase() +' Tag Dialog'), html, effect);
+  try{document.forms['eDefForm'].elements[0].focus()} catch(e){};//try focusing on the first input
 }
 
 //return form element html for a given attribute(field)
 function eDefAttrField(field, value) {
-  var value = typeof(value) == 'string' ? value : (field['value']||'');
-  var html = field['prefix']||'';
-  if (field['type'] == 'select') {
-    html += eDefSelectBox('attr_'+ field['name'], value, field['options'], field['attributes']);
+  var name = 'attr_'+ field.name;
+  var value = (typeof(value) == 'string' ? value : (field.value||'')).replace(/</g, '&lt;').replace(/\"/g, '&quot;');
+  var type = value.indexOf('\n') != -1 ? 'textarea' : (field.type||'text');
+  var html = field.prefix||'';
+  switch (type) {
+    case 'select': html += eDefSelectBox(name, value, field.options, field.attributes); break;
+    case 'textarea': html += eDefHTML('textarea', '\n'+value, $.extend({'name': name}, field.attributes)); break;
+    default: html += eDefInput('text', name, value, field.attributes); break;
   }
-  else {
-    html += eDefInput('text', 'attr_'+ field['name'], value, field['attributes']);
-  }
-  return html + (field['suffix']||'');
+  return html + (field.suffix||'');
 }
 
 //create and insert the html for the tag with user-supplied form values.
-function eDefTagInsert(tag, form) {try {
-  var name, el, obj = eDefParseTag(editor.active.getSelection(), tag)||{attributes: []};
-  for (var i=0; el = form.elements[i]; i++) {
+function eDefTagInsert(tag, form) {try{//this is a submit event.
+  var name, el, obj = eDefParseTag(BUE.active.getSelection(), tag)||{'attributes': {}};
+  for (var i = 0; el = form.elements[i]; i++) {
     if (el.name.substr(0, 5) == 'attr_') {
       name = el.name.substr(5);
-      obj.attributes[name] = el.value == '' ? (tag == 'img' && editor.inArray(name, ['src', 'alt']) ? '' : null) : el.value;
+      if (name == 'html') obj.innerHTML = el.value;
+      else obj.attributes[name] = el.value == '' ? (tag == 'img' && (name == 'src' || name == 'alt') ? '' : null) : el.value;
     }
   }
-  editor.dialog.close();
-  if (typeof(obj.innerHTML) == 'string' || editor.inArray(tag, ['img', 'input', 'hr', 'br'])) {
-    editor.active.replaceSelection(eDefHTML(tag, obj.innerHTML, obj.attributes));
+  BUE.dialog.close();
+  if (typeof(obj.innerHTML) == 'string' || eDefNoEnd(tag)) {
+    BUE.active.replaceSelection(eDefHTML(tag, obj.innerHTML, obj.attributes));
   }
   else {
-    var txt = eDefHTML(tag, '', obj.attributes);
-    editor.active.tagSelection(txt.substr(0, txt.length-tag.length-3), '</'+ tag +'>');
+    var html = eDefHTML(tag, '', obj.attributes);
+    BUE.active.tagSelection(html.substr(0, html.length-tag.length-3), '</'+ tag +'>');
   }
-} catch(e){}}
-
+}catch(e){}}
 
 //if the given text matches html syntax of the given tag, return attributes and innerHMTL of it, otherwise return null.
-eDefParseTag = function (text, tag) {
-  var result, arr = [], attr = [];
-  var re = new RegExp('^<'+ tag +'([^>]*)'+ (editor.inArray(tag, ['img', 'input', 'hr', 'br']) ? '' : ('>((.|[\r\n])*)<\/'+tag)) +'>$');
+function eDefParseTag(text, tag) {
+  var result, arr = [], attr = {};
+  var re = new RegExp('^<'+ tag +'([^>]*)'+ (eDefNoEnd(tag) ? '' : ('>((.|[\r\n])*)<\/'+tag)) +'>$');
   if (result = re.exec(text)) {
-    if ((arr = result[1].split('"')).length>1) {
-      for (var i=0; typeof(arr[i+1])!='undefined'; i+=2) attr[arr[i].replace(/\s|\=/g, '')] = arr[i+1];
+    if ((arr = result[1].split('"')).length > 1) {
+      for (var i = 0; typeof(arr[i+1]) != 'undefined'; i += 2) {
+        attr[arr[i].replace(/\s|\=/g, '')] = arr[i+1];
+      }
     }
-    return {attributes : attr, innerHTML : result[2]||''};
+    return {'attributes': attr, 'innerHTML' : result[2]||''};
   }
   return null;
 }
 
+//escape regular expression specific characters
+function eDefRegEsc (text) {
+  return text.replace(/([\\\^\$\*\+\?\.\(\)\[\]\{\}\|])/g, '\\$1');
+};
 
-//THIS IS HERE FOR BACKWARD COMPATIBILITY.
-//eDefFileDialog is deprecated. the new eDefTagDialog allows to open dialogs for any tag and any attribute.
-//file dialog for the type. labels are interface texts. bURL is the URL of the file browser.
-function eDefFileDialog(type, L, bURL) {
-  if (type == 'image'){
-    var form = [
-      {name: 'src', title: L.url, 'suffix': eDefBrowseButton(bURL, 'attr_src', L.brw, 'image')},
-      {name: 'width', title: L.w +' x '+ L.h, suffix: ' x ', getnext: true, attributes: {size: 3}},
-      {name: 'height', attributes: {size: 3}},
-      {name: 'alt', title: L.alt}
-    ];
-    eDefTagDialog('img', form, L.title, L.ok);
+//create clickable tag options that insert corresponding tags into the editor.[[tag, title, attributes],[...],...]
+function eDefTagChooser(tags, applyTag, wrapEach, wrapAll, effect) {
+  var content = '';
+  var choice = eDefHTML(wrapEach, '<a href="javascript:void(0)" class="choice" onclick="eDefClickChoice(\'%tag\', \'%esc\')">%html</a>') +'\n';
+  for (var i in tags) {
+    var html = eDefHTML(tags[i][0], tags[i][1], tags[i][2]);
+    content += choice.replace('%html', applyTag ? html : tags[i][1]).replace('%tag', tags[i][0]).replace('%esc', escape(html));
   }
-  else if (type == 'link') {
-    var form = [
-      {name: 'href', title: L.url, 'suffix': eDefBrowseButton(bURL, 'attr_href', L.brw, 'link')},
-      {name: 'title', title: L.tt}
-    ];
-    eDefTagDialog('a', form, L.title, L.ok);
-  }
+  BUE.quickPop.open(eDefHTML(wrapAll, content, {'class': 'chooser'}), effect);
+}
+function eDefClickChoice(tag, html) {
+  var html = unescape(html), partA = html.substr(0, html.indexOf('>')+1), E = BUE.active;
+  eDefNoEnd(tag) ? E.replaceSelection(partA) : E.tagSelection(partA, html.substr(html.lastIndexOf('<')));
+  E.focus();
 }

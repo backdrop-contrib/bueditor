@@ -13,14 +13,18 @@
   width: 50%;
 }
 .sel-action {
-  text-align: right;
+  float: right;
+  margin: 0.5em;
 }
 .sel-action div {
   display: inline;
 }
 .sel-action select, .sel-action input {
-  margin: 0px;
+  margin: 0em;
 }
 #editor-demo {
   width: 94%;
+}
+#edit-submit {
+  margin: 0.5em;
 }

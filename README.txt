@@ -6,6 +6,9 @@ The most important feature of this editor is its highly customizable functionali
 It's possible to add image and text buttons whose functions are determined by the user.
 Buttons can be customized to generate code snippets, html tags, bbcode tags etc.
 
+- WHAT'S NEW IN 6.x:
+ - to be documented...
+
 
 - HOW TO INSTALL:
 1) Copy editor directory to your modules directory.
@@ -28,7 +31,8 @@ You can add buttons to an editor by two methods;
 
 - BUTTON PROPERTIES
 TITLE:(required) Title or name of the button. Displayed as a hint on mouse over. A title can be translated
-by prefixing it with "t:". Ex: t:Bold turns into t('Bold')
+by prefixing it with "t:". Ex: t:Bold turns into t('Bold'). If the title starts with "tpl:", the button is considered a
+theme button. See BUTTON TYPES
 CONTENT: Html or javascript code that is processed when the button is clicked. This can also be
 php code that is pre evaluated and return html or javascript code. See BUTTON TYPES.
 ICON: Image or text to display the button.
@@ -43,6 +47,7 @@ There are three types of buttons regarding the CONTENT property;
 1- HTML BUTTONS 
 2- JAVASCRIPT BUTTONS 
 3- PHP BUTTONS
+4- THEME BUTTONS
 
 
 - HTML BUTTONS
@@ -59,10 +64,10 @@ Note: if you want to insert some text containing the phrase %TEXT%, use a javasc
 
 
 - JAVASCRIPT BUTTONS
+These type of buttons are used for special cases where it is insufficient to just replace the selected text.
 The content of a javascript button must begin with a 3 charater text "js:" to be differentiated from a
 html button. The remaining code is treated as a javascript code and executed in a function when the
-button is clicked. These type of buttons are used for special cases where it is insufficient to just replace the 
-selected text.
+button is clicked. Function is called with the parameter E which represents the active editor. 
 Editor has many ready-to-use methods and variables making it easier to create javascript buttons.
 See EDITOR VARIABLES AND METHODS and especially EDITOR INSTANCE variables and methods.
 
@@ -81,6 +86,40 @@ if (user_access('access foo')) {
 }
 turns into a javascript button having the returned content for users having "access foo" permission. for others 
 it is disabled and doesnt show up.
+
+
+- THEME BUTTONS
+A theme button is a special type of button that just inserts html into editor interface for theming purposes. It can be
+used to insert separators, line breaks or any html code in order to achieve the themed editor interface. For a button to
+be considered as a theme button it should have a title starting with "tpl:". Having this title, the button is processed as just
+a piece of html code. Three properties(content, icon, caption) of the button determine the inserted code. And of course the
+weight property determines the order of insertion.
+
+In order to determine what the button inserts;
+ - first, content is checked and 
+    - if it is javascript code(js:) it is executed and the returned value is inserted into the layout
+    - otherwise it is inserted as it is.
+ - then, icon or caption is checked and inserted wrapped in "<span class="separator"></span>".
+
+Here are some examples;
+
+[title: "tpl:", content: "<br />", caption: ""]
+Inserts <br />.(line break)
+
+[title: "tpl:", content: "<br />", icon: "separator.png"]
+Inserts <br /><span class="separator"><img src="path-to-sparator.png"></span>.
+
+[title: "tpl:", content: "", caption: "|"] OR [title: "tpl:", content: "<span class="separator">|</span>"]
+Inserts <span class="separator">|</span>.
+
+[title: "tpl:", content: "js: return new Date()"]
+Inserts new date returned from javascript.
+
+You can also create groups of buttons by creating wrappers around them;
+
+[title: "tpl:", content: "<div class="group1">"] (Start wrapping by opening a div)
+[...buttons of the group in between(can be both theme buttons and functional buttons)]
+[title: "tpl:", content: "</div>"] (End wrapping by closing the div)
 
 
 - EDITOR VARIABLES
@@ -122,8 +161,7 @@ Each editor running on the page for a textarea is called an instance. Editor ins
 and methods that make it easy to edit textarea content. Active instance on the page can be accessed by the 
 variable "editor.active".
 
-Lets assume that we assigned editor.active to a variable E  in our js button's content(actually we dont need this
-anymore since the button function is now called with the parameter E).
+E is the editor.active  in our js button's content.
 Here are the VARIABLES of the istance E:
 
 E.textArea: textarea of the instance as an HTML object.
@@ -290,7 +328,7 @@ will create a DIV Tag Dialog requesting values of attributes id, class and style
 is a proper DIV tag, and if so, will put the values of attributes to the corresponding fields. After submission, it will
 enclose/replace the selection in textarea.
 
-You might have noticed that fields in image/link dialogs are declared as objects not asstrings. That's a
+You might have noticed that fields in image/link dialogs are declared as objects not as strings. That's a
 customized form of declaring attributes. It is ideal to use an object if you want
 - a field type other than textfield (type: 'select', options: {'left': 'Left', 'right': 'Right'}) - only select is supported.
 - a custom label (title: 'Image URL')

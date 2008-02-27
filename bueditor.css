@@ -37,8 +37,11 @@
 }
 .editor-popup tr.head {
   font-weight: bold;
-  border-top: 1px solid #000;
+  border-top: none;
   cursor: move;
+}
+.editor-popup tr.body {
+  border-bottom: none;
 }
 .editor-popup td.title {
   font-size: 1.1em;
@@ -55,10 +58,37 @@
 .editor-popup td.close a:hover {
   text-decoration: none;
 }
+.editor-popup td.cnt {
+  padding: 0.3em 1.5em 0.3em 0.6em;
+}
 .editor-popup tbody {
   border: none;
 }
 
 #editor-help {
-  width: 400px;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+/*Added with 6.x.*/
+.editor-container span.separator {
+  line-height: 24px;
+  font-size: 11px;
+  vertical-align: middle;
+  padding: 0px 1px;
+}
+.editor-container span.separator img {
+  vertical-align: middle;
+  margin: 2px 0px;
+}
+.editor-container div {
+  display: inline;
+}
+/*quickpop*/
+table#bue-quickpop {}
+#bue-quickpop a {
+  color: #444;
+}
+#bue-quickpop tr {
+  border: none;
 }
