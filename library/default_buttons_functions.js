@@ -267,3 +267,11 @@ function eDefClickChoice(tag, html) {
   eDefNoEnd(tag) ? E.replaceSelection(partA) : E.tagSelection(partA, html.substr(html.lastIndexOf('<')));
   E.focus();
 }
+
+//Tag toggling. if the selection is an instance of the tag remove the tag, otherwise insert it.
+function eDefTagger(tag, attributes, cursor) {
+  var E = BUE.active, sel = E.getSelection(), dom = eDefParseTag(sel, tag), html = eDefHTML(tag, sel, attributes);
+  if (dom) E.replaceSelection(dom.innerHTML, cursor);
+  else if (sel) E.replaceSelection(html, cursor);
+  else E.tagSelection(html.substr(0, html.indexOf('>')+1), html.substr(html.lastIndexOf('<')), cursor);
+}
