@@ -38,19 +38,16 @@ function eDefAutoP(txt, br) {
 	return txt;
 }
 
-//enclose each line in the given text with the given tags.
-function eDefProcessLines(text, tagA, tagB) {
-  return tagA+ text.replace(/(\r?\n|\r)/g, tagB+'$1'+tagA) +tagB;
-}
 //enclose lines in the selected text with inA and inB and then enclose the resulting text with outA and outB. If the selected text was processed before, restore it.
-function eDefSelProcessLines(outA, inA, inB, outB) {
+function eDefTagLines(outA, inA, inB, outB) {
   var match, E = BUE.active, sel = E.getSelection().replace(/\r\n|\r/g, '\n');
   if (!sel) E.tagSelection(outA+inA, inB+outB);
   else if (match = sel.match(new RegExp('^'+ eDefRegEsc(outA) + eDefRegEsc(inA) +'((.|\n)*)'+ eDefRegEsc(inB) + eDefRegEsc(outB) +'$'))) {
     E.replaceSelection(match[1].replace(new RegExp(eDefRegEsc(inB) +'\n'+ eDefRegEsc(inA), 'g'), '\n'));
   }
-  else E.replaceSelection(outA+eDefProcessLines(sel, inA, inB)+outB);
+  else E.replaceSelection(outA + inA + sel.replace(/(\r?\n|\r)/g, inB +'$1'+ inA) + inB + outB);
 }
+eDefSelProcessLines = eDefTagLines;//backward compatibility.
 
 //return html for the given tag. attributes having value=null are not printed.
 function eDefHTML(tag, innerHTML, attributes) {
