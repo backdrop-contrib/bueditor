@@ -2,25 +2,26 @@
 
 - BUEditor:
 A plain textarea editor aiming to facilitate code writing.
-It's the most customizable editor of the web because it is built by the user from scratch.
-It's the user who determines the functionality by defining functional image or text buttons that generate
-code snippets, html tags, bbcode tags etc.
-It's the user who determines the design and layout by defining theme buttons that insert html to the layout.
+It's the most customizable text editor of the web because it allows you to;
+ - build the editor from scratch.
+ - determine the functionality by defining image or text buttons that generate code snippets, html tags, bbcode tags etc.
+ - determine the design and layout by defining theme buttons that insert html to the layout.
 
 
 - WHAT'S NEW IN 6.x:
- - jQuery dependency. BUE makes use of jquery now. (ex: effects in popup openings)
+ - jQuery in core. BUE makes use of jquery now. (ex: effects in popup openings)
  - custom icon and library paths for each editor.
  - support for using different editor templates for differnet textareas in a page.
- - theme buttons that provide unlimited layout theming options.
+ - alternative editor assignment for user roles.
+ - theme buttons that provide unlimited theming options.
  - Headers (h1, h2, h3, h4) button and separators in default editor.
  - changed key variable from "editor" to "BUE". (ex: editor.active is now BUE.active)
  - another popup dialog(BUE.quickPop) that has no title or close button.
  In default buttons' library:
  - new eDefTagChooser function that uses BUE.quickPop to allow users choose among predefined tags.
  - new eDefTagger function that toggles(inserts or removes) a predefined tag in the selection.
- - eDefTagDialog now accepts a special attribute name, "html", that represents the inner html of the tag.
- - eDefTagDialog now accepts "textarea" as a field type.
+ - eDefTagDialog accepts a special attribute name, "html", that represents the inner html of the tag.
+ - eDefTagDialog accepts "textarea" as a field type.
 
 
 - HOW TO INSTALL:
