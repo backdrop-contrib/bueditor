@@ -9,10 +9,10 @@ function bueditor_admin() {
   $header = array(t('Editor name'), array('data' => t('Operations'), 'colspan' => 2));
   $rows = array();
   foreach ($editors as $eid => $editor) {
-    $rows[] = array($editor->name, l(t('Edit'), 'admin/settings/bueditor/'.$eid), l(t('Delete'), 'admin/settings/bueditor/'. $eid .'/delete'));
+    $rows[] = array($editor->name, l(t('Edit'), 'admin/settings/bueditor/'. $eid), l(t('Delete'), 'admin/settings/bueditor/'. $eid .'/delete'));
   }
   $rows[] = array(array('data' => l(t('Add new editor'), 'admin/settings/bueditor/new'), 'colspan' => 3));
-  $output = '<h2 class="title">'. t('Available editors'). '</h2>';
+  $output = '<h2 class="title">'. t('Available editors') .'</h2>';
   $output .= theme('table', $header, $rows);
   $output .= drupal_get_form('bueditor_admin_form');
   return $output;
@@ -35,7 +35,7 @@ function bueditor_admin_form($form_state) {
     $core = $rid == DRUPAL_ANONYMOUS_RID || $rid == DRUPAL_AUTHENTICATED_RID;
     $form['roles'][$rid] = bueditor_role_form($role, $form['#weighted'], $core);
   }
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'),);
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
   $form['#submit'][] = 'bueditor_admin_submit';
   $form['#theme'] = 'bueditor_admin';
   return $form;
@@ -63,7 +63,7 @@ function bueditor_admin_theme($form = array()) {
     $rows[] = $cells;
   }
 
-  $output = '<h2 class="title">'. t('Role-editor assignments'). '</h2>';
+  $output = '<h2 class="title">'. t('Role-editor assignments') .'</h2>';
   $output .= theme('table', $header, $rows);
   $output .= '<div class="form-item"><div class="description">'. t('Assign editors to user roles.') .'<br />'. t('Alternative editor makes it possible to use different editors for different textareas or different editors on diffrent pages. You just have to configure visibility settings for each editor.') . $info .'</div></div>';
   $output .= drupal_render($form);
@@ -209,7 +209,7 @@ function bueditor_editor_form($form_state, $editor = NULL) {
     '#title' => t('Directory of editor library'),
     '#maxlength' => 255,
     '#default_value' => $editor->eid ? $editor->librarypath : '%BUEDITOR/library',
-    '#description' => t('Web accessible directory path where library files reside.') .' '. t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme\'s path).'),
+    '#description' => t('Web accessible directory path where external javascript files reside.') .' '. t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme\'s path).'),
   );
 
   //buttons
@@ -258,17 +258,17 @@ function bueditor_editor_theme($form = array()) {
     $cells = array();
     $cells[] = drupal_render($form['buttons'][$bid]['title']);
     $cells[] = drupal_render($form['buttons'][$bid]['content']);
-    $cells[] = drupal_render($form['buttons'][$bid]['icon']). drupal_render($form['buttons'][$bid]['caption']);
+    $cells[] = drupal_render($form['buttons'][$bid]['icon']) . drupal_render($form['buttons'][$bid]['caption']);
     $cells[] = drupal_render($form['buttons'][$bid]['accesskey']);
     $cells[] = drupal_render($form['buttons'][$bid]['weight']);
-    $cells[] = $new ? '<a>'.t('new').'</a>' : drupal_render($form['checks'][$bid]);
+    $cells[] = $new ? '<a>'. t('new') .'</a>' : drupal_render($form['checks'][$bid]);
     $rows[] = $new ? array('data' => $cells, 'class' => 'new-button', 'title' => t('Add new button')) : $cells;
   }
 
   $eid = $form['editor']['eid']['#value'];
   $path = drupal_get_path('module', 'bueditor');
-  drupal_add_css($path.'/admin/admin.css', 'media', 'all', FALSE);//no preprocessing
-  drupal_add_js($path.'/admin/admin.js', 'module', 'header', FALSE, TRUE, FALSE);//no preprocessing
+  drupal_add_css($path .'/admin/admin.css', 'media', 'all', FALSE);//no preprocessing
+  drupal_add_js($path .'/admin/admin.js', 'module', 'header', FALSE, TRUE, FALSE);//no preprocessing
   drupal_add_js('var iconPath = "'. base_path() . bueditor_path_tr($form['editor']['iconpath']['#value']) .'"', 'inline');
 
   $help = '<div class="help">'. t('To add a new button, you can either specify it at the bottom of the button list or import a CSV file which contains previously exported buttons. For more information about buttons and editor API please read !readme.', array('!readme' => '<a href="'. base_path() . $path .'/README.txt">README.txt</a>')) .'</div>';
@@ -276,19 +276,19 @@ function bueditor_editor_theme($form = array()) {
   $selaction = '<div class="sel-action">'. drupal_render($form['selaction']) . drupal_render($form['go']) .'</div>';
   $visibility = theme('fieldset', array(
     '#title' => t('Visibility settings'),
-    '#children' => drupal_render($form['editor']['pages']). drupal_render($form['editor']['excludes']),
+    '#children' => drupal_render($form['editor']['pages']) . drupal_render($form['editor']['excludes']),
     '#collapsible' => TRUE,
     '#collapsed' => $eid
   ));
   $paths = theme('fieldset', array(
     '#title' => t('Editor paths'),
-    '#children' => drupal_render($form['editor']['iconpath']). drupal_render($form['editor']['librarypath']),
+    '#children' => drupal_render($form['editor']['iconpath']) . drupal_render($form['editor']['librarypath']),
     '#collapsible' => TRUE,
     '#collapsed' => $eid
   ));
   $import = theme('fieldset', array(
     '#title' => t('Import Buttons'),
-    '#children' => drupal_render($form['buecsv']). drupal_render($form['import']),
+    '#children' => drupal_render($form['buecsv']) . drupal_render($form['import']),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE
   ));
@@ -296,10 +296,10 @@ function bueditor_editor_theme($form = array()) {
   $demo = '';
   if ($eid && bueditor_settle($eid)) {
     drupal_add_js('BUE.preset.push(["editor-demo", "e'. $eid .'"]);', 'inline');
-    $demo = '<h2 class="title">'. t('Demo'). '</h2><div class="form-item"><textarea cols="60" rows="20" id="editor-demo" class="form-textarea editor-textarea">DEMO</textarea></div>';
+    $demo = '<h2 class="title">'. t('Demo') .'</h2><div class="form-item"><textarea cols="60" rows="20" id="editor-demo" class="form-textarea editor-textarea">DEMO</textarea></div>';
   }
 
-  $output = $help. drupal_render($form['editor']['name']) . ($eid ? '' : ($visibility . $paths));
+  $output = $help . drupal_render($form['editor']['name']) . ($eid ? '' : ($visibility . $paths));
   $output .= '<h2 class="title">'. t('Buttons') .'</h2>'. $buttons . $selaction;
   $output .= drupal_render($form['submit']) . ($eid ? ($visibility . $paths) : '');
   $output .= $import . drupal_render($form) . $demo;
@@ -358,7 +358,7 @@ function bueditor_csv_submit($form, &$form_state) {
  * Editor deletion form. Confirm & delete
  */
 function bueditor_delete_form($form_state, $editor) {
-  return confirm_form(array(), t('Are you sure you want to delete the editor %name?', array('%name' => $editor->name)), 'admin/settings/bueditor', t('All buttons and settings for this editor will be removed.').' '.t('This action cannot be undone.'), t('Delete'), t('Cancel'));
+  return confirm_form(array(), t('Are you sure you want to delete the editor %name?', array('%name' => $editor->name)), 'admin/settings/bueditor', t('All buttons and settings for this editor will be removed.') .' '. t('This action cannot be undone.'), t('Delete'), t('Cancel'));
 }
 function bueditor_delete_form_submit($form, &$form_state) {
   $editor = $form['#parameters'][2];
@@ -429,7 +429,7 @@ function bueditor_import_buttons($file) {
   $buttons = array();
   if (is_file($file) && $fp = fopen($file, 'r')) {
     $fields = fgetcsv($fp, 100000);
-    while($values = fgetcsv($fp, 100000)) {
+    while ($values = fgetcsv($fp, 100000)) {
       $button = array();
       for ($i = 0; $field = $fields[$i]; $i++) {
         $button[$field] = stripslashes($values[$i]);
