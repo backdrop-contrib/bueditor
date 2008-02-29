@@ -19,7 +19,7 @@ BUE.initiate = function () {
   };
   //set editor dialog
   BUE.dialog.popup = BUE.createPopup('bue-dialog');
-  BUE.dialog.popup.close = function () {BUE.dialog.close();}
+  BUE.dialog.popup.close = function (effect) {BUE.dialog.close(effect);}
 };
 
 //integrate editor template into textarea T
@@ -217,7 +217,7 @@ BUE.dialog.open = function (title, content, effect) {
   this.oldfocus = this.editor.textArea.onfocus;
   this.editor.textArea.onfocus = function () {this.blur();};
 };
-BUE.dialog.close = function () {
+BUE.dialog.close = function (effect) {
   if (this.editor) {
     this.editor.textArea.onfocus = this.oldfocus;
     this.editor.buttonsDisabled(false);
@@ -228,7 +228,7 @@ BUE.dialog.close = function () {
     }
     this.editor = null;
     this.esp = null;
-    this.popup.style.display = 'none';
+    $(this.popup)[effect||'hide']();
   }
 };
 
