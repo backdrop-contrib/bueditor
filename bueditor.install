@@ -128,7 +128,7 @@ function bueditor_schema() {
 }
 
 /**
-* Insert the latest form of default editor.
+* Insert the latest version of default editor.
 */
 function bueditor_insert_latest($name = 'default') {
 
@@ -163,6 +163,7 @@ function bueditor_insert_latest($name = 'default') {
  * Add iconpath and librarypath fields to {bueditor_editors}.
  * Change accesskey field type from char to varchar.
  * Delete needless cron variable.
+ * Insert the latest version of default editor
  */
 function bueditor_update_6000() {
   $ret = array();
