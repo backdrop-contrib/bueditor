@@ -159,11 +159,24 @@ function bueditor_insert_latest($name = 'default') {
 }
 
 /**
+ * Update button contents
+ */
+function bueditor_buttons_update() {
+  $result = db_query("SELECT bid, content FROM {bueditor_buttons} WHERE content LIKE '%%%s%%' OR content LIKE '%%%s%%' OR content LIKE '%%%s%%'", 'editor.', 'imce', 'eDefSelP');
+  $tr = array('editor.' => 'BUE.', "user_access('access imce')" => 'imce_access()', 'imce/browse' => 'imce', 'eDefSelProcessLines' => 'eDefTagLines');
+  while ($button = db_fetch_object($result)) {
+    $button->content = strtr($button->content, $tr);
+    db_query("UPDATE {bueditor_buttons} SET content = '%s' WHERE bid = %d", $button->content, $button->bid);
+  }
+}
+
+/**
  * Update from 4|5.x to 6.x
- * Add iconpath and librarypath fields to {bueditor_editors}.
- * Change accesskey field type from char to varchar.
+ * Add new fields: {bueditor_editors}.iconpath, {bueditor_editors}.librarypath.
+ * Change {bueditor_buttons}.accesskey field type from char to varchar.
+ * Update {bueditor_buttons}.content field values.
+ * Insert the latest version of default editor.
  * Delete needless cron variable.
- * Insert the latest version of default editor
  */
 function bueditor_update_6000() {
   $ret = array();
@@ -188,7 +201,8 @@ function bueditor_update_6000() {
   db_add_field($ret, 'bueditor_editors', 'iconpath', $iconpath);
   db_add_field($ret, 'bueditor_editors', 'librarypath', $librarypath);
   db_change_field($ret, 'bueditor_buttons', 'accesskey', 'accesskey', $accesskey);
+  bueditor_buttons_update();
+  bueditor_insert_latest('default 6.x');
   variable_del('bueditor_cron_last');
-  bueditor_insert_latest('Default 6.x');
   return $ret;
 }
