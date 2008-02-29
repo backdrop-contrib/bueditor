@@ -2,12 +2,25 @@
 
 - BUEditor:
 A plain textarea editor aiming to facilitate code writing.
-The most important feature of this editor is its highly customizable functionality.
-It's possible to add image and text buttons whose functions are determined by the user.
-Buttons can be customized to generate code snippets, html tags, bbcode tags etc.
+It's the most customizable editor of the web because it is built by the user from scratch.
+It's the user who determines the functionality by defining functional image or text buttons that generate
+code snippets, html tags, bbcode tags etc.
+It's the user who determines the design and layout by defining theme buttons that insert html to the layout.
+
 
 - WHAT'S NEW IN 6.x:
- - to be documented...
+ - jQuery dependency. BUE makes use of jquery now. (ex: effects in popup openings)
+ - custom icon and library paths for each editor.
+ - support for using different editor templates for differnet textareas in a page.
+ - theme buttons that provide unlimited layout theming options.
+ - Headers (h1, h2, h3, h4) button and separators in default editor.
+ - changed key variable from "editor" to "BUE". (ex: editor.active is now BUE.active)
+ - another popup dialog(BUE.quickPop) that has no title or close button.
+ In default buttons' library:
+ - new eDefTagChooser function that uses BUE.quickPop to allow users choose among predefined tags.
+ - new eDefTagger function that toggles(inserts or removes) a predefined tag in the selection.
+ - eDefTagDialog now accepts a special attribute name, "html", that represents the inner html of the tag.
+ - eDefTagDialog now accepts "textarea" as a field type.
 
 
 - HOW TO INSTALL:
@@ -30,15 +43,20 @@ You can add buttons to an editor by two methods;
 
 
 - BUTTON PROPERTIES
-TITLE:(required) Title or name of the button. Displayed as a hint on mouse over. A title can be translated
-by prefixing it with "t:". Ex: t:Bold turns into t('Bold'). If the title starts with "tpl:", the button is considered a
-theme button. See BUTTON TYPES
+
+TITLE:(required) Title or name of the button. Displayed as a hint on mouse over.
+A title can be translated by prefixing it with "t:". Ex: t:Bold turns into t('Bold').
+If the title starts with "tpl:", the button is considered a theme button. See BUTTON TYPES
+
 CONTENT: Html or javascript code that is processed when the button is clicked. This can also be
 php code that is pre evaluated and return html or javascript code. See BUTTON TYPES.
+
 ICON: Image or text to display the button.
+
 KEY: Accesskey that is supported by some browsers as a shortcut on web pages. With the right
 key combinations users can fire the button's click event. Use Alt+KEY in Internet Explorer, and
 Shift+Alt+KEY in Firefox.
+
 WEIGHT: Required for sorting the buttons. Line-up is from the lightest to heaviest.
 
 
@@ -92,10 +110,10 @@ it is disabled and doesnt show up.
 A theme button is a special type of button that just inserts html into editor interface for theming purposes. It can be
 used to insert separators, line breaks or any html code in order to achieve the themed editor interface. For a button to
 be considered as a theme button it should have a title starting with "tpl:". Having this title, the button is processed as just
-a piece of html code. Three properties(content, icon, caption) of the button determine the inserted code. And of course the
-weight property determines the order of insertion.
+a piece of html code that is included in content and icon or caption of the button. A theme button, according to the content
+property, can also be a js or php button at the same time.
 
-In order to determine what the button inserts;
+In order to determine what the button inserts into the layout;
  - first, content is checked and 
     - if it is javascript code(js:) it is executed and the returned value is inserted into the layout
     - otherwise it is inserted as it is.
@@ -123,49 +141,64 @@ You can also create groups of buttons by creating wrappers around them;
 
 
 - EDITOR VARIABLES
-editor:
+BUE:
 the top most container variable having other variables and methods in it.
 
-editor.active:
+BUE.templates
+container for editor templates(configurations, buttons and interface)
+
+BUE.instances
+array containing the editor instances in the page
+
+BUE.active:
 currently active or last used editor istance. When a button is clicked or a textarea is focused, 
-the corresponding editor instance becomes the editor.active. If there are multiple editor instances, accesskeys 
-are switched to work on the editor.active.
-editor.active is widely used in javascript buttons since the methods of the current editor instance are accessed 
+the corresponding editor instance becomes the BUE.active. If there are multiple editor instances, accesskeys 
+are switched to work on the BUE.active.
+BUE.active is widely used in javascript buttons since the methods of the current editor instance are accessed 
 using it. Each editor instance has its own variables and methods that can(should) be used by javascript buttons. 
 See EDITOR INSTANCE
 
-editor.dialog:
+BUE.dialog:
 dialog object of the editor used like a pop-up window for getting user input or displaying data.
 It has its own variables and methods. See EDITOR DIALOG
 
+BUE.quickPop:
+another dialog object of the editor. It has no title or close button.
+It has its own variables and methods. See EDITOR QUICK-POP
+
 
 - EDITOR METHODS
-editor.processTextarea(T):
-integrates the editor into the textarea T. This can be used for dynamic editor integration at any time after page load.
+BUE.processTextarea(T, tplid):
+integrates the editor template(BUE.templates[tplid]) into the textarea T.
+This can be used for dynamic editor integration at any time after page load.
 
-editor.openPopup(id, title, content):
-opens a pop-up dialog having the given "id", titled as "title" and containing the "content". Returns the js object
-representing the pop-up(a html table object).
-This pop-up object has its internal "open(title, content, keeppos)" and "close()" methods which can be used for 
-further open and close operations. if "keeppos" is set, pop-up opens at previos position, otherwise position is reset.
+BUE.openPopup(id, title, content, effect):
+Opens a pop-up dialog having the given "id", titled as "title" and containing the "content".
+Returns the js object representing the pop-up(a html table object).
+This pop-up object has its internal "open(title, content, effect)" and "close(effect)" methods which can be used for 
+further opening and closing operations.
 Since pop-up object is a html table object, it has all the methods and properties of a regular table.
 The difference between a pop-up and editor.dialog is that editor.dialog can only have one instance visible at a time,
 and it doesnt allow textarea editing when it is open.
+optional effect parameter is one of the jQuery effects (opening: 'slideDown', 'fadeIn', closing: 'slideUp', 'fadeOut')
 
-editor.createPopup(id, title, content):
+BUE.createPopup(id, title, content):
 This method is used by openPopup method. Creates and returns the pop-up object for further use.(does not open it)
 
 
 - EDITOR INSTANCE (a must-read for javascript button creators)
 Each editor running on the page for a textarea is called an instance. Editor instances have their own variables 
 and methods that make it easy to edit textarea content. Active instance on the page can be accessed by the 
-variable "editor.active".
+variable "BUE.active".
 
-E is the editor.active  in our js button's content.
+A js button script is executed in a function with the argument E that refers to BUE.active.
 Here are the VARIABLES of the istance E:
 
+E.index: index of the instance in the array BUE.instances
 E.textArea: textarea of the instance as an HTML object.
-E.buttons: indexed array of buttons of the instance as HTML objects(input objects, type is button or image)
+E.tpl: editor template that this instance uses.(one of BUE.templates)
+E.UI: html object that wraps the instance interface. (<div class="editor-container" id="editor-%index"></div>)
+E.buttons: array of buttons of the instance as HTML objects(input objects: type is button or image)
 E.bindex: latest/currently clicked button index that can be used in E.buttons. Ex: E.buttons[E.bindex]
 
 Here are the METHODS of the instance E:
@@ -217,42 +250,39 @@ Editor dialog is an object shared by all editor instances. It can be used to dis
 to get some user input. 
 Here are the methods of editor dialog
 
-editor.dialog.open(title, content):
+BUE.dialog.open(title, content, effect):
 Opens the dialog with the given title and content in it.
+optional effect parameter is one of the jQuery effects ('slideDown' or 'fadeIn')
 
-editor.dialog.close():
+BUE.dialog.close(effect):
 Closes the dialog.
+optional effect parameter is one of the jQuery effects ('slideUp' or 'fadeOut')
+
+
+- EDITOR QUICK-POP
+This is a pop-up object without a title and a close button. It shows just the content and closes automatically
+when the user clicks somewhere in the document.
+To open a quick-pop:
+
+BUE.quickPop.open(content, effect):
+Opens the quick-pop with the content in it.
+optional effect parameter is one of the jQuery effects ('slideDown' or 'fadeIn')
 
 
 - EDITOR ICONS
-Icons are stored in "icons" folder of the editor. You can put additional icons into this folder to make them visible
-in the icon list in the editor edit page.
+All images with jpg, gif or png extensions in the editor's icon path (which is bueditor_path/icons by default) are accessible
+by the editor and listed in the icon list in the editor editing page.
 
 
 - EDITOR LIBRARY
-While creating a javascript button you may want to use functions or variables from an external javascript library, 
-in order to shorten the content text and make it clean. In this case, you should place your javascript library inside 
-the "library" folder of the editor. The .js files in this directory will be automatically loaded together with the editor. 
-Note that library/...js files are common and are loaded for every editor you define.
-In case you want a library file to be loaded for only a specific editor, you should create a sub-folder under library 
-directory, which has the same name as the editor. For example, library/editorFoo/...js files will only be loaded 
-for the editor having the name "editorFoo".
-
-
-- EDITOR TEMP DIRECTORY
-After starting to use the editor, you might notice that an extra folder named as bueditor in system file directory is 
-created. This directory is used to store javascript files that contain buttons of your editors. Including them in a file 
-instead of including them inline, allows browser caching and reduces page load time.
-Since buttons may have php code that makes them change dynamically, md5 is used to track the changes in buttons 
-script. If there is a matching file in the folder, it is loaded. Otherwise, a new file is created and loaded. If file loading 
-fails, buttons are included as inline script.
-Note: Files older than 15 days are cleaned in each cron run.
-If download method is PRIVATE, buttons are always included inline.
+While creating a javascript button you may want to use functions or variables from an external javascript library 
+in order to shorten the content text and make it clean. The editor library path is the place where you should put 
+your javascript files to be loaded with the editor. The default is bueditor_path/library.
 
 
 - KNOWN ISSUES
 Accesskeys in Internet Explorer:
-Pressing an accesskey(Alt+KEY) when there is a selection, deselects it with preserving the caret position.
+Pressing an accesskey(Alt+KEY) when there is a selection, deselects it preserving the caret position.
 
 Accesskeys in Firefox:
 If there are multiple editors in the page, accesskeys(Shift+Alt+KEY) will work on only the first editor instance. 
@@ -273,7 +303,7 @@ and the user has access to it, a Browse button will appear linking to IMCE image
 Editing a previously inserted image is possible if the html code of the image is selected with no extra characters.
 
 Insert/edit link:
-Inserts link html after getting the href, title attributes from the user. If IMCE module is installed, and the user has 
+Inserts link html after getting the link URL, link text and title from the user. If IMCE module is installed, and the user has 
 access to it, a Browse button will appear linking to IMCE file browser.
 Editing a previously inserted link is possible if the html code of the link is selected with no extra characters.
 
@@ -282,6 +312,9 @@ Encloses the selected text with the tag <strong>
 
 Italic:
 Encloses the selected text with the tag <em>
+
+Headers:
+Pops a dialog showing h1, h2, h2, h4 header tags to choose among.
 
 Ordered list:
 Converts the lines in the selected text to a numbered list. It is also possible to start a new list with no selection. 
@@ -295,8 +328,10 @@ Teaser break:
 Inserts Drupal teaser break which is <!--break-->
 
 Preview:
-Previews the textarea content. By default, lines and paragraphs break automatically. Set first argument to true to preview pure html. Set second argument to true to preview only the selected text:
-eDefPreview(true);//no conversion of new lines. preview is based on pure HTML.
+Previews the textarea content. By default, lines and paragraphs break automatically.
+eDefPreview function accept 2 parameter.
+Set first parameter to true to preview pure html. Set second parameter to true to preview only the selected text:
+eDefPreview(true);//no automatic line breaking. preview is based on pure HTML.
 eDefPreview(false, true);//only the selection is previewed.
 
 Help:
@@ -306,10 +341,12 @@ Displays the title(hint) for each button in the editor.
 - TIPS AND TRICKS
 
 How to disable a button temporarily?
+
 Make the first line of the button content:
 php: return;/*
 and the last line:
 */
+
 
 How to extend image or link dialogs to get values for other attributes of "img" and "a" tags from the user?
 How to create a dialog for any tag just like image or link dialogs?
@@ -323,27 +360,31 @@ stitle -> laber for submit button. if not specified, browser decides on it.
 func -> name of the function that will be executed after submission instead of the default one. (for advanced use)
 
 The simplest form, for example:
-eDefTagDialog('div', ['id', 'class', 'style']);
-will create a DIV Tag Dialog requesting values of attributes id, class and style. It will also detect if the selection
-is a proper DIV tag, and if so, will put the values of attributes to the corresponding fields. After submission, it will
-enclose/replace the selection in textarea.
+eDefTagDialog('div', ['id', 'class', 'style', 'html']);//html is a special keyword that represents inner html
+will create a DIV Tag Dialog requesting values of attributes id, class and style and also the inner html.
+It will also detect if the selection is a proper DIV tag, and if so, will put the values of attributes to the corresponding fields.
+After submission, it will enclose/replace the selection in textarea.
 
 You might have noticed that fields in image/link dialogs are declared as objects not as strings. That's a
 customized form of declaring attributes. It is ideal to use an object if you want
-- a field type other than textfield (type: 'select', options: {'left': 'Left', 'right': 'Right'}) - only select is supported.
+- a field type other than textfield (type: 'select', options: {'left': 'Left', 'right': 'Right'})
+  textarea and select are the two options other than the default.
 - a custom label (title: 'Image URL')
 - a default value (value: ' ')
 - some prefix or suffix text or html (prefix: '[ ', suffix: ' ]')
 - to join two fields in a single line like in image width & height fields (getnext: true)
 - to set custom attributes for the field (attributes: {size: 10, style: 'width: 200px'})
-The field object must have a name property that specifies the attribute name. {name: 'href'}
+
+Note:
+- The field object must have a name property that specifies the attribute name. ex:{name: 'href'}
+- If a field value has new line character(\n) in it, then the field type automatically becomes "textarea"
 
 So lets add an "align" attribute field to the image dialog(note that it's not XHTML compliant):
 
 The field object to pass to eDefTagDialog is;
 {
   name: 'align',//required
-  title: 'Image align', // if we dont set it, it will be set as 'Align' automatically.(name whose first letter is uppercase)
+  title: 'Image align', // if we dont set it, it will be set as 'Align' automatically.(the name with first letter uppercase)
   type: 'select', // we use a selectbox instead of a plain textfield.
   options: {'': '', left: 'Left', right: 'Right', center: 'Center'} // set options in the form-> {attribute-value: 'Visible value'}
 }
@@ -363,29 +404,31 @@ That's it. We now have an image dialog which can also get/set the "align" attrib
 
 
 How to create a button that gets user input and adds it to the textarea?
-Button content should be like this:
+
+Button content could be like this:
 js:
 // function that inserts the user input from the form into the textarea.
-editor.getUserInput = function(form) {
-  editor.active.replaceSelection('User input is: '+ form.elements["user_input"].value);
-  editor.dialog.close();//close the dialog when done.
+BUE.getUserInput = function(form) {
+  E.replaceSelection('User input is: '+ form.elements["user_input"].value);
+  BUE.dialog.close();//close the dialog when done.
 }
 //form html. we define an input field named as "user_input".
 var userForm = '<form onsubmit="editor.getUserInput(this); return false;">';//run getUserInput on submission
 userForm += 'Input : <input type="text" name="user_input" />';
 userForm += '<input type="submit" value="Submit" /></form>';
 //open editor dialog with a title and the user form.
-editor.dialog.open('User Input', userForm);
+BUE.dialog.open('User Input', userForm);
 
-This example uses a form which is more suitable for complex user input. If you want to get just a single input you 
+The above example uses a form which is more suitable for complex user input. If you want to get just a single input you 
 may consider using javascript prompt(). Here is an example that gets image URL as a user input
 js:
 var url = prompt('URL', '');//prompt for URL
 var code = '<img src="'+ url +'" />';//put the url into the code.
-editor.active.replaceSelection(code);//replace the selection with the code.
+E.replaceSelection(code);//replace the selection with the code.
 
 
-How to create a button to insert XHTML-compatible Underlined text?
+How to create a button to insert XHTML-compliant Underlined text?
+
 Since <u> is not XHTML-compatible, you should use CSS. First of all, you need to define a class in your theme's 
 CSS file, for instance; 
 .underlined-text {text-decoration: underline;}
@@ -394,3 +437,87 @@ As the above class exists, you can use it in your button content:
 <span class="underlined-text">%TEXT%</span>
 
 Where %TEXT% will be replaced by the selected text in the textarea.
+
+
+How to extend the functionality of Headers button to create a specialized tag chooser?
+How to create an image chooser(ie. smiley chooser) using eDefTagChooser?
+
+Firstly, we should understand what eDefTagChooser does.
+eDefTagChooser(tags, applyTag, wrapEach, wrapAll, effect)
+It accepts 5 parameters among which only the first one is required and the rest is optional.
+
+Parameter "tags": is an array of tag infos, each having the format:
+ [tag, title, attributes]
+  tag: the tag that will enclose the selected text in the textarea
+  title: the text or html to help the user choose this tag
+  attributes: attriutes that will be inserted inside the tag. ex:{'id': 'site-name', 'class': 'dark'}
+
+ex tags: [ ['span', 'Red', {'style': 'color: red'}], ['span', 'Blue', {'class': 'blue-text'}] ]
+this will create two options:
+Red (inserting <span style="color: red"></span>)
+Blue (inserting <span class="blue-text"></span>)
+
+Parameter "applyTag": if set to true, the title of the tag-info will be enclosed by the tag itself. This will allow
+the user to preview the effect of the tag.
+Ex: ['span', 'Red', {'style': 'color: red'}] will genarate an option
+- with applyTag=false : Red (text only)
+- with applyTag=true : <span style="color: red">Red</span>
+
+Parameter "wrapEach": the tag that will enclose each option.
+This can be set to 'div' to make sure that each option is in a new line.
+
+Parameter "wrapAll": the tag that will enclose the whole block of options.
+Having set the parameter wrapEach to 'li' this can be set to ul in order to create a proper list of options.
+
+Parameter "effect": one of the jQuery effects for opening the dialog ('slideDown' or 'fadeIn')
+
+Knowing the details we can create our customized tag chooser.
+Let's, for example, add styled headers to the default header chooser.
+js: eDefTagChooser([
+ ['h1', 'Header1'],
+ ['h1', 'Header1-title', {'class': 'title'}],// this will insert <h1 class="title"></h1>
+ ['h2', 'Header2'],
+ ['h1', 'Header2-title', {'class': 'title'}],
+ ['h3', 'Header3'],
+ ['h4', 'Header4']
+], true, 'li', 'ul', 'slideDown');
+
+Now, let's create an image chooser
+There will be no title for our tags since we will use applyTag to preview the image that will be inserted. However we
+will be using a line break for every N(=4 in our example) image in order to create rows of options. Otherwise,
+all of them will be placed in a single row.
+js: eDefTagChooser([
+ ['img', '', {'src': '/path-to-images/img1.png'}],//better to set also the width & height & alt attributes
+ ['img', '', {'src': '/path-to-images/img2.png'}],
+ ['img', '', {'src': '/path-to-images/img3.png'}],
+ ['img', '<br />', {'src': '/path-to-images/img4.png'}],//line break added after 4th
+ ['img', '', {'src': '/path-to-images/img5.png'}],
+ ['img', '', {'src': '/path-to-images/img6.png'}],
+ ['img', '', {'src': '/path-to-images/img7.png'}],
+ ['img', '<br />', {'src': '/path-to-images/img8.png'}],//br after 8th
+ ['img', '', {'src': '/path-to-images/img9.png'}],
+ ['img', '', {'src': '/path-to-images/img10.png'}]
+], true, '', '', 'slideDown');
+
+
+While inserting a single tag should we use the classic <tag>%TEXT%</tag> pattern or the new eDefTagger('tag') ?
+What is the difference between <tag>%TEXT%</tag> and js:eDefTagger('tag') ?
+
+First of all, the classic tag insertion method does not require the default buttons library, whereas eDefTagger is a part of
+the default buttons library.
+
+- Classic method preserves the selected text after tag insertion, whereas eDefTagger selects the whole insertion.
+Classic method: converts the selection "foo" to "<tag>foo</tag>", ("foo" still being selected)
+eDefTagger('tag'): converts the selection "foo" to "<tag>foo</tag>" (<tag>foo</tag> is selected)
+
+- Classic method doesnt parse the selection to check if it is an instance of the tag, whereas eDefTagger does and toggles it.
+Classic method: converts the selection "<tag>foo</tag>" to "<tag><tag>foo</tag></tag>"
+eDefTagger('tag'): converts the selection "<tag>foo</tag>" to "foo"
+
+- In classic method you define the attributes of the tag in the usual way, whereas in eDefTagger you pass them as an object
+<tag class="foo" id="bar">%TEXT%</tag> == eDefTagger('tag', {'class': 'foo', 'id': 'bar'})
+
+- In classic method It's possible to use the selected text for any purpose, whereas in eDefTagger the only goal is to html.
+ Classic method can use the selection multiple times and do anything with it: [tag]%TEXT%[/tag]: (%TEXT%)
+
+It's up to you which one to use. Select the method that fits best to your needs.
