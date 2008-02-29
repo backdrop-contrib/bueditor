@@ -142,14 +142,6 @@ function bueditor_preset_textarea($tid, $editor) {
 }
 
 /**
- * Check if the editor is visible in the page.
- */
-function bueditor_check_page($page, $eid) {
-  $editor = is_numeric($eid) ? bueditor_editors($eid) : $eid;
-  return $editor && bueditor_check_match($editor->pages, $page) ? $editor : 0;
-}
-
-/**
  * Include necessary js and css files for editor settlement.
  */
 function bueditor_settle($editor) {
@@ -171,13 +163,6 @@ function bueditor_settle($editor) {
     return TRUE;
   }
   return FALSE;
-}
-
-/**
- * Save data to a file. return true on success.
- */
-function bueditor_save_data($data, $file) {
-  return file_check_directory($dir = dirname($file), FILE_CREATE_DIRECTORY) && ($fp = fopen($file, 'w')) && fwrite($fp, $data) && fclose($fp) && chmod($file, 0664) && is_readable($file);
 }
 
 /**
@@ -217,6 +202,14 @@ function bueditor_user_eids($user) {
       return array($role['editor'], $role['alt']);
     }
   }
+}
+
+/**
+ * Check if the editor is visible in the page.
+ */
+function bueditor_check_page($page, $eid) {
+  $editor = is_numeric($eid) ? bueditor_editors($eid) : $eid;
+  return $editor && bueditor_check_match($editor->pages, $page) ? $editor : 0;
 }
 
 /**
