@@ -30,6 +30,7 @@ It's the most customizable text editor of the web because it allows you to;
 3) Add/edit editors and buttons at: admin/settings/bueditor.
 4) There is the default editor you can use as a starting point.
 5) You may install IMCE module to use it as a file/image browser in editor's image & link dialogs.
+6) Make sure your input format does not filter the tags the editor inserts.
 
 
 - EXPORTING AND DELETING BUTTONS:
