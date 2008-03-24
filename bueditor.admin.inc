@@ -11,7 +11,7 @@ function bueditor_admin() {
   foreach ($editors as $eid => $editor) {
     $rows[] = array($editor->name, l(t('Edit'), 'admin/settings/bueditor/'. $eid), l(t('Delete'), 'admin/settings/bueditor/'. $eid .'/delete'));
   }
-  $rows[] = array(array('data' => l(t('Add new editor'), 'admin/settings/bueditor/new'), 'colspan' => 3));
+  $rows[] = array('', array('data' => l(t('Add new editor'), 'admin/settings/bueditor/new'), 'colspan' => 2));
   $output = '<h2 class="title">'. t('Available editors') .'</h2>';
   $output .= theme('table', $header, $rows);
   $output .= drupal_get_form('bueditor_admin_form');
@@ -191,7 +191,7 @@ function bueditor_editor_form($form_state, $editor = NULL) {
   );
   $form['editor']['pages'] = array('#type' => 'textarea',
     '#title' => t('Show the editor on specific pages'),
-    '#default_value' => $editor->eid ? $editor->pages : "node/add/*\nnode/*/edit\ncomment/reply/*",
+    '#default_value' => $editor->eid ? $editor->pages : "node/*\ncomment/*",
     '#description' => t('Enter one page per line as Drupal paths. The * character is a wildcard.'),
   );
   $form['editor']['excludes'] = array('#type' => 'textarea',
@@ -296,7 +296,7 @@ function bueditor_editor_theme($form = array()) {
   $demo = '';
   if ($eid && bueditor_settle($eid)) {
     drupal_add_js('BUE.preset.push(["editor-demo", "e'. $eid .'"]);', 'inline');
-    $demo = '<h2 class="title">'. t('Demo') .'</h2><div class="form-item"><textarea cols="60" rows="20" id="editor-demo" class="form-textarea editor-textarea">DEMO</textarea></div>';
+    $demo = '<h2 class="title">'. t('Demo') .'</h2><div class="form-item"><textarea cols="60" rows="20" id="editor-demo" class="form-textarea">DEMO</textarea></div>';
   }
 
   $output = $help . drupal_render($form['editor']['name']) . ($eid ? '' : ($visibility . $paths));

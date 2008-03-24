@@ -133,7 +133,7 @@ function bueditor_schema() {
 function bueditor_insert_latest($name = 'default') {
 
   //editor
-  db_query("INSERT INTO {bueditor_editors} (name, pages, excludes, iconpath, librarypath) VALUES ('%s', '%s', '%s', '%s', '%s')", array($name, "node/add/*\nnode/*/edit\ncomment/reply/*", 'edit-log', '%BUEDITOR/icons', '%BUEDITOR/library'));
+  db_query("INSERT INTO {bueditor_editors} (name, pages, excludes, iconpath, librarypath) VALUES ('%s', '%s', '%s', '%s', '%s')", array($name, "node/*\ncomment/*", 'edit-log', '%BUEDITOR/icons', '%BUEDITOR/library'));
   $eid = db_last_insert_id('bueditor_editors', 'eid');
 
   //buttons

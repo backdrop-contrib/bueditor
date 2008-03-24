@@ -1,6 +1,6 @@
 // $Id$
 
-// initiate editor variable that will hold other variables and fuctions.
+//Global container
 var BUE = {'preset': [], 'instances': [], 'popups': {}, 'dialog': {}, 'templates': {}, 'mode': (window.getSelection || document.getSelection) ? 1 : (document.selection && document.selection.createRange ? 2 : 0 )};
 
 //editor settle.
@@ -15,7 +15,7 @@ BUE.initiate = function () {
     qp.oldopen(null, content, effect);
     $(document).mousedown(qpToEnd);
     function qpToEnd() {$(document).mouseup(qpEnd);}
-    function qpEnd() {$(document).unbind("mousedown", qpToEnd).unbind("mouseup", qpEnd); qp.close();}
+    function qpEnd() {$(document).unbind('mousedown', qpToEnd).unbind('mouseup', qpEnd); qp.close();}
   };
   //set editor dialog
   BUE.dialog.popup = BUE.createPopup('bue-dialog');

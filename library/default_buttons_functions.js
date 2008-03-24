@@ -47,7 +47,7 @@ function eDefTagLines(outA, inA, inB, outB) {
   }
   else E.replaceSelection(outA + inA + sel.replace(/(\r?\n|\r)/g, inB +'$1'+ inA) + inB + outB);
 }
-eDefSelProcessLines = eDefTagLines;//backward compatibility.
+eDefSelProcessLines = eDefTagLines;//backwards compatibility.
 
 //return html for the given tag. attributes having value=null are not printed.
 function eDefHTML(tag, innerHTML, attributes) {
@@ -61,7 +61,7 @@ function eDefHTML(tag, innerHTML, attributes) {
 }
 //check if the tag is non-closing
 function eDefNoEnd(tag) {
-  return !tag || $.inArray(tag, ['img', 'input', 'hr', 'br']) > -1 ? true : false;
+  return !tag || $.inArray(tag, ['img', 'input', 'hr', 'br']) > -1;
 }
 
 //returns form input html.
@@ -147,14 +147,14 @@ function eDefFileBrowser(bURL, fURL, type) {
     eDefImceWin = window.open(bURL, '', 'width='+ 760 +',height='+ 560 +',resizable=1');
     eDefImceWin['imceOnLoad'] = eDefImceLoad;//set a function to be executed when imce loads.
   }
-  else eDefImceHighlight(eDefImceWin);//if popup is already opened. highlight the file url.
+  else eDefImceHighlight();//if popup is already opened. highlight the file url.
   eDefImceWin.focus();//bring the popup into view
 }
 
 //Executed when imce loads. Sets a send to opearation.(title is "Send to BUEditor". files are send to eDefImceFinish)
 function eDefImceLoad(win) {
   win.imce.setSendTo(Drupal.t('Send to @app', {'@app': 'BUEditor'}), eDefImceFinish);
-  eDefImceHighlight(win);
+  eDefImceHighlight();
 }
 
 //IMCE complete
@@ -165,14 +165,12 @@ function eDefImceFinish(file, win) {
     if (el['attr_'+i]) el['attr_'+i].value = val[i];
   }
   win.blur();//or close()
+  el[el.length-1].focus();//focus on last element.
 }
 
 //IMCE file highlight
-function eDefImceHighlight(win) {
-  var filename = eDefFileURL.substr(eDefFileURL.lastIndexOf('/')+1);
-  if (win.imce.vars.prvid != filename) {//check if its already in preview
-    win.imce.fileClick(filename);//select the file
-  }
+function eDefImceHighlight() {
+  eDefImceWin.imce.highlight(eDefFileURL.substr(eDefFileURL.lastIndexOf('/')+1));
 }
 
 //open a dialog for any tag to get user input for the given attributes(fields).

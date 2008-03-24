@@ -9,14 +9,14 @@ It's the most customizable text editor of the web because it allows you to;
 
 
 - WHAT'S NEW IN 6.x:
- - jQuery in core. BUE makes use of jquery now. (ex: effects in popup openings)
  - custom icon and library paths for each editor.
- - support for using different editor templates for differnet textareas in a page.
+ - support using different editor templates for differnet textareas in a page.
  - alternative editor assignment for user roles.
  - theme buttons that provide unlimited theming options.
  - Headers (h1, h2, h3, h4) button and separators in default editor.
  - changed key variable from "editor" to "BUE". (ex: editor.active is now BUE.active)
  - another popup dialog(BUE.quickPop) that has no title or close button.
+ - jquery effects. (ex: effects in popup openings)
  In default buttons' library:
  - new eDefTagChooser function that uses BUE.quickPop to allow users choose among predefined tags.
  - new eDefTagger function that toggles(inserts or removes) a predefined tag in the selection.
@@ -33,15 +33,15 @@ It's the most customizable text editor of the web because it allows you to;
 6) Make sure your input format does not filter the tags the editor inserts.
 
 
-- EXPORTING AND DELETING BUTTONS:
-You should first select the buttons you want to export or delete, using checkboxes next to them.
-Then select the action you want to take in the selectbox below the list and press GO.
-
-
 - ADDING BUTTONS:
 You can add buttons to an editor by two methods;
 1- Manually entering the values for new button fields located at the bottom of the button list.
 2- Importing a CSV file that contains previously exported buttons.
+
+
+- EXPORTING AND DELETING BUTTONS:
+You should first select the buttons you want to export or delete, using checkboxes next to them.
+Then select the action you want to take in the selectbox below the list and press GO.
 
 
 - BUTTON PROPERTIES
@@ -55,11 +55,11 @@ php code that is pre evaluated and return html or javascript code. See BUTTON TY
 
 ICON: Image or text to display the button.
 
-KEY: Accesskey that is supported by some browsers as a shortcut on web pages. With the right
+KEY: Accesskey that is supported by most browsers as a shortcut on web pages. With the right
 key combinations users can fire the button's click event. Use Alt+KEY in Internet Explorer, and
 Shift+Alt+KEY in Firefox.
 
-WEIGHT: Required for sorting the buttons. Line-up is from the lightest to heaviest.
+WEIGHT: Required for sorting the buttons. Line-up is from the lightest to the heaviest.
 
 
 - BUTTON TYPES
@@ -87,8 +87,8 @@ Note: if you want to insert some text containing the phrase %TEXT%, use a javasc
 These type of buttons are used for special cases where it is insufficient to just replace the selected text.
 The content of a javascript button must begin with a 3 charater text "js:" to be differentiated from a
 html button. The remaining code is treated as a javascript code and executed in a function when the
-button is clicked. Function is called with the parameter E which represents the active editor. 
-Editor has many ready-to-use methods and variables making it easier to create javascript buttons.
+button is clicked. The function is called with the parameter E which represents the active editor. 
+Editor has many ready-to-use methods and variables making it easy to create javascript buttons.
 See EDITOR VARIABLES AND METHODS and especially EDITOR INSTANCE variables and methods.
 
 
@@ -111,15 +111,15 @@ it is disabled and doesnt show up.
 - THEME BUTTONS
 A theme button is a special type of button that just inserts html into editor interface for theming purposes. It can be
 used to insert separators, line breaks or any html code in order to achieve the themed editor interface. For a button to
-be considered as a theme button it should have a title starting with "tpl:". Having this title, the button is processed as just
-a piece of html code that is included in content and icon or caption of the button. A theme button, according to the content
-property, can also be a js or php button at the same time.
+be considered as a theme button it should have a title starting with "tpl:". Having this title, the button is processed to
+insert a piece of html code that is included in button content and button icon(or caption). A theme button, regarding its 
+content, can also be a js or php button at the same time.
 
 In order to determine what the button inserts into the layout;
  - first, content is checked and 
-    - if it is javascript code(js:) it is executed and the returned value is inserted into the layout
+    - if it is javascript code(js:) it is executed and the value that returned is inserted into the layout
     - otherwise it is inserted as it is.
- - then, icon or caption is checked and inserted wrapped in "<span class="separator"></span>".
+ - then, icon or caption is checked and inserted as being wrapped in "<span class="separator"></span>".
 
 Here are some examples;
 
@@ -279,7 +279,7 @@ by the editor and listed in the icon list in the editor editing page.
 - EDITOR LIBRARY
 While creating a javascript button you may want to use functions or variables from an external javascript library 
 in order to shorten the content text and make it clean. The editor library path is the place where you should put 
-your javascript files to be loaded with the editor. The default is bueditor_path/library.
+your javascript files to be loaded with the editor. The default path is bueditor_path/library.
 
 
 - KNOWN ISSUES
@@ -358,7 +358,7 @@ any tag.
 tag -> tag name
 fields -> an array of attributes that are eiter strings or objects.
 dtitle -> dialog title. if not specified, "(tag) Tag Dialog" is used.
-stitle -> laber for submit button. if not specified, browser decides on it.
+stitle -> laber for submit button. if not specified, browser's default is used.
 func -> name of the function that will be executed after submission instead of the default one. (for advanced use)
 
 The simplest form, for example:
@@ -386,7 +386,7 @@ So lets add an "align" attribute field to the image dialog(note that it's not XH
 The field object to pass to eDefTagDialog is;
 {
   name: 'align',//required
-  title: 'Image align', // if we dont set it, it will be set as 'Align' automatically.(the name with first letter uppercase)
+  title: 'Image align', // if we dont set it, it will be set as 'Align' automatically.(the name with the first letter uppercase)
   type: 'select', // we use a selectbox instead of a plain textfield.
   options: {'': '', left: 'Left', right: 'Right', center: 'Center'} // set options in the form-> {attribute-value: 'Visible value'}
 }
@@ -469,7 +469,7 @@ Parameter "wrapEach": the tag that will enclose each option.
 This can be set to 'div' to make sure that each option is in a new line.
 
 Parameter "wrapAll": the tag that will enclose the whole block of options.
-Having set the parameter wrapEach to 'li' this can be set to ul in order to create a proper list of options.
+Having set the parameter wrapEach to 'li' this can be set to 'ul' in order to create a proper list of options.
 
 Parameter "effect": one of the jQuery effects for opening the dialog ('slideDown' or 'fadeIn')
 
@@ -517,9 +517,9 @@ Classic method: converts the selection "<tag>foo</tag>" to "<tag><tag>foo</tag><
 eDefTagger('tag'): converts the selection "<tag>foo</tag>" to "foo"
 
 - In classic method you define the attributes of the tag in the usual way, whereas in eDefTagger you pass them as an object
-<tag class="foo" id="bar">%TEXT%</tag> == eDefTagger('tag', {'class': 'foo', 'id': 'bar'})
+<tag class="foo" id="bar">%TEXT%</tag> <=> eDefTagger('tag', {'class': 'foo', 'id': 'bar'})
 
 - In classic method It's possible to use the selected text for any purpose, whereas in eDefTagger the only goal is to html.
- Classic method can use the selection multiple times and do anything with it: [tag]%TEXT%[/tag]: (%TEXT%)
+ Classic method can use the selection multiple times and do anything with it: [bbcode]%TEXT%[/bbcode]: (%TEXT%)
 
-It's up to you which one to use. Select the method that fits best to your needs.
+It's up to you which method to use. Select the method that fits best to your needs.
