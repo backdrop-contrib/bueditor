@@ -1,0 +1,339 @@
+# $Id$
+#
+# French translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  bueditor.admin.inc,v 1.3.2.2 2008/06/10 07:54:04 ufku
+#  bueditor.module,v 1.14.2.2 2008/06/10 07:47:09 ufku
+#  bueditor.info,v 1.2 2008/02/27 18:07:54 ufku
+#  bueditor.install,v 1.15.2.2 2008/06/10 07:51:30 ufku
+#  default_buttons_functions.js,v 1.17.2.3 2008/06/17 16:25:38 ufku
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: French translation for Drupal Bueditor\n"
+"POT-Creation-Date: 2009-02-13 21:01+0100\n"
+"PO-Revision-Date: 2009-02-17 20:20+0100\n"
+"Last-Translator: Stéphane Bordage <sbordage@breek.fr>\n"
+"Language-Team: Stéphane Bordage, Breek <sbordage@breek.fr>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"X-Poedit-Language: french\n"
+"X-Poedit-Country: France\n"
+
+#: bueditor.admin.inc:9;190
+msgid "Editor name"
+msgstr "Nom de l'éditeur"
+
+#: bueditor.admin.inc:9
+msgid "Operations"
+msgstr "Actions"
+
+#: bueditor.admin.inc:12
+msgid "Edit"
+msgstr "Editer"
+
+#: bueditor.admin.inc:12;239;366
+msgid "Delete"
+msgstr "Supprimer"
+
+#: bueditor.admin.inc:14
+#: bueditor.module:19
+msgid "Add new editor"
+msgstr "Ajouter un éditeur"
+
+#: bueditor.admin.inc:15
+msgid "Available editors"
+msgstr "Editeurs disponibles"
+
+#: bueditor.admin.inc:30
+msgid "user #1"
+msgstr "utilisateur # 1"
+
+#: bueditor.admin.inc:30
+msgid "n/a"
+msgstr "nd"
+
+#: bueditor.admin.inc:38;241
+msgid "Save configuration"
+msgstr "Enregistrer la configuration"
+
+#: bueditor.admin.inc:48
+msgid "User role"
+msgstr "Rôle de l'utilisateur"
+
+#: bueditor.admin.inc:48
+msgid "Assigned editor"
+msgstr "Editeur assigné"
+
+#: bueditor.admin.inc:48
+msgid "Alternative editor"
+msgstr "Editeur alternatif"
+
+#: bueditor.admin.inc:52;256
+msgid "Weight"
+msgstr "Poids"
+
+#: bueditor.admin.inc:54
+msgid "For users who have <strong>multiple roles</strong>, <strong>weight</strong> property will determine the assigned editor. Lighter roles that are placed upper will take the precedence. So, an administrator role should be placed over other roles by having a smaller weight, ie. -10."
+msgstr "Pour les utilisateurs ayant <strong>plusieurs rôles</strong>, le<strong>poids</strong> détermine quel éditeur est attribué. Les rôles plus \"légers\" auront la préséance. Par conséquent, un rôle administrateur devrait être placé au-dessus des autres avec un poids de -10."
+
+#: bueditor.admin.inc:66
+msgid "Role-editor assignments"
+msgstr "Attributions des éditeurs par rôle"
+
+#: bueditor.admin.inc:68
+msgid "Assign editors to user roles."
+msgstr "Attribuer des éditeurs à des rôles"
+
+#: bueditor.admin.inc:68
+msgid "Alternative editor makes it possible to use different editors for different textareas or different editors on diffrent pages. You just have to configure visibility settings for each editor."
+msgstr "Les éditeurs alternatifs permettent d'utiliser différents éditeurs en fonctions des zones de texte ou différents éditeurs en fonction des pages. Vous n'avez qu'a configurer les paramètres de visibilité de chaque éditeur."
+
+#: bueditor.admin.inc:87;339
+msgid "Changes have been saved."
+msgstr "Les modifications ont été enregistrées."
+
+#: bueditor.admin.inc:126
+msgid "none"
+msgstr "aucun"
+
+#: bueditor.admin.inc:152
+msgid "Caption"
+msgstr "Légende"
+
+#: bueditor.admin.inc:196
+msgid "Show the editor on specific pages"
+msgstr "Afficher l'éditeur sur certaines pages"
+
+#: bueditor.admin.inc:198
+msgid "Enter one page per line as Drupal paths. The * character is a wildcard."
+msgstr "Saisir une page par ligne avec des chemins Drupal. Le carractère * est un joker."
+
+#: bueditor.admin.inc:201
+msgid "Hide the editor for specific textareas"
+msgstr "Cacher l'éditeur sur certaines pages"
+
+#: bueditor.admin.inc:203
+msgid "Enter one textarea ID per line. The * character is a wildcard."
+msgstr "Saisir un ID de textarea par ligne. Le carractère * est un joker."
+
+#: bueditor.admin.inc:206
+msgid "Directory of editor icons"
+msgstr "Annuaire d'icones de l'éditeur"
+
+#: bueditor.admin.inc:209
+msgid "Web accessible directory path where editor icons reside."
+msgstr "Répertoir accessible par un chemin externe où les icones sont stockées."
+
+#: bueditor.admin.inc:209;215
+msgid "Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme's path)."
+msgstr "Les placeholders utilisables sont %BUEDITOR chemin de (bueditor), %FILES (chemin des fichiers Drupal) et %THEME (chemin du thème courant)."
+
+#: bueditor.admin.inc:212
+msgid "Directory of editor library"
+msgstr "Répertoire de la librairie de l'éditeur"
+
+#: bueditor.admin.inc:215
+msgid "Web accessible directory path where external javascript files reside."
+msgstr "Répertoir accessible par un chemin externe où les fichiers JavaScript externes sont stockés."
+
+#: bueditor.admin.inc:231
+msgid "New buttons are ready to be saved."
+msgstr "Les nouveaux boutons sont prêts à être enregistrés."
+
+#: bueditor.admin.inc:231
+msgid "There is no button to be imported."
+msgstr "il n'y a pas de bouton à importer."
+
+#: bueditor.admin.inc:239
+msgid "... selecteds"
+msgstr "... sélectionnés"
+
+#: bueditor.admin.inc:239
+msgid "Export"
+msgstr "Exporter"
+
+#: bueditor.admin.inc:240
+msgid "Go"
+msgstr "Allez"
+
+#: bueditor.admin.inc:242
+msgid "CSV file containing the buttons"
+msgstr "Fichier CSV contenant les boutons"
+
+#: bueditor.admin.inc:243
+msgid "Import"
+msgstr "Importer"
+
+#: bueditor.admin.inc:252
+msgid "Title"
+msgstr "Titre"
+
+#: bueditor.admin.inc:253
+msgid "Content"
+msgstr "Contenu"
+
+#: bueditor.admin.inc:254
+msgid "Icon"
+msgstr "Icône"
+
+#: bueditor.admin.inc:255
+msgid "Key"
+msgstr "Clé"
+
+#: bueditor.admin.inc:269
+msgid "new"
+msgstr "nouveau"
+
+#: bueditor.admin.inc:270
+msgid "Add new button"
+msgstr "Ajouter un bouton"
+
+#: bueditor.admin.inc:279
+msgid "To add a new button, you can either specify it at the bottom of the button list or import a CSV file which contains previously exported buttons. For more information about buttons and editor API please read !readme."
+msgstr "Pour ajouter un nouveau bouton, vous pouvez soit le définir en bas de la liste de boutons, soit importerun fichier CSV contenant des boutons exportés auparavant. Pour plus d'informations a propos des boutons et de l'API de l'éditeur, lisez le  !readme."
+
+#: bueditor.admin.inc:283
+msgid "Visibility settings"
+msgstr "Paramètres de visibilité"
+
+#: bueditor.admin.inc:289
+msgid "Editor paths"
+msgstr "Chemins de l'éditeur"
+
+#: bueditor.admin.inc:295
+msgid "Import Buttons"
+msgstr "Importer les boutons"
+
+#: bueditor.admin.inc:304
+msgid "Demo"
+msgstr "Démo"
+
+#: bueditor.admin.inc:308
+msgid "Buttons"
+msgstr "Boutons"
+
+#: bueditor.admin.inc:322
+msgid "New editor has been added."
+msgstr "Le nouvel éditeur a été ajouté."
+
+#: bueditor.admin.inc:366
+msgid "Are you sure you want to delete the editor %name?"
+msgstr "Êtes-vous sûr de vouloir supprimer l'éditeur %name ?"
+
+#: bueditor.admin.inc:366
+msgid "All buttons and settings for this editor will be removed."
+msgstr "Tous les boutons et paramètres de cet éditeur seront supprimés."
+
+#: bueditor.admin.inc:366
+msgid "This action cannot be undone."
+msgstr "Cette action ne peut pas être annulée."
+
+#: bueditor.admin.inc:366
+msgid "Cancel"
+msgstr "Annuler"
+
+#: bueditor.admin.inc:371
+msgid "%name editor has been deleted."
+msgstr "L'éditeur %name a été supprimé."
+
+#: bueditor.admin.inc:392
+msgid "Selected buttons have been deleted."
+msgstr "Les boutons sélectionnés ont été supprimés."
+
+#: bueditor.admin.inc:427
+msgid "There is no button to export."
+msgstr "Il n'y a pas de bouton à exporter."
+
+#: bueditor.module:12
+#: bueditor.info:0
+msgid "BUEditor"
+msgstr "BUEditor"
+
+#: bueditor.module:13
+msgid "Customize your text editor."
+msgstr "Personnalise"
+
+#: bueditor.module:27
+msgid "Editor settings"
+msgstr "Paramètres de l'éditeur"
+
+#: bueditor.module:35
+msgid "Delete editor"
+msgstr "Supprimer l'éditeur"
+
+#: bueditor.module:0
+msgid "bueditor"
+msgstr "bueditor"
+
+#: bueditor.install:28
+msgid "Stores editors and their settings."
+msgstr "Stocke les éditeurs et leurs paramètres."
+
+#: bueditor.install:34
+msgid "Primary Key: Unique editor ID."
+msgstr "Clé primaire : ID unique de l'éditeur."
+
+#: bueditor.install:41
+msgid "The editor name."
+msgstr "Le nom de l'éditeur."
+
+#: bueditor.install:46
+msgid "Drupal paths on which the editor is visible."
+msgstr "Chemins Drupal dans lesquels l'éditeur est visible."
+
+#: bueditor.install:51
+msgid "Textarea ids for which the editor is not visible."
+msgstr "Ids des zones de texte où l'éditeur n'est pas visible."
+
+#: bueditor.install:58
+msgid "The directory path where the editor icons reside."
+msgstr "Le chemin du répertoire où les icones de l'éditeur sont stockées."
+
+#: bueditor.install:65
+msgid "The directory path where the editor library files reside."
+msgstr "Le chemin du répertoire où les fichiers de la librairie de l'éditeur sont stockés."
+
+#: bueditor.install:72
+msgid "Stores buttons of {bueditor_editors}."
+msgstr "Stocke les boutons de {bueditor_editors}."
+
+#: bueditor.install:78
+msgid "Primary Key: Unique button ID."
+msgstr "Clé primaire : ID unique du bouton."
+
+#: bueditor.install:85
+msgid "The {bueditor_editors}.eid to which the button belongs."
+msgstr "Le {bueditor_editors}.eid auquel les boutons appartiennent."
+
+#: bueditor.install:92
+msgid "The button title."
+msgstr "Le titre du bouton."
+
+#: bueditor.install:97
+msgid "The button content."
+msgstr "Le contenu du bouton."
+
+#: bueditor.install:104
+msgid "The button icon or caption."
+msgstr "L'icone du bouton ou sa légende."
+
+#: bueditor.install:111
+msgid "The button acceskey."
+msgstr "La clé d'accès (accesskey) du bouton."
+
+#: bueditor.install:118
+msgid "The button weight that determines the button location in the editor layout."
+msgstr "Le poids du bouton qui détermine la place du bouton dans la mise en page de l'éditeur."
+
+#: bueditor.info:0
+msgid "A plain textarea editor aiming to facilitate code writing."
+msgstr "Un éditeur de texte riche facilitant la saisie."
+
+#: library/default_buttons_functions.js:0
+msgid "Send to @app"
+msgstr "Envoyer à @app"
+
