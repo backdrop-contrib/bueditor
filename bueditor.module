@@ -7,16 +7,19 @@
 function bueditor_menu() {
   $items = array();
   $path = 'admin/settings/bueditor';
+  $access = array('administer site configuration');
   $items[$path] = array(
     'title' => 'BUEditor',
     'description' => 'Customize your text editor.',
     'page callback' => 'bueditor_admin',
+    'access arguments' => $access,
     'file' => 'bueditor.admin.inc',
   );
   $items[$path .'/new'] = array(
     'title' => 'Add new editor',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('bueditor_editor_form'),
+    'access arguments' => $access,
     'type' => MENU_CALLBACK,
     'file' => 'bueditor.admin.inc',
   );
@@ -24,6 +27,7 @@ function bueditor_menu() {
     'title' => 'Editor settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('bueditor_editor_form', 3),
+    'access arguments' => $access,
     'type' => MENU_CALLBACK,
     'file' => 'bueditor.admin.inc',
   );
@@ -31,6 +35,7 @@ function bueditor_menu() {
     'title' => 'Delete editor',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('bueditor_delete_form', 3),
+    'access arguments' => $access,
     'type' => MENU_CALLBACK,
     'file' => 'bueditor.admin.inc',
   );
@@ -72,9 +77,11 @@ function bueditor_editors($eid = 0) {
  */
 function bueditor_buttons($eid) {
   $buttons = array();
-  $result = db_query("SELECT * FROM {bueditor_buttons} WHERE eid = %d ORDER BY weight, title", $eid);
-  while ($button = db_fetch_object($result)) {
-    $buttons[$button->bid] = $button;
+  if ($eid) {
+    $result = db_query("SELECT * FROM {bueditor_buttons} WHERE eid = %d ORDER BY weight, title", $eid);
+    while ($button = db_fetch_object($result)) {
+      $buttons[$button->bid] = $button;
+    }
   }
   return $buttons;
 }
@@ -110,7 +117,12 @@ function bueditor_elements() {
  * Integrate the editor into textareas.
  */
 function bueditor_textarea($element) {
-  static $editors;
+  static $editors, $textareas = array();
+
+  if (isset($textareas[$element['#id']])) {
+    return $element;
+  }
+  $textareas[$element['#id']] = 1;
 
   //get editors
   if (!isset($editors)) {
@@ -135,7 +147,8 @@ function bueditor_textarea($element) {
 function bueditor_preset_textarea($tid, $editor) {
   if ($editor && !bueditor_check_match($editor->excludes, $tid)) {
     bueditor_settle($editor);
-    drupal_add_js('BUE.preset.push(["'. $tid .'", "e'. $editor->eid .'"]);', 'inline');
+    $settings['BUE']['preset'][$tid] = 'e'. $editor->eid;
+    drupal_add_js($settings, 'setting');
     return TRUE;
   }
   return FALSE;
@@ -156,9 +169,11 @@ function bueditor_settle($editor) {
     drupal_add_css($path .'/bueditor.css');
     drupal_add_js($path .'/bueditor.js');
     bueditor_js_library($editor->librarypath);//load library files.
-    $buttons = drupal_to_js(bueditor_processed_buttons($editor->eid));
-    $js = 'BUE.templates.e'. $editor->eid .' = {"iconpath": "'. base_path() . $editor->iconpath .'", "buttons": '. $buttons .'}';
-    drupal_add_js($js, 'inline');
+    $settings['BUE']['templates']['e'. $editor->eid] = array(
+      'iconpath' => base_path() . $editor->iconpath,
+      'buttons' => bueditor_processed_buttons($editor->eid),
+    );
+    drupal_add_js($settings, 'setting');
     $settled[$editor->eid] = TRUE;
     return TRUE;
   }
@@ -209,7 +224,23 @@ function bueditor_user_eids($user) {
  */
 function bueditor_check_page($page, $eid) {
   $editor = is_numeric($eid) ? bueditor_editors($eid) : $eid;
-  return $editor && bueditor_check_match($editor->pages, $page) ? $editor : 0;
+  if ($editor) {
+    if (drupal_match_path($page, $editor->pages)) {
+      return $editor;
+    }
+    $alias = drupal_get_path_alias($page);
+    if ($alias != $page && drupal_match_path($alias, $editor->pages)) {
+      return $editor;
+    }
+    if (arg(0) == 'node' && arg(2) == 'edit') {
+      $node = node_load(arg(1));
+      if ($node && strpos($editor->pages, 'node/add/'.  $node->type) !== FALSE) {
+        return $editor;
+      }
+    }
+  }
+
+  return FALSE;
 }
 
 /**
@@ -227,15 +258,23 @@ function bueditor_check_match($needle, $haystack) {
  * Translate editor paths
  */
 function bueditor_path_tr($path) {
-  if ($path) {
+  if (!$path) {
+    return $path;
+  }
+  static $tokens;
+  if (!isset($tokens)) {
     $tokens = array(
       '%BUEDITOR' => drupal_get_path('module', 'bueditor'),
       '%FILES' => file_directory_path(),
       '%THEME' => path_to_theme()
     );
-    return strtr($path, $tokens);
   }
-  return $path;
+  $dir = strtr($path, $tokens);
+  //for themes missing icon or library directory, switch to default theme.
+  if (!is_dir($dir) && substr($path, 0, 2) == '%T') {
+    return str_replace('%THEME', drupal_get_path('theme', variable_get('theme_default', 'garland')), $path);
+  }
+  return $dir;
 }
 
 /**

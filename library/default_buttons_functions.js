@@ -1,5 +1,5 @@
 // $Id$
-//collection of functions required for editor default buttons.
+//collection of functions required for default buttons.
 
 //Automatically break new lines like in Drupal preview. ported from the php equivalent http://photomatt.net/scripts/autop
 function eDefAutoP(txt, br) {
@@ -144,8 +144,7 @@ function eDefBrowseButton(url, field, text, type) {
 function eDefFileBrowser(bURL, fURL, type) {
   eDefFileURL = fURL;
   if (typeof eDefImceWin == 'undefined' || eDefImceWin.closed) {//open popup
-    eDefImceWin = window.open(bURL, '', 'width='+ 760 +',height='+ 560 +',resizable=1');
-    eDefImceWin['imceOnLoad'] = eDefImceLoad;//set a function to be executed when imce loads.
+    eDefImceWin = window.open(bURL + (bURL.indexOf('?') < 0 ? '?' : '&') +'app=BUEditor|onload@eDefImceLoad', '', 'width='+ 760 +',height='+ 560 +',resizable=1');
   }
   else eDefImceHighlight();//if popup is already opened. highlight the file url.
   eDefImceWin.focus();//bring the popup into view
@@ -155,6 +154,9 @@ function eDefFileBrowser(bURL, fURL, type) {
 function eDefImceLoad(win) {
   win.imce.setSendTo(Drupal.t('Send to @app', {'@app': 'BUEditor'}), eDefImceFinish);
   eDefImceHighlight();
+  $(window).unload(function() {
+    if (eDefImceWin && !eDefImceWin.closed) eDefImceWin.close();
+  });
 }
 
 //IMCE complete
@@ -178,7 +180,7 @@ function eDefTagDialog(tag, fields, dtitle, stitle, func, effect) {
   var field, title, html, rows = [], sel = BUE.active.getSelection(), obj = eDefParseTag(sel, tag)||{'attributes': {}};
   for (var i=0; field = fields[i]; i++) {
     field = typeof(field) == 'string' ? {'name': field} : field;
-    field.value = field.name == 'html' ? (typeof(obj.innerHTML) == 'string' ? obj.innerHTML : sel) : '';
+    if (field.name == 'html') field.value =  typeof obj.innerHTML == 'string' ? obj.innerHTML : sel;
     title  = typeof(field.title) == 'string' ? field.title : field.name.substr(0, 1).toUpperCase() + field.name.substr(1);
     html = eDefAttrField(field, obj.attributes[field.name]);
     while (field.getnext && (field = fields[++i])) {

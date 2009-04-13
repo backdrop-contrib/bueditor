@@ -1,12 +1,35 @@
 // $Id$
 
 //Global container
-var BUE = {'preset': [], 'instances': [], 'popups': {}, 'dialog': {}, 'templates': {}, 'mode': (window.getSelection || document.getSelection) ? 1 : (document.selection && document.selection.createRange ? 2 : 0 )};
+var BUE = {
+  'preset': {push: function(arr) {this[arr[0]] = arr[1];}},
+  'instances': [],
+  'popups': {},
+  'dialog': {},
+  'templates': {},
+  'mode': (window.getSelection || document.getSelection) ? 1 : (document.selection && document.selection.createRange ? 2 : 0 )
+};
+
+//Get editor settings from Drupal.settings and process preset textareas.
+BUE.behavior = function(context) {
+  if (Drupal.settings.BUE) {
+    $.each(Drupal.settings.BUE.templates||{}, function (id, tpl) {
+      BUE.templates[id] = BUE.templates[id] || $.extend({}, tpl);
+    });
+    Drupal.settings.BUE.templates = {};
+    $.each(Drupal.settings.BUE.preset||{}, function (id, tplid) {
+      BUE.preset[id] = BUE.preset[id] || tplid;
+    });
+    Drupal.settings.BUE.preset = {};
+  }
+  $.each(BUE.preset, function (tid, tplid) {
+    BUE.processTextarea($('#'+ tid, context).get(0), tplid);
+  });
+};
 
 //editor settle.
 BUE.initiate = function () {
-  //process textareas that were preset
-  $.each(BUE.preset, function() {BUE.processTextarea(this[0], this[1])});
+  (Drupal.behaviors.BUE = BUE.behavior)(document);
   //set editor quickPop.
   var qp = BUE.quickPop = BUE.createPopup('bue-quickpop');
   $(qp.rows[0]).hide();
@@ -20,12 +43,15 @@ BUE.initiate = function () {
   //set editor dialog
   BUE.dialog.popup = BUE.createPopup('bue-dialog');
   BUE.dialog.popup.close = function (effect) {BUE.dialog.close(effect);}
+  //fix enter key triggering button click on autocomplete fields.
+  $('input.form-autocomplete').keydown(function(e) {return e.keyCode != 13});
 };
 
 //integrate editor template into textarea T
 BUE.processTextarea = function (T, tplid) {
   var T = typeof(T) == 'string' ? $('#'+ T).get(0) : T;
-  if (!BUE.templates[tplid] || !T.tagName || T.tagName != 'TEXTAREA' || T.editor || T.style.display == 'none' || T.style.visibility == 'hidden') return;
+  if (!BUE.templates[tplid] || !T || !T.tagName || T.tagName != 'TEXTAREA' || $(T).is(':hidden')) return false;
+  if (T.editor) return T.editor;
   var E = new BUE.instance(T, tplid);
   $(T).focus(function () {
     if (!(BUE.active == this.editor || BUE.dialog.editor)) {
@@ -51,6 +77,7 @@ BUE.processTextarea = function (T, tplid) {
   else {
     E.accesskeys(false);
   }
+  return E;
 };
 
 //create an editor instance
@@ -64,6 +91,7 @@ BUE.instance = function (T, tplid) {
   this.bindex = null;
   this.focus = function () {
     this.textArea.focus();
+    return this;
   };
   this.getContent = function () {
     return BUE.processText(this.textArea.value);
@@ -72,6 +100,7 @@ BUE.instance = function (T, tplid) {
     var st = this.textArea.scrollTop;
     this.textArea.value = content;
     this.textArea.scrollTop = st;
+    return this;
   };
   this.getSelection = function () {
     var pos = this.posSelection();
@@ -85,6 +114,7 @@ BUE.instance = function (T, tplid) {
     var end = cursor == 'start' ? pos.start : pos.start+txt.length;
     var start = cursor == 'end' ? end : pos.start;
     this.makeSelection(start, end);
+    return this;
   };
   this.tagSelection = function (left, right, cursor) {
     var left = BUE.processText(left);
@@ -96,11 +126,13 @@ BUE.instance = function (T, tplid) {
     var end = cursor=='start' ? pos.start+llen : pos.end+llen;
     var start = cursor=='end' ? end : pos.start+llen;
     this.makeSelection(start, end);
+    return this;
   };
   this.makeSelection = function (start, end) {
     if (end < start) end = start;
     BUE.selMake(this.textArea, start, end);
     if (BUE.dialog.esp) BUE.dialog.esp = {'start': start, 'end': end};
+    return this;
   };
   this.posSelection = function () {
     return BUE.dialog.esp ? BUE.dialog.esp : BUE.selPos(this.textArea);
@@ -109,11 +141,13 @@ BUE.instance = function (T, tplid) {
     for (var i=0; B = this.buttons[i]; i++) {
       B.disabled = i == bindex ? !state : state;
     }
+    return this;
   };
   this.accesskeys = function (state) {
     for (var i=0; B = this.buttons[i]; i++) {
       B.accessKey = state ? this.tpl.buttons[B.bid][3] : '';
     }
+    return this;
   };
 };
 
@@ -187,7 +221,7 @@ BUE.createPopup = function (id, title, content) {
       return false;
     }
     function endDrag(e) {
-      $(document).unbind("mousemove", doDrag).unbind("mouseup", endDrag);
+      $(document).unbind('mousemove', doDrag).unbind('mouseup', endDrag);
     }
   });
   $(popup.rows[0].cells[1].firstChild).click(function() {popup.close();});
@@ -233,6 +267,7 @@ BUE.dialog.close = function (effect) {
 };
 
 // browser specific functions.
+BUE.processText = function (text) {return text;};//this is the default process
 if (BUE.mode == 0) {//mode 0 - selection handling not-supported
   BUE.selPos = function (T) {return {'start': T.value.length, 'end': T.value.length};};
   BUE.selMake = function (T, start, end) {};
@@ -271,10 +306,8 @@ else if (BUE.mode == 2) {//mode 2 - IE.
     range.moveStart('character', start);
     range.select();
   };
+  BUE.processText = function (text) {return text.replace(/\r\n/g, '\n')};
 }
-BUE.processText = function (text) {
-  return BUE.mode == 2 ? text.replace(/\r\n/g, '\n') : text;
-};
 
 $(document).ready(BUE.initiate);
 var editor = editor || BUE;//not to break old button scripts.

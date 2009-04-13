@@ -75,6 +75,8 @@ function bueditor_admin_theme($form = array()) {
  */
 function bueditor_admin_submit($form, &$form_state) {
   $roles = $form_state['values']['roles'];
+  $roles[DRUPAL_ANONYMOUS_RID]['weight'] = 12;
+  $roles[DRUPAL_AUTHENTICATED_RID]['weight'] = 11;
   if ($GLOBALS['user']->uid == 1 && isset($roles['u1'])) {
     variable_set('bueditor_user1', $roles['u1']['editor']);
     variable_set('bueditor_user1_alt', $roles['u1']['alt']);
@@ -135,7 +137,7 @@ function bueditor_editor_options() {
  * Template form for buttons
  */
 function bueditor_button_form($button = NULL, $icons = array()) {
-  $button = (object) $button;
+  $button = (object) ($button ? $button : array('title' => '', 'content' => '', 'icon' => '', 'accesskey' => '', 'weight' => 0));
   $form = array();
   $form['title'] = array(
     '#type' => 'textfield',
@@ -174,15 +176,18 @@ function bueditor_button_form($button = NULL, $icons = array()) {
  * Editor form.
  */
 function bueditor_editor_form($form_state, $editor = NULL) {
-  $editor = (object) $editor;
+  $editor = (object) ($editor ? $editor : array('eid' => '', 'name' => '', 'pages' => "node/*\ncomment/*", 'excludes' => 'edit-log', 'iconpath' => '%BUEDITOR/icons', 'librarypath' => '%BUEDITOR/library'));
+
   $form = array(
     '#cache' => TRUE,
     '#tree' => TRUE,
     '#theme' => 'bueditor_editor',
     '#attributes' => array('enctype' => 'multipart/form-data'),
   );
-
-  $form['editor']['eid'] = array('#type' => 'hidden', '#value' => $editor->eid);
+  $form['editor']['eid'] = array(
+    '#type' => 'hidden',
+    '#value' => $editor->eid
+  );
   $form['editor']['name'] = array('#type' => 'textfield',
     '#title' => t('Editor name'),
     '#maxlength' => 255,
@@ -191,24 +196,24 @@ function bueditor_editor_form($form_state, $editor = NULL) {
   );
   $form['editor']['pages'] = array('#type' => 'textarea',
     '#title' => t('Show the editor on specific pages'),
-    '#default_value' => $editor->eid ? $editor->pages : "node/*\ncomment/*",
+    '#default_value' => $editor->pages,
     '#description' => t('Enter one page per line as Drupal paths. The * character is a wildcard.'),
   );
   $form['editor']['excludes'] = array('#type' => 'textarea',
     '#title' => t('Hide the editor for specific textareas'),
-    '#default_value' => $editor->eid ? $editor->excludes : 'edit-log',
+    '#default_value' => $editor->excludes,
     '#description' => t('Enter one textarea ID per line. The * character is a wildcard.'),
   );
   $form['editor']['iconpath'] = array('#type' => 'textfield',
     '#title' => t('Directory of editor icons'),
     '#maxlength' => 255,
-    '#default_value' => $editor->eid ? $editor->iconpath : '%BUEDITOR/icons',
+    '#default_value' => $editor->iconpath,
     '#description' => t('Web accessible directory path where editor icons reside.') .' '. t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme\'s path).'),
   );
   $form['editor']['librarypath'] = array('#type' => 'textfield',
     '#title' => t('Directory of editor library'),
     '#maxlength' => 255,
-    '#default_value' => $editor->eid ? $editor->librarypath : '%BUEDITOR/library',
+    '#default_value' => $editor->librarypath,
     '#description' => t('Web accessible directory path where external javascript files reside.') .' '. t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme\'s path).'),
   );
 
@@ -218,15 +223,17 @@ function bueditor_editor_form($form_state, $editor = NULL) {
     $form['buttons'][$bid] = bueditor_button_form($button, $icons);
     $form['checks'][$bid] = array('#type' => 'checkbox');
   }
-  //new buttons are previewed. not saved yet.
-  if ($csvpath = $_SESSION['buecsv']) {
+
+  //imported buttons are previewed. not saved yet.
+  if (isset($_SESSION['buecsv']) && $csvpath = $_SESSION['buecsv']) {
     $import = bueditor_import_buttons($csvpath);
     for ($i = 0; $button = $import[$i]; $i++) {
       $form['buttons']['new'. $i] = bueditor_button_form($button, $icons);
     }
-    drupal_set_message($i > 0 ? t('New buttons are ready to be saved.') : t('There is no button to be imported.', 'error'));
+    drupal_set_message($i > 0 ? t('New buttons are ready to be saved.') : t('There is no button to be imported.'));
     unset($_SESSION['buecsv']);
   }
+
   //there is always a new button.
   $form['buttons']['new'] = bueditor_button_form(NULL, $icons);
 
@@ -295,7 +302,7 @@ function bueditor_editor_theme($form = array()) {
 
   $demo = '';
   if ($eid && bueditor_settle($eid)) {
-    drupal_add_js('BUE.preset.push(["editor-demo", "e'. $eid .'"]);', 'inline');
+    drupal_add_js('BUE.preset["editor-demo"] = "e'. $eid .'";', 'inline');
     $demo = '<h2 class="title">'. t('Demo') .'</h2><div class="form-item"><textarea cols="60" rows="20" id="editor-demo" class="form-textarea">DEMO</textarea></div>';
   }
 
@@ -429,12 +436,14 @@ function bueditor_import_buttons($file) {
   $buttons = array();
   if (is_file($file) && $fp = fopen($file, 'r')) {
     $fields = fgetcsv($fp, 100000);
-    while ($values = fgetcsv($fp, 100000)) {
-      $button = array();
-      for ($i = 0; $field = $fields[$i]; $i++) {
-        $button[$field] = stripslashes($values[$i]);
+    if (in_array('title', $fields)) {
+      while ($values = fgetcsv($fp, 100000)) {
+        $button = array();
+        for ($i = 0; isset($fields[$i]); $i++) {
+          $button[$fields[$i]] = stripslashes($values[$i]);
+        }
+        $buttons[] = $button;
       }
-      $buttons[] = $button;
     }
   }
   return $buttons;

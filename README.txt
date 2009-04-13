@@ -295,6 +295,8 @@ Since new line is represented by different characters (\r, \r\n, \n) on differen
 unexpected behaviour of the editor in some platform-browser combos regarding the cursor position after text 
 insertion/replacement. Specify new line characters as "\n", if you have to use any in your scripts.
 
+POST variable limit:
+Although it's a rare case, consider increasing your server post variable limit if you have problems while adding too many buttons.
 
 - DEFAULT BUTTONS
 BUEditor comes with a few default buttons that may help you extend the editor:
@@ -479,7 +481,7 @@ js: eDefTagChooser([
  ['h1', 'Header1'],
  ['h1', 'Header1-title', {'class': 'title'}],// this will insert <h1 class="title"></h1>
  ['h2', 'Header2'],
- ['h1', 'Header2-title', {'class': 'title'}],
+ ['h2', 'Header2-title', {'class': 'title'}],
  ['h3', 'Header3'],
  ['h4', 'Header4']
 ], true, 'li', 'ul', 'slideDown');
