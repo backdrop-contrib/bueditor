@@ -1,30 +1,110 @@
 /*$Id$*/
 
-.button-table {
+#button-table {
   width: 100%;
+  font-size: 0.9em;
 }
-.button-table tr.new-button {
-  background-color: #feebed;
+#button-table * {
+  font-size: 1em;
 }
-.button-table td{
+
+#button-table th.btitle {
+  width: 12em;
+  #width: 13.5em;
+  _width: 14.5em;
+}
+#button-table input.btitle {
+  width: 8.8em;
+}
+#button-table a.tabledrag-handle {
+  padding-right: 0.8em;
+}
+#button-table th.content {
+
+}
+#button-table th.icon {
+  width: 5em;
+}
+#button-table input.icon {
+  width: 3em;
+}
+#button-table th.key {
+  width: 3em;
+}
+#button-table input.key {
+  width: 2em;
+}
+#button-table th.select-all {
+  width: 2em;
+}
+
+#button-table td {
   vertical-align: top;
 }
-.button-table th.content {
-  width: 50%;
+#button-table tr.new-button {
+  background-color: #feebed;
 }
-.sel-action {
+
+#button-table div.form-item {
+  display: inline;
+  margin: 0em;
+  padding: 0em;
+}
+#button-table div.resizable-textarea {
+  width: 98%;
+}
+#button-table div.grippie {
+  height: 0.2em;
+  background-position: 50% 50%;
+}
+
+div.sel-action {
   float: right;
   margin: 0.5em;
 }
-.sel-action div {
+div.sel-action div {
   display: inline;
 }
-.sel-action select, .sel-action input {
+div.sel-action select, .sel-action input {
   margin: 0em;
+}
+#edit-submit {
+  margin: 0.5em;
 }
 #editor-demo {
   width: 94%;
 }
-#edit-submit {
-  margin: 0.5em;
+
+#icon-selector {
+  position: absolute;
+  margin: 0em;
+  width: auto;
+  z-index: 1;
+}
+#icon-selector td {
+  border: 0.1em solid #e1e1e1;
+  background-color: #f1f1f1;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+  padding: 0.4em 0.6em;
+}
+#icon-selector td:hover {
+  background-color: #fff;
+}
+#icon-selector img {
+  vertical-align: middle;
+}
+#icon-selector input {
+  width: 1em;
+  cursor: pointer;
+}
+img.icon-selector-opener {
+  margin-left: 0.2em;
+  cursor: pointer;
+  padding: 0.3em 0.2em 0em 0.2em;
+  border: 1px solid #ccc;
+}
+img.icon-selector-opener:hover {
+  border-color: #000;
 }

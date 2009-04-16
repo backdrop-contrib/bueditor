@@ -136,38 +136,37 @@ function bueditor_editor_options() {
 /**
  * Template form for buttons
  */
-function bueditor_button_form($button = NULL, $icons = array()) {
-  $button = (object) ($button ? $button : array('title' => '', 'content' => '', 'icon' => '', 'accesskey' => '', 'weight' => 0));
+function bueditor_button_form($button = NULL) {
+  $button = (object) ($button ? $button : array('title' => '', 'content' => '', 'icon' => '', 'accesskey' => '', 'weight' => 100));
   $form = array();
   $form['title'] = array(
     '#type' => 'textfield',
     '#default_value' => $button->title,
     '#size' => 14,
+    '#attributes' => array('class' => 'btitle'),
   );
   $form['content'] = array(
     '#type' => 'textarea',
     '#default_value' => $button->content,
-    '#rows' => min(6, max(2, substr_count($button->content, "\n")+1)),
+    '#rows' => 1,
   );
   $form['icon'] = array(
-    '#type' => 'select',
-    '#options' => array('' => t('Caption')) + $icons,
-    '#default_value' => $button->icon,
-  );
-  $form['caption'] = array(
     '#type' => 'textfield',
-    '#default_value' => bueditor_isimage($button->icon) ? '' : $button->icon,
-    '#size' => 6,
+    '#default_value' => $button->icon,
+    '#size' => 3,
+    '#attributes' => array('class' => 'icon'),
   );
   $form['accesskey'] = array(
     '#type' => 'textfield',
     '#default_value' => $button->accesskey,
     '#size' => 2,
     '#maxlength' => 1,
+    '#attributes' => array('class' => 'key'),
   );
   $form['weight'] = array(
-    '#type' => 'weight',
-    '#default_value' => $button->weight ? $button->weight : 0,
+    '#type' => 'textfield',
+    '#default_value' => $button->weight,
+    '#size' => 3,
   );
   return $form;
 }
@@ -218,9 +217,8 @@ function bueditor_editor_form($form_state, $editor = NULL) {
   );
 
   //buttons
-  $icons = bueditor_icons(bueditor_path_tr($form['editor']['iconpath']['#default_value']));
   foreach (bueditor_buttons($editor->eid) as $bid => $button) {
-    $form['buttons'][$bid] = bueditor_button_form($button, $icons);
+    $form['buttons'][$bid] = bueditor_button_form($button);
     $form['checks'][$bid] = array('#type' => 'checkbox');
   }
 
@@ -228,14 +226,14 @@ function bueditor_editor_form($form_state, $editor = NULL) {
   if (isset($_SESSION['buecsv']) && $csvpath = $_SESSION['buecsv']) {
     $import = bueditor_import_buttons($csvpath);
     for ($i = 0; $button = $import[$i]; $i++) {
-      $form['buttons']['new'. $i] = bueditor_button_form($button, $icons);
+      $form['buttons']['new'. $i] = bueditor_button_form($button);
     }
     drupal_set_message($i > 0 ? t('New buttons are ready to be saved.') : t('There is no button to be imported.'));
     unset($_SESSION['buecsv']);
   }
 
   //there is always a new button.
-  $form['buttons']['new'] = bueditor_button_form(NULL, $icons);
+  $form['buttons']['new'] = $form['buttons']['new_'] = bueditor_button_form();
 
   //action for selected buttons
   $form['selaction'] = array('#type' => 'select', '#options' => array('' => t('... selecteds'), 'delete' => t('Delete'), 'export' => t('Export')));
@@ -250,6 +248,8 @@ function bueditor_editor_form($form_state, $editor = NULL) {
  * Editor form themed.
  */
 function bueditor_editor_theme($form = array()) {
+  $path = drupal_get_path('module', 'bueditor');
+  $eid = $form['editor']['eid']['#value'];
   $header = array(
     array('data' => t('Title'), 'class' => 'btitle'),
     array('data' => t('Content'), 'class' => 'content'),
@@ -258,29 +258,31 @@ function bueditor_editor_theme($form = array()) {
     array('data' => t('Weight'), 'class' => 'weight'),
     theme('table_select_header_cell'),
   );
-
   $rows = array();
   foreach (element_children($form['buttons']) as $bid) {
     $new = !is_numeric($bid);
     $cells = array();
+    $form['buttons'][$bid]['weight']['#attributes']['class'] = 'button-weight';
     $cells[] = drupal_render($form['buttons'][$bid]['title']);
     $cells[] = drupal_render($form['buttons'][$bid]['content']);
-    $cells[] = drupal_render($form['buttons'][$bid]['icon']) . drupal_render($form['buttons'][$bid]['caption']);
+    $cells[] = drupal_render($form['buttons'][$bid]['icon']);
     $cells[] = drupal_render($form['buttons'][$bid]['accesskey']);
     $cells[] = drupal_render($form['buttons'][$bid]['weight']);
-    $cells[] = $new ? '<a>'. t('new') .'</a>' : drupal_render($form['checks'][$bid]);
-    $rows[] = $new ? array('data' => $cells, 'class' => 'new-button', 'title' => t('Add new button')) : $cells;
+    $cells[] = $new ? '<a>new</a>' : drupal_render($form['checks'][$bid]);
+    $row = array('data' => $cells, 'class' => 'draggable');
+    if ($new) {
+      $row['class'] .= ' new-button';
+    }
+    $rows[] = $row;
   }
 
-  $eid = $form['editor']['eid']['#value'];
-  $path = drupal_get_path('module', 'bueditor');
-  drupal_add_css($path .'/admin/admin.css', 'media', 'all', FALSE);//no preprocessing
-  drupal_add_js($path .'/admin/admin.js', 'module', 'header', FALSE, TRUE, FALSE);//no preprocessing
-  drupal_add_js('var iconPath = "'. base_path() . bueditor_path_tr($form['editor']['iconpath']['#value']) .'"', 'inline');
-
   $help = '<div class="help">'. t('To add a new button, you can either specify it at the bottom of the button list or import a CSV file which contains previously exported buttons. For more information about buttons and editor API please read !readme.', array('!readme' => '<a href="'. base_path() . $path .'/README.txt">README.txt</a>')) .'</div>';
-  $buttons = theme('table', $header, $rows, array('class' => 'button-table', 'id' => 'button-table'));
-  $selaction = '<div class="sel-action">'. drupal_render($form['selaction']) . drupal_render($form['go']) .'</div>';
+  $name = theme('fieldset', array(
+    '#title' => t('Editor name'),
+    '#children' => drupal_render($form['editor']['name']),
+    '#collapsible' => TRUE,
+    '#collapsed' => $eid
+  ));
   $visibility = theme('fieldset', array(
     '#title' => t('Visibility settings'),
     '#children' => drupal_render($form['editor']['pages']) . drupal_render($form['editor']['excludes']),
@@ -293,23 +295,31 @@ function bueditor_editor_theme($form = array()) {
     '#collapsible' => TRUE,
     '#collapsed' => $eid
   ));
+  $buttons = theme('table', $header, $rows, array('class' => 'button-table', 'id' => 'button-table'));
+  $selaction = '<div class="sel-action">'. drupal_render($form['selaction']) . drupal_render($form['go']) .'</div>';
   $import = theme('fieldset', array(
     '#title' => t('Import Buttons'),
-    '#children' => drupal_render($form['buecsv']) . drupal_render($form['import']),
+    '#children' => drupal_render($form['buecsv']) . drupal_render($form['import']) . $help,
     '#collapsible' => TRUE,
     '#collapsed' => TRUE
   ));
-
   $demo = '';
   if ($eid && bueditor_settle($eid)) {
-    drupal_add_js('BUE.preset["editor-demo"] = "e'. $eid .'";', 'inline');
+    $set['BUE']['preset']['editor-demo'] = "e$eid";
     $demo = '<h2 class="title">'. t('Demo') .'</h2><div class="form-item"><textarea cols="60" rows="20" id="editor-demo" class="form-textarea">DEMO</textarea></div>';
   }
 
-  $output = $help . drupal_render($form['editor']['name']) . ($eid ? '' : ($visibility . $paths));
+  $set['BUE']['iconpath'] = bueditor_path_tr($form['editor']['iconpath']['#value']);
+  $set['BUE']['iconlist'] = bueditor_icons($set['BUE']['iconpath']);
+  drupal_add_css($path .'/admin/admin.css', 'media', 'all', FALSE);//no preprocessing
+  drupal_add_js($path .'/admin/admin.js', 'module', 'header', FALSE, TRUE, FALSE);//no preprocessing
+  drupal_add_js($set, 'setting');
+  drupal_add_tabledrag('button-table', 'order', 'sibling', 'button-weight');
+
+  $output = $name . $visibility . $paths;
   $output .= '<h2 class="title">'. t('Buttons') .'</h2>'. $buttons . $selaction;
-  $output .= drupal_render($form['submit']) . ($eid ? ($visibility . $paths) : '');
-  $output .= $import . drupal_render($form) . $demo;
+  $output .= drupal_render($form['submit']) . ($eid ? $import : '');
+  $output .= drupal_render($form) . $demo;
   return $output;
 }
 
@@ -332,7 +342,7 @@ function bueditor_editor_submit($form, &$form_state) {
       $button->bid = is_numeric($bid) ? $bid : NULL;
       $button->eid = $editor->eid;
       $button->content = str_replace("\r\n", "\n", $button->content);
-      $button->icon = $button->icon ? $button->icon : $button->caption;
+      $button->icon = $button->icon;
       $update = $button->bid ? array('bid') : array();
       drupal_write_record('bueditor_buttons', $button, $update);
     }
@@ -457,7 +467,7 @@ function bueditor_icons($path) {
   if ($path && $handle = opendir($path)) {
     while (($file = readdir($handle)) !== FALSE) {
       if (bueditor_isimage($file)) {
-        $icons[$file] = $file;
+        $icons[$file] = 1;
       }
     }
     closedir($handle);
