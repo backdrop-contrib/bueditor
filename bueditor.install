@@ -6,7 +6,9 @@
  */
 function bueditor_install() {
   drupal_install_schema('bueditor');
-  bueditor_insert_latest();
+  module_load_include('inc', 'bueditor', 'bueditor.admin');
+  register_shutdown_function('drupal_get_schema', NULL, TRUE);//allows using drupal_write_record
+  register_shutdown_function('bueditor_create_default');//create the default editor
 }
 
 /**
@@ -58,11 +60,9 @@ function bueditor_schema() {
         'description' => t('The directory path where the editor icons reside.'),
       ),
       'librarypath' => array(
-        'type' => 'varchar',
-        'length' => 255,
+        'type' => 'text',
         'not null' => TRUE,
-        'default' => '%BUEDITOR/library',
-        'description' => t('The directory path where the editor library files reside.'),
+        'description' => t('Files to be included with the editor.'),
       ),
     ),
     'primary key' => array('eid'),
@@ -128,54 +128,10 @@ function bueditor_schema() {
 }
 
 /**
- * Insert the latest version of default editor.
- */
-function bueditor_insert_latest($name = 'default') {
-
-  //editor
-  db_query("INSERT INTO {bueditor_editors} (name, pages, excludes, iconpath, librarypath) VALUES ('%s', '%s', '%s', '%s', '%s')", array($name, "node/*\ncomment/*", 'edit-log', '%BUEDITOR/icons', '%BUEDITOR/library'));
-  $eid = db_last_insert_id('bueditor_editors', 'eid');
-
-  //buttons
-  $buttons = array();
-  $buttons[] = array($eid, 'Insert/edit image', "php:\n\$imce_url = function_exists('imce_access') && imce_access() ? url('imce') : '';\n\nreturn \"js:\nvar B = eDefBrowseButton('\$imce_url', 'attr_src', 'Browse', 'image');\nvar form = [\n {name: 'src', title: 'Image URL', suffix: B},\n {name: 'width', title: 'Width x Height', suffix: ' x ', getnext: true, attributes: {size: 3}},\n {name: 'height', attributes: {size: 3}},\n {name: 'alt', title: 'Alternative text'}\n];\neDefTagDialog('img', form, 'Insert/edit image', 'OK');\n\";", 'image.png', 'M', -10);
-  $buttons[] = array($eid, 'Insert/edit link', "php:\n\$imce_url = function_exists('imce_access') && imce_access() ? url('imce') : '';\n\nreturn \"js:\nvar B = eDefBrowseButton('\$imce_url', 'attr_href', 'Browse', 'link');\nvar form = [\n {name: 'href', title: 'Link URL', suffix: B},\n {name: 'html', title: 'Link text'},\n {name: 'title', title: 'Link title'}\n];\neDefTagDialog('a', form, 'Insert/edit link', 'OK');\n\";", 'link.png', 'L', -10);
-  $buttons[] = array($eid, 'tpl:', '', 'separator.png', '', -8);
-  $buttons[] = array($eid, 'Bold', "<strong>%TEXT%</strong>", 'bold.png', 'B', -6);
-  $buttons[] = array($eid, 'Italic', "js: eDefTagger('em');/*toggle tag*/", 'italic.png', 'I', -6);
-  $buttons[] = array($eid, 'Headers', "js: eDefTagChooser([\n ['h1', 'Header1'],\n ['h2', 'Header2'],\n ['h3', 'Header3'],\n ['h4', 'Header4']\n], true, 'li', 'ul', 'slideDown');/*choose among tags*/", 'headers.png', 'H', -5);
-  $buttons[] = array($eid, 'tpl:', '', 'separator.png', '', -4);
-  $buttons[] = array($eid, 'Ordered list. Converts selected lines to a numbered list.', "js: eDefTagLines('<ol>\\n', ' <li>', '</li>', '\\n</ol>');", 'ol.png', 'O', -2);
-  $buttons[] = array($eid, 'Unordered list. Converts selected lines to a bulleted list.', "js: eDefTagLines('<ul>\\n', ' <li>', '</li>', '\\n</ul>');", 'ul.png', 'U', -2);
-  $buttons[] = array($eid, 'tpl:', '', 'separator.png', '', 0);
-  $buttons[] = array($eid, 'Teaser break', "<!--break-->", 'teaserbr.png', 'T', 2);
-  $buttons[] = array($eid, 'Preview', "js: eDefPreview();", 'preview.png', 'P', 6);
-  $buttons[] = array($eid, 'Help', "js: eDefHelp('slideDown');", 'help.png', 'F', 10);
-
-  foreach ($buttons as $button) {
-    db_query("INSERT INTO {bueditor_buttons} (eid, title, content, icon, accesskey, weight) VALUES (%d, '%s', '%s', '%s', '%s', %d)", $button);
-  }
-
-}
-
-/**
- * Update button contents
- */
-function bueditor_buttons_update() {
-  $result = db_query("SELECT bid, content FROM {bueditor_buttons} WHERE content LIKE '%%%s%%' OR content LIKE '%%%s%%' OR content LIKE '%%%s%%'", 'editor.', 'imce', 'eDefSelP');
-  $tr = array('editor.' => 'BUE.', "user_access('access imce')" => 'imce_access()', 'imce/browse' => 'imce', 'eDefSelProcessLines' => 'eDefTagLines');
-  while ($button = db_fetch_object($result)) {
-    $button->content = strtr($button->content, $tr);
-    db_query("UPDATE {bueditor_buttons} SET content = '%s' WHERE bid = %d", $button->content, $button->bid);
-  }
-}
-
-/**
  * Update from 4|5.x to 6.x
  * Add new fields: {bueditor_editors}.iconpath, {bueditor_editors}.librarypath.
  * Change {bueditor_buttons}.accesskey field type from char to varchar.
  * Update {bueditor_buttons}.content field values.
- * Insert the latest version of default editor.
  * Delete needless cron variable.
  */
 function bueditor_update_6000() {
@@ -201,8 +157,38 @@ function bueditor_update_6000() {
   db_add_field($ret, 'bueditor_editors', 'iconpath', $iconpath);
   db_add_field($ret, 'bueditor_editors', 'librarypath', $librarypath);
   db_change_field($ret, 'bueditor_buttons', 'accesskey', 'accesskey', $accesskey);
-  bueditor_buttons_update();
-  bueditor_insert_latest('default 6.x');
   variable_del('bueditor_cron_last');
+  //update button contents
+  $result = db_query("SELECT bid, content FROM {bueditor_buttons} WHERE content LIKE '%%%s%%' OR content LIKE '%%%s%%' OR content LIKE '%%%s%%'", 'editor.', 'imce', 'eDefSelP');
+  $tr = array('editor.' => 'BUE.', "user_access('access imce')" => 'imce_access()', 'imce/browse' => 'imce', 'eDefSelProcessLines' => 'eDefTagLines');
+  while ($button = db_fetch_object($result)) {
+    $button->content = strtr($button->content, $tr);
+    db_query("UPDATE {bueditor_buttons} SET content = '%s' WHERE bid = %d", $button->content, $button->bid);
+  }
+  return $ret;
+}
+
+/**
+ * 6.x-1.x to 6.x-2.x
+ * Change {bueditor_editors}.librarypath field type from varchar to text.
+ * It now stores file paths rather than a directory path.
+ */
+function bueditor_update_6200() {
+  $ret = array();
+  $librarypath = array(
+    'type' => 'text',
+    'not null' => TRUE
+  );
+  db_change_field($ret, 'bueditor_editors', 'librarypath', 'librarypath', $librarypath);
+  //scan library directories for js files and insert them into librarypath field.
+  $files = array();
+  foreach (bueditor_editors('all') as $eid => $editor) {
+    $path = $editor->librarypath;
+    if (!isset($files[$path])) {
+      $names = file_scan_directory(bueditor_path_tr($path), '\.js$', array('.', '..', 'CVS'), 0, 0, 'basename');
+      $files[$path] = empty($names) ? '' : $path .'/'. implode("\n$path/", array_keys($names));
+    }
+    db_query("UPDATE {bueditor_editors} SET librarypath = '%s' WHERE eid = %d", $files[$path], $eid);
+  }
   return $ret;
 }

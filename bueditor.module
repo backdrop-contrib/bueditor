@@ -122,7 +122,7 @@ function bueditor_textarea($element) {
   if (isset($textareas[$element['#id']])) {
     return $element;
   }
-  $textareas[$element['#id']] = 1;
+  $textareas[$element['#id']] = TRUE;
 
   //get editors
   if (!isset($editors)) {
@@ -164,37 +164,36 @@ function bueditor_settle($editor) {
   }
   if ($editor && $editor->eid && !isset($settled[$editor->eid])) {
     $path = drupal_get_path('module', 'bueditor');
-    $editor->librarypath = bueditor_path_tr($editor->librarypath);
     $editor->iconpath = bueditor_path_tr($editor->iconpath);
     drupal_add_css($path .'/bueditor.css');
     drupal_add_js($path .'/bueditor.js');
-    bueditor_js_library($editor->librarypath);//load library files.
+    bueditor_add_library($editor->librarypath);//load library files.
     $settings['BUE']['templates']['e'. $editor->eid] = array(
       'iconpath' => base_path() . $editor->iconpath,
       'buttons' => bueditor_processed_buttons($editor->eid),
     );
     drupal_add_js($settings, 'setting');
     $settled[$editor->eid] = TRUE;
-    return TRUE;
   }
-  return FALSE;
+  return $editor && isset($settled[$editor->eid]);
 }
 
 /**
- * Include all javascript files from library.
+ * Include js and css files from library.
  */
-function bueditor_js_library($path) {
-  static $paths = array();
-  if ($path && !isset($paths[$path])) {
-    if ($handle = opendir($path)) {
-      while (($file = readdir($handle)) !== FALSE) {
-        if (substr($file, -3) == '.js') {
-          drupal_add_js($path .'/'. $file);
-        }
+function bueditor_add_library($paths) {
+  $files = preg_split("/\s+/", $paths);
+  foreach ($files as $file) {
+    $file = bueditor_path_tr($file);
+    if (is_file($file)) {
+      $ext = substr($file, -4);
+      if ($ext == '.css') {
+        drupal_add_css($file, 'theme');
       }
-      closedir($handle);
+      elseif (substr($ext, 1) == '.js') {
+        drupal_add_js($file, 'theme');
+      }
     }
-    $paths[$path] = TRUE;
   }
 }
 
@@ -222,8 +221,8 @@ function bueditor_user_eids($user) {
 /**
  * Check if the editor is visible in the page.
  */
-function bueditor_check_page($page, $eid) {
-  $editor = is_numeric($eid) ? bueditor_editors($eid) : $eid;
+function bueditor_check_page($page, $editor) {
+  $editor = is_numeric($editor) ? bueditor_editors($editor) : $editor;
   if ($editor) {
     if (drupal_match_path($page, $editor->pages)) {
       return $editor;
@@ -269,12 +268,12 @@ function bueditor_path_tr($path) {
       '%THEME' => path_to_theme()
     );
   }
-  $dir = strtr($path, $tokens);
+  $trpath = strtr($path, $tokens);
   //for themes missing icon or library directory, switch to default theme.
-  if (!is_dir($dir) && substr($path, 0, 2) == '%T') {
-    return str_replace('%THEME', drupal_get_path('theme', variable_get('theme_default', 'garland')), $path);
+  if (!file_exists($trpath) && substr($path, 0, 2) == '%T') {
+    $trpath = str_replace('%THEME', drupal_get_path('theme', variable_get('theme_default', 'garland')), $path);
   }
-  return $dir;
+  return $trpath;
 }
 
 /**

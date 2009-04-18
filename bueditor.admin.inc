@@ -137,7 +137,7 @@ function bueditor_editor_options() {
  * Template form for buttons
  */
 function bueditor_button_form($button = NULL) {
-  $button = (object) ($button ? $button : array('title' => '', 'content' => '', 'icon' => '', 'accesskey' => '', 'weight' => 100));
+  $button = is_object($button) ? $button : bueditor_button_defaults();
   $form = array();
   $form['title'] = array(
     '#type' => 'textfield',
@@ -175,7 +175,7 @@ function bueditor_button_form($button = NULL) {
  * Editor form.
  */
 function bueditor_editor_form($form_state, $editor = NULL) {
-  $editor = (object) ($editor ? $editor : array('eid' => '', 'name' => '', 'pages' => "node/*\ncomment/*", 'excludes' => 'edit-log', 'iconpath' => '%BUEDITOR/icons', 'librarypath' => '%BUEDITOR/library'));
+  $editor = is_object($editor) ? $editor : bueditor_editor_defaults();
 
   $form = array(
     '#cache' => TRUE,
@@ -209,11 +209,10 @@ function bueditor_editor_form($form_state, $editor = NULL) {
     '#default_value' => $editor->iconpath,
     '#description' => t('Web accessible directory path where editor icons reside.') .' '. t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme\'s path).'),
   );
-  $form['editor']['librarypath'] = array('#type' => 'textfield',
-    '#title' => t('Directory of editor library'),
-    '#maxlength' => 255,
+  $form['editor']['librarypath'] = array('#type' => 'textarea',
+    '#title' => t('Editor specific library files'),
     '#default_value' => $editor->librarypath,
-    '#description' => t('Web accessible directory path where external javascript files reside.') .' '. t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme\'s path).'),
+    '#description' => t('Web accessible javascript(.js) or style sheet(.css) file paths to be included with the editor. Enter one file path per line.') .' '. t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme\'s path).'),
   );
 
   //buttons
@@ -232,7 +231,7 @@ function bueditor_editor_form($form_state, $editor = NULL) {
     unset($_SESSION['buecsv']);
   }
 
-  //there is always a new button.
+  //there is always two new buttons.
   $form['buttons']['new'] = $form['buttons']['new_'] = bueditor_button_form();
 
   //action for selected buttons
@@ -327,28 +326,23 @@ function bueditor_editor_theme($form = array()) {
  * Save editor & buttons.
  */
 function bueditor_editor_submit($form, &$form_state) {
-  //editor
   $editor = (object) $form_state['values']['editor'];
-  $update = $editor->eid ? array('eid') : array();
-  if (SAVED_NEW == drupal_write_record('bueditor_editors', $editor, $update)) {
-    drupal_set_message(t('New editor has been added.'));
-    $form_state['redirect'] = 'admin/settings/bueditor/'. $editor->eid;
-  }
-
-  //buttons
+  $buttons = array();
   foreach ($form_state['values']['buttons'] as $bid => $button) {
     if ($button['title']) {
-      $button = (object) $button;
-      $button->bid = is_numeric($bid) ? $bid : NULL;
-      $button->eid = $editor->eid;
-      $button->content = str_replace("\r\n", "\n", $button->content);
-      $button->icon = $button->icon;
-      $update = $button->bid ? array('bid') : array();
-      drupal_write_record('bueditor_buttons', $button, $update);
+      $button['bid'] = $bid;
+      $button['content'] = str_replace("\r\n", "\n", $button['content']);
+      $buttons[] = (object) $button;
     }
   }
-
-  drupal_set_message(t('Changes have been saved.'));
+  $message = $editor->eid ? t('The changes have been saved.') : t('New editor has been added.');
+  if ($editor = bueditor_write_editor($editor, $buttons)) {
+    $form_state['redirect'] = 'admin/settings/bueditor/'. $editor->eid;
+    drupal_set_message($message);
+  }
+  else {
+    drupal_set_message(t('Editor configuration could not be saved.'), 'error');
+  }
 }
 
 /**
@@ -375,12 +369,12 @@ function bueditor_csv_submit($form, &$form_state) {
  * Editor deletion form. Confirm & delete
  */
 function bueditor_delete_form($form_state, $editor) {
-  return confirm_form(array(), t('Are you sure you want to delete the editor %name?', array('%name' => $editor->name)), 'admin/settings/bueditor', t('All buttons and settings for this editor will be removed.') .' '. t('This action cannot be undone.'), t('Delete'), t('Cancel'));
+  return confirm_form(array(), t('Are you sure you want to delete the editor(%name)?', array('%name' => $editor->name)), 'admin/settings/bueditor', t('All buttons and settings for this editor will be removed.') .' '. t('This action cannot be undone.'), t('Delete'), t('Cancel'));
 }
 function bueditor_delete_form_submit($form, &$form_state) {
   $editor = $form['#parameters'][2];
   bueditor_delete_editor($editor->eid);
-  drupal_set_message(t('%name editor has been deleted.', array('%name' => $editor->name)));
+  drupal_set_message(t('Editor(%name) has been deleted.', array('%name' => $editor->name)));
 
   //update roles
   $roles = variable_get('bueditor_roles', array());
@@ -452,7 +446,7 @@ function bueditor_import_buttons($file) {
         for ($i = 0; isset($fields[$i]); $i++) {
           $button[$fields[$i]] = stripslashes($values[$i]);
         }
-        $buttons[] = $button;
+        $buttons[] = (object) $button;
       }
     }
   }
@@ -511,4 +505,62 @@ function bueditor_rolesort($r1, $r2) {
  */
 function bueditor_isimage($text) {
   return preg_match('/\.(png|gif|jpg)$/i', $text);
+}
+
+/**
+ * Return update state for an object to be used with drupal_write_record.
+ */
+function bueditor_isupdate($obj, $key) {
+  return isset($obj->$key) && is_numeric($obj->$key) && $obj->$key > 0 ? array($key) : array();
+}
+
+/**
+ * Update/insert an editor.
+ */
+function bueditor_write_editor($editor, $buttons = array()) {
+  if (drupal_write_record('bueditor_editors', $editor, bueditor_isupdate($editor, 'eid'))) {
+    foreach ($buttons as $button) {
+      $button->eid = $editor->eid;
+      drupal_write_record('bueditor_buttons', $button, bueditor_isupdate($button, 'bid'));
+    }
+    return $editor;
+  }
+  return FALSE;
+}
+
+/**
+ * Create the default editor.
+ */
+function bueditor_create_default($name = 'default') {
+  $editor = bueditor_editor_defaults($name);
+  //__FILE__ is used to make this function shutdown compatible. Used during installation.
+  $buttons = bueditor_import_buttons(dirname(__FILE__) . '/default_buttons.csv');
+  return bueditor_write_editor($editor, $buttons);
+}
+
+/**
+ * Default values of a new editor.
+ */
+function bueditor_editor_defaults($name = '') {
+  return (object) array(
+    'eid' => '',
+    'name' => $name,
+    'pages' => "node/*\ncomment/*",
+    'excludes' => 'edit-log',
+    'iconpath' => '%BUEDITOR/icons',
+    'librarypath' => '%BUEDITOR/library/default_buttons_functions.js'
+  );
+}
+
+/**
+ * Default values of a new button.
+ */
+function bueditor_button_defaults($title = '') {
+  return (object) array(
+    'title' => $title,
+    'content' => '',
+    'icon' => '',
+    'accesskey' => '',
+    'weight' => 100
+  );
 }
