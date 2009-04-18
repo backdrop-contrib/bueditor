@@ -61,7 +61,7 @@ function eDefHTML(tag, innerHTML, attributes) {
 }
 //check if the tag is non-closing
 function eDefNoEnd(tag) {
-  return !tag || $.inArray(tag, ['img', 'input', 'hr', 'br']) > -1;
+  return !tag || $.inArray(tag, ['img', 'input', 'hr', 'br', 'embed']) > -1;
 }
 
 //returns form input html.
