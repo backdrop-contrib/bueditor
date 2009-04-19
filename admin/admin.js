@@ -4,7 +4,7 @@ function bueInit() {
   //add icon selector into doc and create a global access for it.
   iconSelector = $(bueIcoSelector()).appendTo(document.body).hide();
   //process icon textfields
-  $('input:text.icon').each(bueProcessIcoField);
+  $('input.input-icon').each(bueProcessIcoField);
   //button actions adjustment
   bueSelAction();
   //table drag adjustment
@@ -58,8 +58,8 @@ function bueInsertIco(name, op) {
   if (!op._ico) {
     op._ico = document.createElement('img');
   }
-  $(op._ico).attr('src', bueIcoUrl(name)).insertBefore(op).show();
   $(op._txt).val(name).hide();
+  $(op._ico).attr('src', bueIcoUrl(name)).insertBefore(op).show();
 }
 
 //return URL for an icon
@@ -73,7 +73,7 @@ function bueIcoSelector() {
   var index = 1//first cell is reserved for text button option.
   var table = document.createElement('table');
   //insert first row and cell containing textfield option.
-  var row = table.insertRow(0)
+  var row = table.insertRow(0);
   var cell = row.insertCell(0);
   $(cell).attr('title', Drupal.t('Text button')).html('<input type="text" size="1" />').click(bueTxtClick);
   //insert icon options
@@ -99,7 +99,7 @@ function bueAlterDrag() {
   var tdrag = Drupal.tableDrag['button-table'];
   tdrag._updateFields = tdrag.updateFields;
   tdrag.updateFields = function(changedRow) {
-    $('input.button-weight', $('#button-table')[0].tBodies[0].rows[0]).val(0);
+    $('input.input-weight', $('#button-table')[0].tBodies[0].rows[0]).val(0);
     tdrag._updateFields(changedRow);
   };
 }

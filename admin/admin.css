@@ -8,32 +8,35 @@
   font-size: 1em;
 }
 
-#button-table th.btitle {
+#button-table .th-title {
   width: 12em;
   #width: 13.5em;
   _width: 14.5em;
 }
-#button-table input.btitle {
+#button-table .input-title {
   width: 8.8em;
 }
 #button-table a.tabledrag-handle {
   padding-right: 0.8em;
 }
-#button-table th.content {
 
+#button-table .th-content {
 }
-#button-table th.icon {
+
+#button-table .th-icon {
   width: 5em;
 }
-#button-table input.icon {
+#button-table .input-icon {
   width: 3em;
 }
-#button-table th.key {
+
+#button-table .th-key {
   width: 3em;
 }
-#button-table input.key {
+#button-table .input-key {
   width: 2em;
 }
+
 #button-table th.select-all {
   width: 2em;
 }
@@ -55,24 +58,17 @@
 }
 #button-table div.grippie {
   height: 0.2em;
-  background-position: 50% 50%;
+  background-position: 50% 0%;
 }
 
-div.sel-action {
-  float: right;
-  margin: 0.5em;
+#button-table img.icon-selector-opener {
+  margin-left: 0.2em;
+  cursor: pointer;
+  padding: 0.3em 0.2em 0em 0.2em;
+  border: 1px solid #ccc;
 }
-div.sel-action div {
-  display: inline;
-}
-div.sel-action select, .sel-action input {
-  margin: 0em;
-}
-#edit-submit {
-  margin: 0.5em;
-}
-#editor-demo {
-  width: 94%;
+#button-table img.icon-selector-opener:hover {
+  border-color: #000;
 }
 
 #icon-selector {
@@ -99,12 +95,21 @@ div.sel-action select, .sel-action input {
   width: 1em;
   cursor: pointer;
 }
-img.icon-selector-opener {
-  margin-left: 0.2em;
-  cursor: pointer;
-  padding: 0.3em 0.2em 0em 0.2em;
-  border: 1px solid #ccc;
+
+div.sel-action {
+  float: right;
+  margin: 0.5em;
 }
-img.icon-selector-opener:hover {
-  border-color: #000;
+div.sel-action div {
+  display: inline;
+}
+div.sel-action select, .sel-action input {
+  margin: 0em;
+}
+
+#edit-submit {
+  margin: 0.5em;
+}
+#editor-demo {
+  width: 94%;
 }
