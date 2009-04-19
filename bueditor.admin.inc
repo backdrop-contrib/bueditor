@@ -143,30 +143,32 @@ function bueditor_button_form($button = NULL) {
     '#type' => 'textfield',
     '#default_value' => $button->title,
     '#size' => 14,
-    '#attributes' => array('class' => 'btitle'),
+    '#attributes' => array('class' => 'input-title'),
   );
   $form['content'] = array(
     '#type' => 'textarea',
     '#default_value' => $button->content,
     '#rows' => 1,
+    '#attributes' => array('class' => 'input-content'),
   );
   $form['icon'] = array(
     '#type' => 'textfield',
     '#default_value' => $button->icon,
     '#size' => 3,
-    '#attributes' => array('class' => 'icon'),
+    '#attributes' => array('class' => 'input-icon'),
   );
   $form['accesskey'] = array(
     '#type' => 'textfield',
     '#default_value' => $button->accesskey,
     '#size' => 2,
     '#maxlength' => 1,
-    '#attributes' => array('class' => 'key'),
+    '#attributes' => array('class' => 'input-key'),
   );
   $form['weight'] = array(
     '#type' => 'textfield',
     '#default_value' => $button->weight,
     '#size' => 3,
+    '#attributes' => array('class' => 'input-weight'),
   );
   return $form;
 }
@@ -250,18 +252,17 @@ function bueditor_editor_theme($form = array()) {
   $path = drupal_get_path('module', 'bueditor');
   $eid = $form['editor']['eid']['#value'];
   $header = array(
-    array('data' => t('Title'), 'class' => 'btitle'),
-    array('data' => t('Content'), 'class' => 'content'),
-    array('data' => t('Icon'), 'class' => 'icon'),
-    array('data' => t('Key'), 'class' => 'key'),
-    array('data' => t('Weight'), 'class' => 'weight'),
+    array('data' => t('Title'), 'class' => 'th-title'),
+    array('data' => t('Content'), 'class' => 'th-content'),
+    array('data' => t('Icon'), 'class' => 'th-icon'),
+    array('data' => t('Key'), 'class' => 'th-key'),
+    array('data' => t('Weight'), 'class' => 'th-weight'),
     theme('table_select_header_cell'),
   );
   $rows = array();
   foreach (element_children($form['buttons']) as $bid) {
     $new = !is_numeric($bid);
     $cells = array();
-    $form['buttons'][$bid]['weight']['#attributes']['class'] = 'button-weight';
     $cells[] = drupal_render($form['buttons'][$bid]['title']);
     $cells[] = drupal_render($form['buttons'][$bid]['content']);
     $cells[] = drupal_render($form['buttons'][$bid]['icon']);
@@ -313,7 +314,7 @@ function bueditor_editor_theme($form = array()) {
   drupal_add_css($path .'/admin/admin.css', 'media', 'all', FALSE);//no preprocessing
   drupal_add_js($path .'/admin/admin.js', 'module', 'header', FALSE, TRUE, FALSE);//no preprocessing
   drupal_add_js($set, 'setting');
-  drupal_add_tabledrag('button-table', 'order', 'sibling', 'button-weight');
+  drupal_add_tabledrag('button-table', 'order', 'sibling', 'input-weight');
 
   $output = $name . $visibility . $paths;
   $output .= '<h2 class="title">'. t('Buttons') .'</h2>'. $buttons . $selaction;
@@ -457,15 +458,8 @@ function bueditor_import_buttons($file) {
  * Load icons in the path
  */
 function bueditor_icons($path) {
-  $icons = array();
-  if ($path && $handle = opendir($path)) {
-    while (($file = readdir($handle)) !== FALSE) {
-      if (bueditor_isimage($file)) {
-        $icons[$file] = 1;
-      }
-    }
-    closedir($handle);
-  }
+  $icons = file_scan_directory($path, '\.(png|gif|jpg)$', array('.', '..', 'CVS'), 0, 0, 'basename');
+  array_walk($icons, create_function('&$value', '$value = 1;'));
   return $icons;
 }
 
@@ -498,13 +492,6 @@ function bueditor_sorted_roles() {
  */
 function bueditor_rolesort($r1, $r2) {
   return $r1['weight']-$r2['weight'];
-}
-
-/**
- * check if the icon is image.(just a string check, not a file check)
- */
-function bueditor_isimage($text) {
-  return preg_match('/\.(png|gif|jpg)$/i', $text);
 }
 
 /**
