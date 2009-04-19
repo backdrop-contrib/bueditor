@@ -233,7 +233,7 @@ function bueditor_check_page($page, $editor) {
     }
     if (arg(0) == 'node' && arg(2) == 'edit') {
       $node = node_load(arg(1));
-      if ($node && strpos($editor->pages, 'node/add/'.  $node->type) !== FALSE) {
+      if ($node && drupal_match_path('node/add/'.  $node->type, $editor->pages)) {
         return $editor;
       }
     }
@@ -270,7 +270,7 @@ function bueditor_path_tr($path) {
   }
   $trpath = strtr($path, $tokens);
   //for themes missing icon or library directory, switch to default theme.
-  if (!file_exists($trpath) && substr($path, 0, 2) == '%T') {
+  if (!file_exists($trpath) && substr($path, 0, 6) == '%THEME') {
     $trpath = str_replace('%THEME', drupal_get_path('theme', variable_get('theme_default', 'garland')), $path);
   }
   return $trpath;
