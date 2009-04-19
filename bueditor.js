@@ -138,13 +138,13 @@ BUE.instance = function (T, tplid) {
     return BUE.dialog.esp ? BUE.dialog.esp : BUE.selPos(this.textArea);
   };
   this.buttonsDisabled = function (state, bindex) {
-    for (var i=0; B = this.buttons[i]; i++) {
+    for (var B, i=0; B = this.buttons[i]; i++) {
       B.disabled = i == bindex ? !state : state;
     }
     return this;
   };
   this.accesskeys = function (state) {
-    for (var i=0; B = this.buttons[i]; i++) {
+    for (var B, i=0; B = this.buttons[i]; i++) {
       B.accessKey = state ? this.tpl.buttons[B.bid][3] : '';
     }
     return this;
