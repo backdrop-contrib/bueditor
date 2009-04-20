@@ -66,22 +66,28 @@ function bueditor_editors($eid = 0) {
     }
     return $editors;
   }
-  else if ($eid && !$gotall && !isset($editors[$eid])) {
+  else if (!isset($editors[$eid]) && !$gotall && is_numeric($eid) && $eid > 0) {
     $editors[$eid] = db_fetch_object(db_query("SELECT * FROM {bueditor_editors} WHERE eid = %d", $eid));
   }
-  return $editors[$eid];
+  return isset($editors[$eid]) ? $editors[$eid] : FALSE;
 }
 
 /**
  * All buttons of an editor.
  */
 function bueditor_buttons($eid) {
+  $sql = 'SELECT * FROM {bueditor_buttons} WHERE eid = %d ORDER BY weight, title';
+  return $eid ? bueditor_query_buttons($sql, $eid) : array();
+}
+
+/**
+ * Fetch buttons by an sql query.
+ */
+function bueditor_query_buttons($sql, $var = array()) {
   $buttons = array();
-  if ($eid) {
-    $result = db_query("SELECT * FROM {bueditor_buttons} WHERE eid = %d ORDER BY weight, title", $eid);
-    while ($button = db_fetch_object($result)) {
-      $buttons[$button->bid] = $button;
-    }
+  $result = db_query($sql, $var);
+  while ($button = db_fetch_object($result)) {
+    $buttons[$button->bid] = $button;
   }
   return $buttons;
 }
