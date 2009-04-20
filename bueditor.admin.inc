@@ -5,17 +5,37 @@
  * Admin main page.
  */
 function bueditor_admin() {
+  if (isset($_GET['eop']) && isset($_GET['token']) && drupal_valid_token($_GET['token'], 'bueditor')) {
+    bueditor_onthefly_operations($_GET['eop']);
+    drupal_goto('admin/settings/bueditor');
+  }
   $editors = bueditor_editors('all');
+  $token = drupal_get_token('bueditor');
   $header = array(t('Editor name'), array('data' => t('Operations'), 'colspan' => 2));
   $rows = array();
   foreach ($editors as $eid => $editor) {
-    $rows[] = array($editor->name, l(t('Edit'), 'admin/settings/bueditor/'. $eid), l(t('Delete'), 'admin/settings/bueditor/'. $eid .'/delete'));
+    $rows[] = array($editor->name, l(t('Edit'), 'admin/settings/bueditor/'. $eid) .' | '. l(t('Delete'), 'admin/settings/bueditor/'. $eid .'/delete'));
   }
-  $rows[] = array('', array('data' => l(t('Add new editor'), 'admin/settings/bueditor/new'), 'colspan' => 2));
+  $rows[] = array('', l(t('Add new editor'), 'admin/settings/bueditor/new') .' | '. l(t('Add the default editor'), 'admin/settings/bueditor', array('attributes' => array('class' => 'eop-create-default'), 'query' => array('eop' => 'create_default', 'token' => $token))));
   $output = '<h2 class="title">'. t('Available editors') .'</h2>';
   $output .= theme('table', $header, $rows);
   $output .= drupal_get_form('bueditor_admin_form');
   return $output;
+}
+
+/**
+ * Editor operations such as the default editor creation and editor copying.
+ */
+function bueditor_onthefly_operations($op) {
+  $editors = bueditor_editors('all');
+  switch ($op) {
+    case 'create_default':
+      $name = isset($_GET['name']) ? check_plain($_GET['name']) : '';
+      if (bueditor_create_default($name)) {
+        drupal_set_message(t('A new editor with the default settings has been created.'));
+      }
+      break;
+  }
 }
 
 /**
@@ -223,25 +243,37 @@ function bueditor_editor_form($form_state, $editor = NULL) {
     $form['checks'][$bid] = array('#type' => 'checkbox');
   }
 
-  //imported buttons are previewed. not saved yet.
-  if (isset($_SESSION['buecsv']) && $csvpath = $_SESSION['buecsv']) {
-    $import = bueditor_import_buttons($csvpath);
-    for ($i = 0; $button = $import[$i]; $i++) {
-      $form['buttons']['new'. $i] = bueditor_button_form($button);
+  //imported/copied buttons are previewed. not saved yet.
+  if (isset($_SESSION['bueimport']) && $import = $_SESSION['bueimport']) {
+    $import = is_array($import) ? $import : bueditor_import_buttons($import);
+    if (empty($import)) {
+      drupal_set_message(t('There is no button to import.'), 'error');
     }
-    drupal_set_message($i > 0 ? t('New buttons are ready to be saved.') : t('There is no button to be imported.'));
-    unset($_SESSION['buecsv']);
+    else {
+      foreach ($import as $bid => $button) {
+        $form['buttons']['new'. $bid] = bueditor_button_form($button);
+      }
+      drupal_set_message(t('New buttons are ready to be saved.'));
+    }
+    unset($_SESSION['bueimport']);
   }
 
   //there is always two new buttons.
   $form['buttons']['new'] = $form['buttons']['new_'] = bueditor_button_form();
 
-  //action for selected buttons
-  $form['selaction'] = array('#type' => 'select', '#options' => array('' => t('... selecteds'), 'delete' => t('Delete'), 'export' => t('Export')));
-  $form['go'] = array('#type' => 'submit', '#value' => t('Go'), '#submit' => array('bueditor_selaction_submit'));
+  if ($editor->eid) {
+    //actions for selected buttons
+    $form['selaction'] = array('#type' => 'select', '#options' => array('' => t('... selecteds'), 'delete' => t('Delete'), 'export' => t('Export to file'), 'copyto' => t('Copy to editor')));
+    $eoptions = array('new' => t('New editor')) + bueditor_editor_options();
+    unset($eoptions[0]);
+    $form['copyto'] = array('#type' => 'select', '#options' => $eoptions);
+    $form['go'] = array('#type' => 'submit', '#value' => t('Go'), '#submit' => array('bueditor_selaction_submit'));
+    //import
+    $form['buecsv'] = array('#type' => 'file', '#title' => t('CSV file containing the buttons'));
+    $form['import'] = array('#type' => 'submit', '#value' => t('Import'), '#submit' => array('bueditor_csv_submit'));
+  }
+    //configuration submit
   $form['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'), '#submit' => array('bueditor_editor_submit'));
-  $form['buecsv'] = array('#type' => 'file', '#title' => t('CSV file containing the buttons'));
-  $form['import'] = array('#type' => 'submit', '#value' => t('Import'), '#submit' => array('bueditor_csv_submit'));
   return $form;
 }
 
@@ -296,13 +328,13 @@ function bueditor_editor_theme($form = array()) {
     '#collapsed' => $eid
   ));
   $buttons = theme('table', $header, $rows, array('class' => 'button-table', 'id' => 'button-table'));
-  $selaction = '<div class="sel-action">'. drupal_render($form['selaction']) . drupal_render($form['go']) .'</div>';
-  $import = theme('fieldset', array(
+  $selaction = $eid ? '<div id="sel-action-wrapper">'. drupal_render($form['selaction']) . drupal_render($form['copyto']) . drupal_render($form['go']) .'</div>' : '';
+  $import = $eid ? theme('fieldset', array(
     '#title' => t('Import Buttons'),
     '#children' => drupal_render($form['buecsv']) . drupal_render($form['import']) . $help,
     '#collapsible' => TRUE,
     '#collapsed' => TRUE
-  ));
+  )) : '';
   $demo = '';
   if ($eid && bueditor_settle($eid)) {
     $set['BUE']['preset']['editor-demo'] = "e$eid";
@@ -318,7 +350,7 @@ function bueditor_editor_theme($form = array()) {
 
   $output = $name . $visibility . $paths;
   $output .= '<h2 class="title">'. t('Buttons') .'</h2>'. $buttons . $selaction;
-  $output .= drupal_render($form['submit']) . ($eid ? $import : '');
+  $output .= drupal_render($form['submit']) . $import;
   $output .= drupal_render($form) . $demo;
   return $output;
 }
@@ -352,8 +384,16 @@ function bueditor_editor_submit($form, &$form_state) {
 function bueditor_selaction_submit($form, &$form_state) {
   $bids = array_keys(array_filter($form_state['values']['checks']));
   switch ($form_state['values']['selaction']) {
-    case 'delete': bueditor_delete_buttons($bids); break;
-    case 'export': bueditor_export_buttons($bids); break;
+    case 'delete':
+      bueditor_delete_buttons($bids);
+      break;
+    case 'export':
+      bueditor_export_buttons($bids);
+      break;
+    case 'copyto':
+      $_SESSION['bueimport'] = bueditor_buttons_by_id($bids);
+      $form_state['redirect'] = 'admin/settings/bueditor/'. $form_state['values']['copyto'];
+      break;
   }
 }
 
@@ -362,7 +402,7 @@ function bueditor_selaction_submit($form, &$form_state) {
  */
 function bueditor_csv_submit($form, &$form_state) {
   if ($file = file_save_upload('buecsv', array(), file_directory_temp())) {
-    $_SESSION['buecsv'] = $file->filepath;
+    $_SESSION['bueimport'] = $file->filepath;
   }
 }
 
@@ -415,15 +455,13 @@ function bueditor_delete_editor($eid) {
  * Export buttons as CSV.
  */
 function bueditor_export_buttons($bids = array()) {
-  if ($n = count($bids)) {
-    $result = db_query("SELECT * FROM {bueditor_buttons} WHERE bid IN (". str_repeat("%d, ", $n-1) ."%d) ORDER BY weight, title", $bids);
-    while ($button = db_fetch_array($result)) {
-      unset($button['bid'], $button['eid']);
-      if (!isset($output)) {
-        $output = '"'. implode('", "', array_keys($button)) .'"'."\n";
-      }
-      $output .= '"'. implode('", "', array_map('addslashes', array_values($button))) .'"'."\n";
+  foreach (bueditor_buttons_by_id($bids) as $bid => $button) {
+    $button = (array) $button;
+    unset($button['bid'], $button['eid']);
+    if (!isset($output)) {
+      $output = '"'. implode('", "', array_keys($button)) .'"'."\n";
     }
+    $output .= '"'. implode('", "', array_map('addslashes', array_values($button))) .'"'."\n";
   }
   if (isset($output)) {
     header('Content-type: text/csv; charset=utf-8');
@@ -519,7 +557,7 @@ function bueditor_write_editor($editor, $buttons = array()) {
  * Create the default editor.
  */
 function bueditor_create_default($name = 'default') {
-  $editor = bueditor_editor_defaults($name);
+  $editor = bueditor_editor_defaults($name ? $name : 'default');
   //__FILE__ is used to make this function shutdown compatible. Used during installation.
   $buttons = bueditor_import_buttons(dirname(__FILE__) . '/default_buttons.csv');
   return bueditor_write_editor($editor, $buttons);
@@ -548,6 +586,14 @@ function bueditor_button_defaults($title = '') {
     'content' => '',
     'icon' => '',
     'accesskey' => '',
-    'weight' => 100
+    'weight' => 0
   );
+}
+
+/**
+ * Load buttons by ids.
+ */
+function bueditor_buttons_by_id($bids = array()) {
+  $sql = 'SELECT * FROM {bueditor_buttons} WHERE bid IN ('. db_placeholders($bids) .') ORDER BY weight, title';
+  return empty($bids) ? array() : bueditor_query_buttons($sql, $bids);
 }
