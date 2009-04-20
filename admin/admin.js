@@ -94,14 +94,16 @@ function bueIcoSelector() {
   return table;
 }
 
-//table drag adjustment. make weight values start from 0.
+//table drag adjustment. make value updating simpler and start from 0.
 function bueAlterDrag() {
   var tdrag = Drupal.tableDrag['button-table'];
-  tdrag._updateFields = tdrag.updateFields;
-  tdrag.updateFields = function(changedRow) {
-    $('input.input-weight', $('#button-table')[0].tBodies[0].rows[0]).val(0);
-    tdrag._updateFields(changedRow);
+  tdrag.updateFields = function() {
+    $('#button-table input.input-weight').each(function(i, field) {
+      field.value = i;
+    });
   };
+  //sort initially to make new buttons sink.
+  tdrag.updateFields();
 }
 
 //actions for selected buttons
@@ -110,9 +112,12 @@ function bueSelAction() {
     $('#edit-go').click(function() {
       return $('#edit-selaction').val() && $('#button-table').find('input:checkbox:checked').size() ? true : false;
     });
+    $('#edit-selaction').change(function() {
+      $('#edit-copyto')[this.value == 'copyto' ? 'show' : 'hide']();
+    }).change();
   }
   else {
-    $('#edit-go, #edit-selaction').hide();
+    $('#sel-action-wrapper').hide();
   }
 }
 

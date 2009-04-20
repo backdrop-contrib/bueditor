@@ -96,14 +96,14 @@
   cursor: pointer;
 }
 
-div.sel-action {
+#sel-action-wrapper {
   float: right;
   margin: 0.5em;
 }
-div.sel-action div {
+#sel-action-wrapper div {
   display: inline;
 }
-div.sel-action select, .sel-action input {
+#sel-action-wrapper select, #sel-action-wrapper input {
   margin: 0em;
 }
 
