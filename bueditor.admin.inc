@@ -5,49 +5,19 @@
  * Admin main page.
  */
 function bueditor_admin() {
-  if (isset($_GET['eop']) && isset($_GET['token']) && drupal_valid_token($_GET['token'], 'bueditor')) {
-    bueditor_onthefly_operations($_GET['eop']);
-    drupal_goto('admin/settings/bueditor');
-  }
+  bueditor_prepare_eop();
   $editors = bueditor_editors('all');
   $token = drupal_get_token('bueditor');
   $header = array(t('Editor name'), array('data' => t('Operations'), 'colspan' => 2));
   $rows = array();
   foreach ($editors as $eid => $editor) {
-    $rows[] = array($editor->name, l(t('Edit'), 'admin/settings/bueditor/'. $eid) .' | '. l(t('Delete'), 'admin/settings/bueditor/'. $eid .'/delete') .' | '. l(t('Copy'), 'admin/settings/bueditor', array('attributes' => array('class' => 'eop-copy'), 'query' => array('eop' => 'copy', 'eid' => $eid, 'token' => $token))));
+    $rows[] = array($editor->name, l(t('Edit'), 'admin/settings/bueditor/'. $eid) .' | '. l(t('Delete'), 'admin/settings/bueditor/'. $eid .'/delete', array('attributes' => array('class' => 'eop-delete'))) .' | '. l(t('Copy'), 'admin/settings/bueditor', array('attributes' => array('class' => 'eop-copy', 'name' => 'Copy of '. $editor->name), 'query' => array('eop' => 'copy', 'eid' => $eid, 'token' => $token))));
   }
-  $rows[] = array('', l(t('Add new editor'), 'admin/settings/bueditor/new') .' | '. l(t('Add the default editor'), 'admin/settings/bueditor', array('attributes' => array('class' => 'eop-add-default'), 'query' => array('eop' => 'add_default', 'token' => $token))));
+  $rows[] = array('', l(t('Add new editor'), 'admin/settings/bueditor/new') .' | '. l(t('Add the default editor'), 'admin/settings/bueditor', array('attributes' => array('class' => 'eop-add-default', 'name' => 'default editor'), 'query' => array('eop' => 'add_default', 'token' => $token))));
   $output = '<h2 class="title">'. t('Available editors') .'</h2>';
-  $output .= theme('table', $header, $rows);
+  $output .= theme('table', $header, $rows, array('id' => 'available-editors-list'));
   $output .= drupal_get_form('bueditor_admin_form');
   return $output;
-}
-
-/**
- * Editor operations such as the default editor creation and editor copying.
- */
-function bueditor_onthefly_operations($op) {
-  $editors = bueditor_editors('all');
-  $name = isset($_GET['name']) ? check_plain($_GET['name']) : '';
-  switch ($op) {
-    case 'add_default':
-      if ($editor = bueditor_add_default_editor($name)) {
-        drupal_set_message(t('Editor(%name) has been added.', array('%name' => $editor->name)));
-      }
-      break;
-    case 'copy':
-      if (isset($_GET['eid']) && isset($editors[$_GET['eid']])) {
-        $editor = drupal_clone($editors[$_GET['eid']]);
-        $buttons = bueditor_buttons($editor->eid);
-        $editor->eid = NULL;
-        $editor->name = $name ? $name : 'copy of '. $editor->name;
-        //array_walk($buttons, create_function('&$button', '$button->bid = NULL;'));
-        if (bueditor_write_editor($editor, $buttons)) {
-          drupal_set_message(t('Editor(%name) has been added.', array('%name' => $editor->name)));
-        }
-      }
-      break;
-  }
 }
 
 /**
@@ -96,7 +66,7 @@ function bueditor_admin_theme($form = array()) {
   }
 
   $output = '<h2 class="title">'. t('Role-editor assignments') .'</h2>';
-  $output .= theme('table', $header, $rows);
+  $output .= theme('table', $header, $rows, array('id' => 'roles-editors-list'));
   $output .= '<div class="form-item"><div class="description">'. t('Assign editors to user roles.') .'<br />'. t('Alternative editor makes it possible to use different editors for different textareas or different editors on diffrent pages. You just have to configure visibility settings for each editor.') . $info .'</div></div>';
   $output .= drupal_render($form);
   return $output;
@@ -419,7 +389,7 @@ function bueditor_csv_submit($form, &$form_state) {
  * Editor deletion form. Confirm & delete
  */
 function bueditor_delete_form($form_state, $editor) {
-  return confirm_form(array(), t('Are you sure you want to delete the editor(%name)?', array('%name' => $editor->name)), 'admin/settings/bueditor', t('All buttons and settings for this editor will be removed.') .' '. t('This action cannot be undone.'), t('Delete'), t('Cancel'));
+  return confirm_form(array(), t('Are you sure you want to delete the editor(%name)?', array('%name' => $editor->name)), 'admin/settings/bueditor', t('All buttons and settings of this editor will be removed.') .' '. t('This action cannot be undone.'), t('Delete'), t('Cancel'));
 }
 function bueditor_delete_form_submit($form, &$form_state) {
   $editor = $form['#parameters'][2];
@@ -565,8 +535,8 @@ function bueditor_write_editor($editor, $buttons = array()) {
 /**
  * Create the default editor.
  */
-function bueditor_add_default_editor($name = 'default') {
-  $editor = bueditor_editor_defaults($name ? $name : 'default');
+function bueditor_add_default_editor($name = 'default editor') {
+  $editor = bueditor_editor_defaults($name ? $name : 'default editor');
   //__FILE__ is used to make this function shutdown compatible. Used during installation.
   $buttons = bueditor_import_buttons(dirname(__FILE__) . '/default_buttons.csv');
   return bueditor_write_editor($editor, $buttons);
@@ -605,4 +575,62 @@ function bueditor_button_defaults($title = '') {
 function bueditor_buttons_by_id($bids = array()) {
   $sql = 'SELECT * FROM {bueditor_buttons} WHERE bid IN ('. db_placeholders($bids) .') ORDER BY weight, title';
   return empty($bids) ? array() : bueditor_query_buttons($sql, $bids);
+}
+
+/**
+ * Prepare and execute if there is any valid editor operation.
+ */
+function bueditor_prepare_eop() {
+  if (isset($_GET['eop']) && isset($_GET['token']) && drupal_valid_token($_GET['token'], 'bueditor')) {
+    $editors = bueditor_editors('all');
+    $name = isset($_GET['name']) ? check_plain($_GET['name']) : '';
+    $editor = isset($_GET['eid']) && isset($editors[$_GET['eid']]) ? drupal_clone($editors[$_GET['eid']]) : NULL;
+    bueditor_eop($_GET['eop'], $editor, $name);
+    drupal_goto('admin/settings/bueditor');
+  }
+  //Add editor name prompt for copy and add_default operations.
+  //Confirm editor deletion without going to confirm page.
+  drupal_add_js('$(function() {
+  $("#available-editors-list").find("a.eop-copy, a.eop-add-default").removeClass("active").click(function() {
+    var name = prompt("'. t('Editor name') .'", this.name);
+    if (name) location.replace(this.href + "&name=" + name);
+    return false;
+  }).end().find("a.eop-delete").click(function() {
+    if (confirm("'. t('All buttons and settings of this editor will be removed.') .'")) {
+      location.replace($(this).nextAll("a.eop-copy")[0].href.replace("eop=copy", "eop=delete"));
+    }
+    return false;
+  });
+  });', 'inline');
+}
+
+/**
+ * Editor operations that don't require form submission.
+ */
+function bueditor_eop($op, $editor = NULL, $name = '') {
+  switch ($op) {
+    case 'add_default':
+      if ($editor = bueditor_add_default_editor($name)) {
+        drupal_set_message(t('Editor(%name) has been added.', array('%name' => $editor->name)));
+      }
+      break;
+    case 'copy':
+      if ($editor) {
+        $buttons = bueditor_buttons($editor->eid);
+        $editor->eid = NULL;
+        $editor->name = $name ? $name : 'Copy of '. $editor->name;
+        array_walk($buttons, create_function('&$button', '$button->bid = NULL;'));
+        if (bueditor_write_editor($editor, $buttons)) {
+          drupal_set_message(t('Editor(%name) has been added.', array('%name' => $editor->name)));
+        }
+      }
+      break;
+    case 'delete'://mimic editor delete form submission
+      if ($editor) {
+        $form['#parameters'][2] = $editor;
+        $form_state = array();
+        bueditor_delete_form_submit($form, $form_state);
+      }
+      break;
+  }
 }
