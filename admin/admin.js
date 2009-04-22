@@ -30,6 +30,7 @@ function bueOpClick(e) {
   selectop = this;
   iconSelector.css({left: pos.left-parseInt(iconSelector.width()/2)+10, top: pos.top+10}).show();
   $(document).click(bueDoClick);
+  $('#edit-selaction').addClass('ie6');//fix ie6's selectbox z-index bug.
   return false;
 }
 
@@ -37,6 +38,7 @@ function bueOpClick(e) {
 function bueDoClick(e) {
   $(document).unbind('click', bueDoClick);
   $(iconSelector).hide();
+  $('#edit-selaction').removeClass('ie6');
 }
 
 //select text option
