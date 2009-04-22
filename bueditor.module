@@ -7,7 +7,7 @@
 function bueditor_menu() {
   $items = array();
   $path = 'admin/settings/bueditor';
-  $access = array('administer site configuration');
+  $access = array('administer bueditor');
   $items[$path] = array(
     'title' => 'BUEditor',
     'description' => 'Customize your text editor.',
@@ -40,6 +40,13 @@ function bueditor_menu() {
     'file' => 'bueditor.admin.inc',
   );
   return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function bueditor_perm() {
+  return array('administer bueditor');
 }
 
 /**
