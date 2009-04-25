@@ -23,6 +23,14 @@ function bueditor_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'bueditor.admin.inc',
   );
+  $items[$path .'/import'] = array(
+    'title' => 'Import editor',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bueditor_import_form'),
+    'access arguments' => $access,
+    'type' => MENU_CALLBACK,
+    'file' => 'bueditor.admin.inc',
+  );
   $items[$path .'/%bueditor_editor'] = array(
     'title' => 'Editor settings',
     'page callback' => 'drupal_get_form',
@@ -194,20 +202,29 @@ function bueditor_settle($editor) {
 /**
  * Include js and css files from library.
  */
-function bueditor_add_library($paths) {
-  $files = preg_split("/\s+/", $paths);
-  foreach ($files as $file) {
-    $file = bueditor_path_tr($file);
-    if (is_file($file)) {
-      $ext = substr($file, -4);
-      if ($ext == '.css') {
-        drupal_add_css($file, 'theme');
-      }
-      elseif (substr($ext, 1) == '.js') {
-        drupal_add_js($file, 'theme');
-      }
+function bueditor_add_library($library) {
+  foreach (bueditor_get_library($library) as $key => $file) {
+    $ext = substr($file, -4);
+    if ($ext == '.css') {
+      drupal_add_css($file, 'theme');
+    }
+    elseif (substr($ext, 1) == '.js') {
+      drupal_add_js($file, 'theme');
     }
   }
+}
+
+/**
+ * Get an array of js and css files defined in editor library.
+ */
+function bueditor_get_library($library) {
+  $files = array();
+  foreach (preg_split("/\s+/", $library) as $path) {
+    if ($path && is_file($path_tr = bueditor_path_tr($path))) {
+      $files[$path] = $path_tr;
+    }
+  }
+  return $files;
 }
 
 /**
@@ -267,9 +284,9 @@ function bueditor_check_match($needle, $haystack) {
 }
 
 /**
- * Translate editor paths
+ * Translate editor paths.
  */
-function bueditor_path_tr($path) {
+function bueditor_path_tr($path, $reverse = FALSE) {
   if (!$path) {
     return $path;
   }
@@ -280,6 +297,9 @@ function bueditor_path_tr($path) {
       '%FILES' => file_directory_path(),
       '%THEME' => path_to_theme()
     );
+  }
+  if ($reverse) {
+    return strtr($path, array_flip($tokens));
   }
   $trpath = strtr($path, $tokens);
   //for themes missing icon or library directory, switch to default theme.

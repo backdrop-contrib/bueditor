@@ -5,15 +5,15 @@
  * Admin main page.
  */
 function bueditor_admin() {
-  bueditor_prepare_eop();
+  bueditor_eop();
   $editors = bueditor_editors('all');
   $token = drupal_get_token('bueditor');
   $header = array(t('Editor name'), array('data' => t('Operations'), 'colspan' => 2));
   $rows = array();
   foreach ($editors as $eid => $editor) {
-    $rows[] = array($editor->name, l(t('Edit'), 'admin/settings/bueditor/'. $eid) .' | '. l(t('Delete'), 'admin/settings/bueditor/'. $eid .'/delete', array('attributes' => array('class' => 'eop-delete'))) .' | '. l(t('Copy'), 'admin/settings/bueditor', array('attributes' => array('class' => 'eop-copy', 'name' => 'Copy of '. $editor->name), 'query' => array('eop' => 'copy', 'eid' => $eid, 'token' => $token))));
+    $rows[] = array($editor->name, l(t('Edit'), 'admin/settings/bueditor/'. $eid) .' | '. l(t('Delete'), 'admin/settings/bueditor/'. $eid .'/delete', array('attributes' => array('class' => 'eop-delete'))) .' | '. l(t('Copy'), 'admin/settings/bueditor', array('attributes' => array('class' => 'eop-copy', 'name' => 'Copy of '. $editor->name), 'query' => array('eop' => 'copy', 'eid' => $eid, 'token' => $token))) .' | '. l(t('Export'), 'admin/settings/bueditor', array('attributes' => array('class' => 'eop-export'), 'query' => array('eop' => 'export', 'eid' => $eid, 'token' => $token))));
   }
-  $rows[] = array('', l(t('Add new editor'), 'admin/settings/bueditor/new') .' | '. l(t('Add the default editor'), 'admin/settings/bueditor', array('attributes' => array('class' => 'eop-add-default', 'name' => 'default editor'), 'query' => array('eop' => 'add_default', 'token' => $token))));
+  $rows[] = array('', l(t('Add new editor'), 'admin/settings/bueditor/new') .' | '. l(t('Import editor'), 'admin/settings/bueditor/import') .' | '. l(t('Add the default editor'), 'admin/settings/bueditor', array('attributes' => array('class' => 'eop-add-default', 'name' => 'default editor'), 'query' => array('eop' => 'add_default', 'token' => $token))));
   $output = '<h2 class="title">'. t('Available editors') .'</h2>';
   $output .= theme('table', $header, $rows, array('id' => 'available-editors-list'));
   $output .= drupal_get_form('bueditor_admin_form');
@@ -245,8 +245,8 @@ function bueditor_editor_form($form_state, $editor = NULL) {
 
   if ($editor->eid) {
     //actions for selected buttons
-    $form['selaction'] = array('#type' => 'select', '#options' => array('' => t('... selecteds'), 'delete' => t('Delete'), 'export' => t('Export to file'), 'copyto' => t('Copy to editor')));
-    $eoptions = array('new' => t('New editor')) + bueditor_editor_options();
+    $form['selaction'] = array('#type' => 'select', '#options' => array('' => t('... selecteds'), 'delete' => t('Delete'), 'export' => t('Export to CSV file'), 'copyto' => t('Copy to editor')));
+    $eoptions = array('new' => t('Add new editor')) + bueditor_editor_options();
     unset($eoptions[0]);
     $form['copyto'] = array('#type' => 'select', '#options' => $eoptions);
     $form['go'] = array('#type' => 'submit', '#value' => t('Go'), '#submit' => array('bueditor_selaction_submit'));
@@ -389,12 +389,12 @@ function bueditor_csv_submit($form, &$form_state) {
  * Editor deletion form. Confirm & delete
  */
 function bueditor_delete_form($form_state, $editor) {
-  return confirm_form(array(), t('Are you sure you want to delete the editor(%name)?', array('%name' => $editor->name)), 'admin/settings/bueditor', t('All buttons and settings of this editor will be removed.') .' '. t('This action cannot be undone.'), t('Delete'), t('Cancel'));
+  return confirm_form(array(), t('Are you sure you want to delete the editor %name?', array('%name' => $editor->name)), 'admin/settings/bueditor', t('All buttons and settings of this editor will be removed.') .' '. t('This action cannot be undone.'), t('Delete'), t('Cancel'));
 }
 function bueditor_delete_form_submit($form, &$form_state) {
   $editor = $form['#parameters'][2];
   bueditor_delete_editor($editor->eid);
-  drupal_set_message(t('Editor(%name) has been deleted.', array('%name' => $editor->name)));
+  drupal_set_message(t('Editor %name has been deleted.', array('%name' => $editor->name)));
 
   //update roles
   $roles = variable_get('bueditor_roles', array());
@@ -405,6 +405,62 @@ function bueditor_delete_form_submit($form, &$form_state) {
   variable_set('bueditor_roles', $roles);
 
   $form_state['redirect'] = 'admin/settings/bueditor';
+}
+
+/**
+ * Editor import form.
+ */
+function bueditor_import_form(&$form_state) {
+  $form['name'] = array('#type' => 'textfield',
+    '#title' => t('Editor name'),
+    '#maxlength' => 255,
+    '#required' => TRUE,
+  );
+  $form['dirname'] = array('#type' => 'textfield',
+    '#title' => t('Directory of editor files'),
+    '#maxlength' => 255,
+    '#field_prefix' => file_directory_path() .'/',
+    '#description' => t('Define a directory to save the icons and library files of this editor. Leave blank if you do not want to import the files.'),
+  );
+  $form['code'] = array('#type' => 'textarea',
+    '#title' => t('Editor code'),
+    '#rows' => 20,
+    '#required' => TRUE,
+    '#description' => t('Enter the code from a previously exported text file that contains the editor data.') .'<div class="warning">'. t('Note that this code will be evaluated as PHP, thus you must be sure that it is harmless and produces proper editor data.') .'</div>',
+  );
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Import'));
+  return $form;
+}
+
+/**
+ * Editor import form validate.
+ */
+function bueditor_import_form_validate($form, &$form_state) {
+  if (!($editor = bueditor_import_code($form_state['values']['code']))) {
+    return form_error($form['code'], t('The editor code does not produce proper editor data.'));
+  }
+  $editor->import_icons = $editor->import_library = FALSE;
+  $dirname = $form_state['values']['dirname'];
+  $editor->dirpath = file_directory_path() .'/'. $dirname;
+  if ($dirname) {
+    $editor->import_icons = isset($editor->icons) && is_array($editor->icons) && !empty($editor->icons);
+    $editor->import_library = isset($editor->library) && is_array($editor->library) && !empty($editor->library);
+    if (($editor->import_icons || $editor->import_library) && !file_check_directory($editor->dirpath, TRUE, $form['dirname'])) {
+      return FALSE;
+    }
+  }
+  $editor->name =  $form_state['values']['name'];
+  $form_state['editor'] = $editor;
+}
+
+/**
+ * Editor import form submit.
+ */
+function bueditor_import_form_submit($form, &$form_state) {
+  if ($editor = bueditor_save_import($form_state['editor'])) {
+    bueditor_message_added($editor->name);
+    $form_state['redirect'] = 'admin/settings/bueditor/'. $editor->eid;
+  }
 }
 
 /**
@@ -578,59 +634,193 @@ function bueditor_buttons_by_id($bids = array()) {
 }
 
 /**
- * Prepare and execute if there is any valid editor operation.
+ * Prepare and execute if there is any valid editor operation that doesn't require form submission.
  */
-function bueditor_prepare_eop() {
-  if (isset($_GET['eop']) && isset($_GET['token']) && drupal_valid_token($_GET['token'], 'bueditor')) {
-    $editors = bueditor_editors('all');
-    $name = isset($_GET['name']) ? check_plain($_GET['name']) : '';
-    $editor = isset($_GET['eid']) && isset($editors[$_GET['eid']]) ? drupal_clone($editors[$_GET['eid']]) : NULL;
-    bueditor_eop($_GET['eop'], $editor, $name);
-    drupal_goto('admin/settings/bueditor');
+function bueditor_eop() {
+  if (!isset($_GET['eop']) || !isset($_GET['token']) || !drupal_valid_token($_GET['token'], 'bueditor')) {
+    //Add editor name prompt for copy and add_default operations.
+    //Confirm editor deletion without going to the confirmation page.
+    return drupal_add_js(drupal_get_path('module', 'bueditor') . '/admin/admin_eop.js');
   }
-  //Add editor name prompt for copy and add_default operations.
-  //Confirm editor deletion without going to confirm page.
-  drupal_add_js('$(function() {
-  $("#available-editors-list").find("a.eop-copy, a.eop-add-default").removeClass("active").click(function() {
-    var name = prompt("'. t('Editor name') .'", this.name);
-    if (name) location.replace(this.href + "&name=" + name);
-    return false;
-  }).end().find("a.eop-delete").click(function() {
-    if (confirm("'. t('All buttons and settings of this editor will be removed.') .'")) {
-      location.replace($(this).nextAll("a.eop-copy")[0].href.replace("eop=copy", "eop=delete"));
+  $editors = bueditor_editors('all');
+  $eop = $_GET['eop'];
+  $name = isset($_GET['name']) ? check_plain($_GET['name']) : '';
+  $editor = isset($_GET['eid']) && isset($editors[$_GET['eid']]) ? $editors[$_GET['eid']] : NULL;
+  if ($op == 'add_default') {
+    bueditor_eop_add_default($name);
+  }
+  elseif ($editor) {
+    switch ($eop) {
+      case 'copy': bueditor_eop_copy($editor, $name); break;
+      case 'delete': bueditor_eop_delete($editor); break;
+      case 'export': bueditor_eop_export($editor); break;
     }
-    return false;
-  });
-  });', 'inline');
+  }
+  drupal_goto('admin/settings/bueditor');
 }
 
 /**
- * Editor operations that don't require form submission.
+ * Editor add_default operation.
  */
-function bueditor_eop($op, $editor = NULL, $name = '') {
-  switch ($op) {
-    case 'add_default':
-      if ($editor = bueditor_add_default_editor($name)) {
-        drupal_set_message(t('Editor(%name) has been added.', array('%name' => $editor->name)));
-      }
-      break;
-    case 'copy':
-      if ($editor) {
-        $buttons = bueditor_buttons($editor->eid);
-        $editor->eid = NULL;
-        $editor->name = $name ? $name : 'Copy of '. $editor->name;
-        array_walk($buttons, create_function('&$button', '$button->bid = NULL;'));
-        if (bueditor_write_editor($editor, $buttons)) {
-          drupal_set_message(t('Editor(%name) has been added.', array('%name' => $editor->name)));
+function bueditor_eop_add_default($name) {
+  if ($editor = bueditor_add_default_editor($name)) {
+    bueditor_message_added($editor->name);
+  }
+  return $editor;
+}
+
+/**
+ * Editor copy operation.
+ */
+function bueditor_eop_copy($editor, $name) {
+  $editor = drupal_clone($editor);
+  $buttons = bueditor_buttons($editor->eid);
+  $editor->eid = NULL;
+  $editor->name = $name ? $name : 'Copy of '. $editor->name;
+  array_walk($buttons, create_function('&$button', '$button->bid = NULL;'));
+  if ($editor = bueditor_write_editor($editor, $buttons)) {
+    bueditor_message_added($editor->name);
+  }
+  return $editor;
+}
+
+/**
+ * Editor delete operation. Mimics editor delete form submission.
+ */
+function bueditor_eop_delete($editor) {
+  $form['#parameters'][2] = $editor;
+  $form_state = array();
+  bueditor_delete_form_submit($form, $form_state);
+  return $editor;
+}
+
+/**
+ * Editor export operation. Sends the exported editor as text to the client.
+ */
+function bueditor_eop_export($editor) {
+  header('Content-type: text/plain; charset=utf-8');
+  header('Content-Disposition: attachment; filename='. $editor->name .'.bueditor.txt');
+  print bueditor_varexport_editor($editor);
+  exit();
+}
+
+/**
+ * Generate an importable editor string including icon and library files.
+ */
+function bueditor_varexport_editor($editor) {
+  $editor = (array) $editor;
+  $library = $editor['librarypath'];
+  $iconpath = $editor['iconpath'];
+
+  //include buttons
+  $editor['buttons'] = array();
+  foreach (bueditor_buttons($editor['eid']) as $bid => $button) {
+    unset($button->bid, $button->eid);
+    $editor['buttons'][] = (array) $button;
+  }
+
+  //inlude icons
+  if ($iconpath != '%BUEDITOR/icons') {
+    $editor['icons'] = array();
+    $iconpath = bueditor_path_tr($iconpath);
+    foreach (bueditor_icons($iconpath) as $name => $value) {
+      $editor['icons'][$name] = base64_encode(file_get_contents($iconpath .'/'. $name));
+    }
+  }
+
+  //include library files
+  $editor['library'] = array();
+  foreach (bueditor_get_library($library) as $key => $file) {
+    if ($key == '%BUEDITOR/library/default_buttons_functions.js') {
+      $editor['use_default_library'] = TRUE;
+      continue;
+    }
+    $editor['library'][basename($file)] = file_get_contents($file);
+  }
+
+  unset($editor['eid']);
+  return var_export($editor, TRUE);
+}
+
+/**
+ * Import editor data. Save icons and library files into specified editor path.
+ */
+function bueditor_save_import($editor) {
+  if ($editor->import_icons || $editor->import_library) {
+    $editorpath = $editor->dirpath;
+    $tokened_path = bueditor_path_tr($editorpath, 'reverse');
+  }
+
+  //buttons
+  $buttons = bueditor_grab_buttons($editor);
+
+  //icons
+  if ($editor->import_icons && file_check_directory($iconpath = "$editorpath/icons", TRUE)) {
+    $editor->iconpath = "$tokened_path/icons";
+    foreach ($editor->icons as $name => $base64) {
+      $filepath = $iconpath .'/'. $name;
+      if (!file_exists($filepath)) {
+        file_put_contents($filepath, base64_decode($base64));
+        if (!@getimagesize($filepath)) {
+          unlink($filepath);
         }
       }
-      break;
-    case 'delete'://mimic editor delete form submission
-      if ($editor) {
-        $form['#parameters'][2] = $editor;
-        $form_state = array();
-        bueditor_delete_form_submit($form, $form_state);
-      }
-      break;
+    }
   }
+  $editor->iconpath = isset($editor->iconpath) ? $editor->iconpath : '%BUEDITOR/icons';
+
+  //library
+  if ($editor->import_library) {
+    $files = array();
+    if (isset($editor->use_default_library)) {
+      $files[] = '%BUEDITOR/library/default_buttons_functions.js';
+    }
+    foreach ($editor->library as $name => $content) {
+      $filepath = $editorpath .'/'. $name;
+      if (!file_exists($filepath)) {
+        file_put_contents($filepath, $content);
+      }
+      $files[] = "$tokened_path/$name";
+    }
+    $editor->librarypath = implode("\n", $files);
+  }
+
+  //get rid of some unwanted or possibly big variables
+  unset($editor->eid, $editor->buttons, $editor->library, $editor->icons);
+
+  return bueditor_write_editor($editor, $buttons);
+}
+
+/**
+ * Import editor form the given code.
+ */
+function bueditor_import_code($code) {
+  $editor = eval('return '. $code .';');
+  if (is_array($editor)) {
+    return (object) $editor;
+  }
+  return FALSE;
+}
+
+/**
+ * Grab buttons from an imported editor data.
+ */
+function bueditor_grab_buttons($editor) {
+  $buttons = array();
+  if (!isset($editor->buttons) || !is_array($editor->buttons) || empty($editor->buttons)) {
+    return $buttons;
+  }
+  foreach ($editor->buttons as $button) {
+    if (isset($button['title']) && $button['title']) {
+      $buttons[] = (object) $button;
+    }
+  }
+  return $buttons;
+}
+
+/**
+ * Set editor addition message.
+ */
+function bueditor_message_added($name) {
+  drupal_set_message(t('Editor %name has been added.', array('%name' => $name)));
 }
