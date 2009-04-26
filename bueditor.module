@@ -26,7 +26,7 @@ function bueditor_menu() {
   $items[$path .'/import'] = array(
     'title' => 'Import editor',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('bueditor_import_form'),
+    'page arguments' => array('bueditor_editor_import_form'),
     'access arguments' => $access,
     'type' => MENU_CALLBACK,
     'file' => 'bueditor.admin.inc',
