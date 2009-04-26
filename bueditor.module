@@ -7,45 +7,28 @@
 function bueditor_menu() {
   $items = array();
   $path = 'admin/settings/bueditor';
-  $access = array('administer bueditor');
-  $items[$path] = array(
+  $common = array('access arguments' => array('administer bueditor'), 'file' => 'bueditor.admin.inc');
+  $form = array('page callback' => 'drupal_get_form', 'type' => MENU_CALLBACK) + $common;
+  $items[$path] = $common + array(
     'title' => 'BUEditor',
     'description' => 'Customize your text editor.',
     'page callback' => 'bueditor_admin',
-    'access arguments' => $access,
-    'file' => 'bueditor.admin.inc',
   );
-  $items[$path .'/new'] = array(
+  $items[$path .'/new'] = $form + array(
     'title' => 'Add new editor',
-    'page callback' => 'drupal_get_form',
     'page arguments' => array('bueditor_editor_form'),
-    'access arguments' => $access,
-    'type' => MENU_CALLBACK,
-    'file' => 'bueditor.admin.inc',
   );
-  $items[$path .'/import'] = array(
+  $items[$path .'/import'] = $form + array(
     'title' => 'Import editor',
-    'page callback' => 'drupal_get_form',
     'page arguments' => array('bueditor_editor_import_form'),
-    'access arguments' => $access,
-    'type' => MENU_CALLBACK,
-    'file' => 'bueditor.admin.inc',
   );
-  $items[$path .'/%bueditor_editor'] = array(
+  $items[$path .'/%bueditor_editor'] = $form + array(
     'title' => 'Editor settings',
-    'page callback' => 'drupal_get_form',
     'page arguments' => array('bueditor_editor_form', 3),
-    'access arguments' => $access,
-    'type' => MENU_CALLBACK,
-    'file' => 'bueditor.admin.inc',
   );
-  $items[$path .'/%bueditor_editor/delete'] = array(
+  $items[$path .'/%bueditor_editor/delete'] = $form + array(
     'title' => 'Delete editor',
-    'page callback' => 'drupal_get_form',
     'page arguments' => array('bueditor_delete_form', 3),
-    'access arguments' => $access,
-    'type' => MENU_CALLBACK,
-    'file' => 'bueditor.admin.inc',
   );
   return $items;
 }
