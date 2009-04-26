@@ -427,15 +427,6 @@ function bueditor_delete_form_submit($form, &$form_state) {
   $editor = $form['#parameters'][2];
   bueditor_delete_editor($editor->eid);
   drupal_set_message(t('Editor %name has been deleted.', array('%name' => $editor->name)));
-
-  //update roles
-  $roles = variable_get('bueditor_roles', array());
-  foreach ($roles as $rid => $role) {
-    $roles[$rid]['editor'] = $editor->eid == $role['editor'] ? 0 : $role['editor'];
-    $roles[$rid]['alt'] = $editor->eid == $role['alt'] ? 0 : $role['alt'];
-  }
-  variable_set('bueditor_roles', $roles);
-
   $form_state['redirect'] = 'admin/settings/bueditor';
 }
 
@@ -518,6 +509,13 @@ function bueditor_delete_button($bid) {
 function bueditor_delete_editor($eid) {
   db_query("DELETE FROM {bueditor_buttons} WHERE eid = %d", $eid);
   db_query("DELETE FROM {bueditor_editors} WHERE eid = %d", $eid);
+  //update roles
+  $roles = variable_get('bueditor_roles', array());
+  foreach ($roles as $rid => $role) {
+    $roles[$rid]['editor'] = $eid == $role['editor'] ? 0 : $role['editor'];
+    $roles[$rid]['alt'] = $eid == $role['alt'] ? 0 : $role['alt'];
+  }
+  variable_set('bueditor_roles', $roles);
 }
 
 /**
@@ -618,7 +616,8 @@ function bueditor_write_editor($editor, $buttons = array()) {
 function bueditor_add_default_editor($name = 'default editor') {
   $editor = bueditor_editor_defaults($name ? $name : 'default editor');
   //__FILE__ is used to make this function shutdown compatible. Used during installation.
-  $buttons = bueditor_import_csv_buttons(dirname(__FILE__) . '/default_buttons.csv');
+  $code = file_get_contents(dirname(__FILE__) . '/default_buttons.txt');
+  $buttons = bueditor_grab_imported_buttons(bueditor_exec_editor_code($code));
   return bueditor_write_editor($editor, $buttons);
 }
 
