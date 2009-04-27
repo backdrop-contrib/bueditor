@@ -417,7 +417,7 @@ function bueditor_button_import_submit($form, &$form_state) {
  * Editor delete form.
  */
 function bueditor_delete_form($form_state, $editor) {
-  return confirm_form(array(), t('Are you sure you want to delete the editor %name?', array('%name' => $editor->name)), 'admin/settings/bueditor', t('All buttons and settings of this editor will be removed.') .' '. t('This action cannot be undone.'), t('Delete'), t('Cancel'));
+  return confirm_form(array(), t('Are you sure you want to delete the editor @name?', array('@name' => $editor->name)), 'admin/settings/bueditor', t('All buttons and settings of this editor will be removed.') .' '. t('This action cannot be undone.'), t('Delete'), t('Cancel'));
 }
 
 /**

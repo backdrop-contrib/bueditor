@@ -11,8 +11,12 @@ $(function() {
   }).add('a.eop-export').removeClass('active');
 
   $('a.eop-delete').click(function() {
-    if (confirm(Drupal.t('All buttons and settings of this editor will be removed.'))) {
-      location.replace($(this).nextAll('a.eop-copy')[0].href.replace('eop=copy', 'eop=delete'));
+    var lnk = $(this).nextAll('a.eop-copy')[0];
+    var msg = Drupal.t('Are you sure you want to delete the editor @name?', {'@name': lnk.name.substr(8)}) +'\n';
+    msg += Drupal.t('All buttons and settings of this editor will be removed.') +'\n';
+    msg += Drupal.t('This action cannot be undone.');
+    if (confirm(msg)) {
+      location.replace(lnk.href.replace('eop=copy', 'eop=delete'));
     }
     return false;
   });
