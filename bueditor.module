@@ -262,7 +262,7 @@ function bueditor_check_match($needle, $haystack) {
   if ($needle == '') {
     return FALSE;
   }
-  $needle = '/^'. preg_replace("/\r\n?|\n/", '|', str_replace(array('*', '-', '/'), array('.*', '\\-', '\\/'), $needle)) .'$/';
+  $needle = '/^'. preg_replace("/\r\n?|\n/", '|', str_replace(array('*', '-', '/'), array('.*', '\\-', '\\/'), trim($needle))) .'$/';
   return preg_match($needle, $haystack);
 }
 
