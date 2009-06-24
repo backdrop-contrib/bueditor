@@ -68,12 +68,12 @@ eDefTagDialog(\'a\', form, \'Insert/edit link\', \'OK\');
     ),
     5 => 
     array (
-      'title' => 'Headers',
+      'title' => 'Headings',
       'content' => 'js: eDefTagChooser([
- [\'h1\', \'Header1\'],
- [\'h2\', \'Header2\'],
- [\'h3\', \'Header3\'],
- [\'h4\', \'Header4\']
+ [\'h1\', \'Heading1\'],
+ [\'h2\', \'Heading2\'],
+ [\'h3\', \'Heading3\'],
+ [\'h4\', \'Heading4\']
 ], true, \'li\', \'ul\', \'slideDown\');',
       'icon' => 'headers.png',
       'accesskey' => 'H',
