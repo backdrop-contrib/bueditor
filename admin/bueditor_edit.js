@@ -110,9 +110,14 @@ function bueAlterDrag() {
 
 //actions for selected buttons
 function bueSelAction() {
-  if ($('#button-table').find('input:checkbox').size()) {
+  $bueCheckboxes = $('#button-table').find('input:checkbox');
+  if ($bueCheckboxes.size()) {
     $('#edit-go').click(function() {
-      return $('#edit-selaction').val() && $('#button-table').find('input:checkbox:checked').size() ? true : false;
+      var action = $('#edit-selaction').val();
+      if (action && $bueCheckboxes.filter(':checked').size()) {
+        return action == 'delete' && !confirm(Drupal.t('Are you sure want to delete the selected buttons?')) ? false : true;
+      }
+      return false;
     });
     $('#edit-selaction').change(function() {
       $('#edit-copyto')[this.value == 'copyto' ? 'show' : 'hide']();
