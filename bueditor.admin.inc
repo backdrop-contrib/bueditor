@@ -179,7 +179,8 @@ function bueditor_button_form($button = NULL) {
  * Editor form.
  */
 function bueditor_editor_form($form_state, $editor = NULL) {
-  $editor = is_object($editor) ? $editor : bueditor_editor_defaults() + array('eid' => '');
+  $editor = is_object($editor) ? $editor : bueditor_editor_defaults();
+  $editor->eid = isset($editor->eid) ? $editor->eid : '';
 
   $form = array(
     '#cache' => TRUE,
@@ -390,7 +391,7 @@ function bueditor_button_import_form() {
     $form['importcode'] = array('#type' => 'textarea',
       '#title' => t('Editor code'),
       '#rows' => 10,
-      '#description' => t('Enter the code from a previously exported text file that contains the editor data.') .' '. t('Only the buttons will be imported from the code.') .'<div class="warning">'. t('Note that this code will be evaluated as PHP, therefore you must be sure that it is harmless and produces proper editor data.') .'</div>',
+      '#description' => t('Enter the code from a previously exported text file that contains editor data.') .' '. t('Only the buttons will be imported from the code.') .'<div class="warning">'. t('Note that this code will be evaluated as PHP, therefore you must be sure that it is harmless and produces proper editor data.') .'</div>',
   );
     $form['import'] = array('#type' => 'submit', '#value' => t('Import'), '#submit' => array('bueditor_button_import_submit'));
   return $form;
@@ -449,7 +450,7 @@ function bueditor_editor_import_form(&$form_state) {
     '#title' => t('Editor code (PHP)'),
     '#rows' => 20,
     '#required' => TRUE,
-    '#description' => t('Enter the code from a previously exported text file that contains the editor data.') .'<div class="warning">'. t('Note that this code will be evaluated as PHP, therefore you must be sure that it is harmless and produces proper editor data.') .'</div>',
+    '#description' => t('Enter the code from a previously exported text file that contains editor data.') .'<div class="warning">'. t('Note that this code will be evaluated as PHP, therefore you must be sure that it is harmless and produces proper editor data.') .'</div>',
   );
   $form['submit'] = array('#type' => 'submit', '#value' => t('Import'));
   $form['#validate'][] = 'bueditor_editor_import_validate';
