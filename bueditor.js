@@ -82,72 +82,74 @@ BUE.processTextarea = function (T, tplid) {
 
 //create an editor instance
 BUE.instance = function (T, tplid) {
-  this.index = BUE.instances.length;
-  this.textArea = T;
-  this.textArea.editor = BUE.instances[this.index] = this;
-  this.tpl = BUE.templates[tplid];
-  this.UI = $(BUE.theme(tplid).replace(/\%n/g, this.index)).insertBefore(T);
-  this.buttons = $('input.bue', this.UI).get();
-  this.bindex = null;
-  this.focus = function () {
-    this.textArea.focus();
-    return this;
+  var E = this;
+  E.index = BUE.instances.length;
+  E.textArea = T;
+  E.textArea.editor = BUE.instances[E.index] = E;
+  E.tpl = BUE.templates[tplid];
+  E.UI = $(BUE.theme(tplid).replace(/\%n/g, E.index)).insertBefore(T);
+  E.buttons = $('input.bue', E.UI).get();
+  E.bindex = null;
+  E.safeToPreview = T.value.indexOf('<') == -1;
+  E.focus = function () {
+    E.textArea.focus();
+    return E;
   };
-  this.getContent = function () {
-    return BUE.processText(this.textArea.value);
+  E.getContent = function () {
+    return BUE.processText(E.textArea.value);
   };
-  this.setContent = function (content) {
-    var st = this.textArea.scrollTop;
-    this.textArea.value = content;
-    this.textArea.scrollTop = st;
-    return this;
+  E.setContent = function (content) {
+    var st = E.textArea.scrollTop;
+    E.textArea.value = content;
+    E.textArea.scrollTop = st;
+    return E;
   };
-  this.getSelection = function () {
-    var pos = this.posSelection();
-    return this.getContent().substring(pos.start, pos.end);
+  E.getSelection = function () {
+    var pos = E.posSelection();
+    return E.getContent().substring(pos.start, pos.end);
   };
-  this.replaceSelection = function (txt, cursor) {
+  E.replaceSelection = function (txt, cursor) {
     var txt = BUE.processText(txt);
-    var pos = this.posSelection();
-    var content = this.getContent();
-    this.setContent(content.substr(0, pos.start) + txt + content.substr(pos.end));
+    var pos = E.posSelection();
+    var content = E.getContent();
+    E.setContent(content.substr(0, pos.start) + txt + content.substr(pos.end));
     var end = cursor == 'start' ? pos.start : pos.start+txt.length;
     var start = cursor == 'end' ? end : pos.start;
-    this.makeSelection(start, end);
-    return this;
+    E.makeSelection(start, end);
+    return E;
   };
-  this.tagSelection = function (left, right, cursor) {
+  E.tagSelection = function (left, right, cursor) {
     var left = BUE.processText(left);
     var right = BUE.processText(right);
     var llen = left.length;
-    var pos = this.posSelection();
-    var content = this.getContent();
-    this.setContent(content.substr(0, pos.start) + left + content.substring(pos.start, pos.end) + right + content.substr(pos.end));
+    var pos = E.posSelection();
+    var content = E.getContent();
+    E.setContent(content.substr(0, pos.start) + left + content.substring(pos.start, pos.end) + right + content.substr(pos.end));
     var end = cursor=='start' ? pos.start+llen : pos.end+llen;
     var start = cursor=='end' ? end : pos.start+llen;
-    this.makeSelection(start, end);
-    return this;
+    E.makeSelection(start, end);
+    return E;
   };
-  this.makeSelection = function (start, end) {
+  E.makeSelection = function (start, end) {
     if (end < start) end = start;
-    BUE.selMake(this.textArea, start, end);
+    BUE.selMake(E.textArea, start, end);
     if (BUE.dialog.esp) BUE.dialog.esp = {'start': start, 'end': end};
-    return this;
+    return E;
   };
-  this.posSelection = function () {
-    return BUE.dialog.esp ? BUE.dialog.esp : BUE.selPos(this.textArea);
+  E.posSelection = function () {
+    return BUE.dialog.esp ? BUE.dialog.esp : BUE.selPos(E.textArea);
   };
-  this.buttonsDisabled = function (state, bindex) {
-    for (var B, i=0; B = this.buttons[i]; i++) {
+  E.buttonsDisabled = function (state, bindex) {
+    for (var B, i=0; B = E.buttons[i]; i++) {
       B.disabled = i == bindex ? !state : state;
     }
-    return this;
+    return E;
   };
-  this.accesskeys = function (state) {
-    for (var B, i=0; B = this.buttons[i]; i++) {
-      B.accessKey = state ? this.tpl.buttons[B.bid][3] : '';
+  E.accesskeys = function (state) {
+    for (var B, i=0; B = E.buttons[i]; i++) {
+      B.accessKey = state ? E.tpl.buttons[B.bid][3] : '';
     }
-    return this;
+    return E;
   };
 };
 
