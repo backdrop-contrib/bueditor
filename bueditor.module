@@ -167,10 +167,12 @@ function bueditor_settle($editor) {
     $editor = bueditor_editors($editor);
   }
   if ($editor && $editor->eid && !isset($settled[$editor->eid])) {
-    $path = drupal_get_path('module', 'bueditor');
+    if (empty($settled)) {//run once
+      $path = drupal_get_path('module', 'bueditor');
+      drupal_add_css($path .'/bueditor.css');
+      drupal_add_js($path .'/bueditor.js');
+    }
     $editor->iconpath = bueditor_path_tr($editor->iconpath);
-    drupal_add_css($path .'/bueditor.css');
-    drupal_add_js($path .'/bueditor.js');
     bueditor_add_library($editor->librarypath);//load library files.
     $settings['BUE']['templates']['e'. $editor->eid] = array(
       'iconpath' => base_path() . $editor->iconpath,
