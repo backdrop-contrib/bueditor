@@ -36,14 +36,13 @@ BUE.initiate = function () {
   qp.oldopen = qp.open;
   qp.open = function(content, effect) {
     qp.oldopen(null, content, effect);
-    $(document).mousedown(qpToEnd);
-    function qpToEnd() {$(document).mouseup(qpEnd);}
-    function qpEnd() {$(document).unbind('mousedown', qpToEnd).unbind('mouseup', qpEnd); qp.close();}
+    $(document).mouseup(qpEnd);
+    function qpEnd() {qp.close(); $(document).unbind('mouseup', qpEnd);}
   };
   //set editor dialog
   BUE.dialog.popup = BUE.createPopup('bue-dialog');
   BUE.dialog.popup.close = function (effect) {BUE.dialog.close(effect);}
-  //fix enter key triggering button click on autocomplete fields.
+  //fix enter key on autocomplete fields triggering button click.
   $('input.form-autocomplete').keydown(function(e) {return e.keyCode != 13});
 };
 
