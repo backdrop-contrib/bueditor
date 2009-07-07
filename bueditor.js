@@ -2,12 +2,13 @@
 
 //Global container
 var BUE = {
-  'preset': {push: function(arr) {this[arr[0]] = arr[1];}},
-  'instances': [],
-  'popups': {},
-  'dialog': {},
-  'templates': {},
-  'mode': (window.getSelection || document.getSelection) ? 1 : (document.selection && document.selection.createRange ? 2 : 0 )
+  preset: {push: function(arr) {this[arr[0]] = arr[1];}},
+  instances: [],
+  popups: {},
+  dialog: {},
+  templates: {},
+  mode: (window.getSelection || document.getSelection) ? 1 : (document.selection && document.selection.createRange ? 2 : 0 ),
+  postprocess: []
 };
 
 //Get editor settings from Drupal.settings and process preset textareas.
@@ -75,6 +76,10 @@ BUE.processTextarea = function (T, tplid) {
   }
   else {
     E.accesskeys(false);
+  }
+  //post process. this kind of loop does not miss processes added by processes.
+  for (var F, i = 0; F = BUE.postprocess[i]; i++) {
+    $.isFunction(F) && F(E);
   }
   return E;
 };
