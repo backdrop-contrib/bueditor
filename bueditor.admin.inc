@@ -286,6 +286,10 @@ function bueditor_editor_theme($form = array()) {
     $rows[] = $row;
   }
 
+  //set title
+  if ($form['editor']['name']['#value']) {
+    drupal_set_title(t('Settings for the editor %name', array('%name' => $form['editor']['name']['#value'])));
+  }
   $name = theme('fieldset', array(
     '#title' => t('Editor name'),
     '#children' => drupal_render($form['editor']['name']),
@@ -444,7 +448,7 @@ function bueditor_editor_import_form(&$form_state) {
     '#title' => t('Directory of editor files'),
     '#maxlength' => 255,
     '#field_prefix' => file_directory_path() .'/',
-    '#description' => t('Define a directory to save the icons and library files of this editor. Leave blank if you do not want to import the files.'),
+    '#description' => t('Define a directory to save the icons and library files imported from the editor code. Leave blank if you do not want to import the files.'),
   );
   $form['code'] = array('#type' => 'textarea',
     '#title' => t('Editor code (PHP)'),
