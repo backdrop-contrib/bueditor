@@ -60,12 +60,12 @@ BUE.processTextarea = function (T, tplid) {
       BUE.active.accesskeys(true);
     }
   });
-  $.each(E.buttons, function(i) {
-    var arr = this.id.split('-');
-    this.eindex = arr[1];
-    this.bid = arr[3];
-    this.bindex = i;
-    this.onclick = function(){return BUE.buttonClick(this.eindex, this.bindex)};
+  $.each(E.buttons, function(i, B) {
+    var arr = B.id.split('-'), k;
+    B.eindex = arr[1];
+    B.bid = arr[3];
+    B.bindex = i;
+    $(B).click(function(){return BUE.buttonClick(B.eindex, B.bindex)});
   });
   if (E.index == 0) {
     BUE.active = E;
