@@ -100,7 +100,7 @@ BUE.instance = function (T, tplid) {
     return E;
   };
   E.getContent = function () {
-    return BUE.processText(E.textArea.value);
+    return E.textArea.value.bueText();
   };
   E.setContent = function (content) {
     var st = E.textArea.scrollTop;
@@ -113,7 +113,7 @@ BUE.instance = function (T, tplid) {
     return E.getContent().substring(pos.start, pos.end);
   };
   E.replaceSelection = function (txt, cursor) {
-    var txt = BUE.processText(txt);
+    var txt = txt.bueText();
     var pos = E.posSelection();
     var content = E.getContent();
     E.setContent(content.substr(0, pos.start) + txt + content.substr(pos.end));
@@ -123,8 +123,8 @@ BUE.instance = function (T, tplid) {
     return E;
   };
   E.tagSelection = function (left, right, cursor) {
-    var left = BUE.processText(left);
-    var right = BUE.processText(right);
+    var left = left.bueText();
+    var right = right.bueText();
     var llen = left.length;
     var pos = E.posSelection();
     var content = E.getContent();
@@ -276,6 +276,7 @@ BUE.dialog.close = function (effect) {
 
 //New line standardization. At least make them represented by a single char.
 BUE.processText = BUE.mode < 2 ? (function (s) {return s}) : (function (s) {return s.replace(/\r\n/g, '\n')});
+String.prototype.bueText = function () {return BUE.processText(this)};
 
 //Mode 1 (default) functions for all except IE and opera-win
 BUE.selPos = function (T) {
@@ -289,15 +290,15 @@ BUE.selMake = function (T, start, end) {
 if (BUE.mode == 2) {
   BUE.selPos = function (T) {
     T.focus();
-    var val = T.value.replace(/\r\n/g, '\n');
+    var val = T.value.bueText();
     var mark = '~`^'; //dummy text.
     for (var i = 0; val.indexOf(mark) != -1; i++) mark += mark.charAt(i); //make sure mark is unique.
     var mlen = mark.length;
     var range = document.selection.createRange();
     var bm = range.getBookmark();
-    var slen = range.text.replace(/\r\n/g, '\n').length;
+    var slen = range.text.bueText().length;
     range.text = mark;
-    var tmp = T.value.replace(/\r\n/g, '\n');
+    var tmp = T.value.bueText();
     var start = tmp.indexOf(mark);
     for (var i = 0; tmp.charAt(start+i+mlen) == '\n'; i++);
     var end = start+slen;
@@ -326,7 +327,7 @@ else if (BUE.mode == 3) {
     return {'start': start - i + 1, 'end': end - i - j + 2};
   };
   BUE.selMake = function (T, start, end) {
-    var text = BUE.processText(T.value), i = text.substring(0, start).split('\n').length, j = text.substring(start, end).split('\n').length;
+    var text = T.value.bueText(), i = text.substring(0, start).split('\n').length, j = text.substring(start, end).split('\n').length;
     T.setSelectionRange(start + i -1 , end + i + j - 2);
   };
 }
