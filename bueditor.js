@@ -7,7 +7,7 @@ var BUE = {
   popups: {},
   dialog: {},
   templates: {},
-  mode: (window.getSelection || document.getSelection) ? 1 : (document.selection && document.selection.createRange ? 2 : 0 ),
+  mode: (window.getSelection || document.getSelection) ? ($.browser.opera && navigator.platform.search(/win/i) > -1 ? 3 : 1) : (document.selection && document.selection.createRange ? 2 : 0 ),
   postprocess: []
 };
 
@@ -272,17 +272,21 @@ BUE.dialog.close = function (effect) {
   }
 };
 
-// browser specific functions.
-BUE.processText = function (text) {return text;};//this is the default process
-if (BUE.mode == 0) {//mode 0 - selection handling not-supported
-  BUE.selPos = function (T) {return {'start': T.value.length, 'end': T.value.length};};
-  BUE.selMake = function (T, start, end) {};
-}
-else if (BUE.mode == 1) {//mode 1 - Firefox, opera, safari.
-  BUE.selPos = function (T) { return {'start': T.selectionStart||0, 'end': T.selectionEnd||0};};
-  BUE.selMake = function (T, start, end) {T.setSelectionRange(start, end);};
-}
-else if (BUE.mode == 2) {//mode 2 - IE.
+// browser specific selection handling functions.
+
+//New line standardization. At least make them represented by a single char.
+BUE.processText = BUE.mode < 2 ? (function (s) {return s}) : (function (s) {return s.replace(/\r\n/g, '\n')});
+
+//Mode 1 (default) functions for all except IE and opera-win
+BUE.selPos = function (T) {
+  return {start: T.selectionStart || 0, end: T.selectionEnd || 0};
+};
+BUE.selMake = function (T, start, end) {
+  T.setSelectionRange(start, end);
+};
+
+//mode 2 - IE.
+if (BUE.mode == 2) {
   BUE.selPos = function (T) {
     T.focus();
     var val = T.value.replace(/\r\n/g, '\n');
@@ -312,7 +316,19 @@ else if (BUE.mode == 2) {//mode 2 - IE.
     range.moveStart('character', start);
     range.select();
   };
-  BUE.processText = function (text) {return text.replace(/\r\n/g, '\n')};
+}
+
+//Mode 3 - Opera for windows
+else if (BUE.mode == 3) {
+  BUE.selPos = function (T) {
+    var start = T.selectionStart || 0, end = T.selectionEnd || 0;
+    var i = T.value.substring(0, start).split('\r\n').length, j = T.value.substring(start, end).split('\r\n').length;
+    return {'start': start - i + 1, 'end': end - i - j + 2};
+  };
+  BUE.selMake = function (T, start, end) {
+    var text = BUE.processText(T.value), i = text.substring(0, start).split('\n').length, j = text.substring(start, end).split('\n').length;
+    T.setSelectionRange(start + i -1 , end + i + j - 2);
+  };
 }
 
 $(document).ready(BUE.initiate);
