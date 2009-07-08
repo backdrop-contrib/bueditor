@@ -100,27 +100,64 @@ function eDefTable(rows, attributes) {
   return eDefHTML('table', html, attributes);
 }
 
-//Previews the textarea content. By default, lines and paragraphs break automatically. Set NoAutoP=true to preview pure html. Set selOnly=true to preview only the selected text.
+//Previews the textarea content.
 function eDefPreview(NoAutoP, selOnly) {
-  var E = BUE.active, T = $(E.textArea);
+  var E = BUE.active;
+  if (E.previewVisible) {
+    return eDefPreviewHide(E);
+  }
+  var html = selOnly ? E.getSelection() : E.getContent();
+  html = NoAutoP ? html : eDefAutoP(html);
+  eDefPreviewShow(E, eDefWrapNode(html));
+}
+
+//Show preview of html for instance E.
+function eDefPreviewShow(E, html) {
+  if (E.previewVisible) {
+    return E.preview.html(html);
+  }
+  var T = $(E.textArea);
   if (!E.preview) {
     E.preview = $(document.createElement('div')).addClass('preview').css({'display': 'none', 'overflow': 'auto'}).insertBefore(T);
   }
-  var P =  E.preview; 
-  if (P.css('display') == 'none') {
-    var html = selOnly ? E.getSelection() : T.val();
-    html = NoAutoP ? html : eDefAutoP(html);
-    P.show().height(T.height()).width(T.width()).html('<div class="node"><div class="content">'+ html +'</div></div>');
-    T.height(1);
-    E.buttonsDisabled(true, E.bindex);
-    $(E.buttons[E.bindex]).addClass('stay-clicked');
-  }
-  else {
+  E.preview.show().height(T.height()).width(T.width()).html(html);
+  T.height(1);
+  E.buttonsDisabled(true, E.bindex);
+  $(E.buttons[E.bindex]).addClass('stay-clicked');
+  E.previewVisible = true;
+}
+
+//Hide the preview of instance E. This is the counterpart of eDefPreviewShow
+function eDefPreviewHide(E) {
+  if (E.previewVisible) {
     $(E.buttons[E.bindex]).removeClass('stay-clicked');
     E.buttonsDisabled(false);
-    T.height(P.height());
-    P.hide();
+    $(E.textArea).height(E.preview.height());
+    E.preview.hide();
+    E.previewVisible = false;
   }
+}
+
+//Preview any kind of markup with ajax_markup module.
+function eDefAjaxPreview() {
+  var E = BUE.active;
+  if (E.previewVisible) {
+    return eDefPreviewHide(E);
+  }
+  if (!$.ajaxMarkup) {
+    return eDefPreviewShow(E, Drupal.t('Preview requires <a href="http://drupal.org/project/ajax_markup">Ajax markup</a> module with proper permissions set.'));
+  }
+  eDefPreviewShow(E, Drupal.t('Loading...'));
+  $.ajaxMarkup(E.getContent(), $.ajaxMarkup.getFormat(E.textArea), function(output, status, request) {
+    if (E.previewVisible) {
+      E.preview.html(eDefWrapNode(status ? output : output.replace(/\n/g, '<br />')));
+    }
+  });
+}
+
+//wrap the string to make it look like node content.
+function eDefWrapNode(str) {
+  return '<div class="node"><div class="content">' + str + '</div></div>';
 }
 
 //Display help text(button title) for each button of the BUE.
