@@ -7,7 +7,7 @@ var BUE = {
   popups: {},
   dialog: {},
   templates: {},
-  mode: (window.getSelection || document.getSelection) ? ($.browser.opera && navigator.platform.search(/win/i) > -1 ? 3 : 1) : (document.selection && document.selection.createRange ? 2 : 0 ),
+  mode: (window.getSelection || document.getSelection) ? ($.browser.opera ? 3 : 1) : (document.selection && document.selection.createRange ? 2 : 0 ),
   postprocess: []
 };
 
@@ -119,8 +119,7 @@ BUE.instance = function (T, tplid) {
     E.setContent(content.substr(0, pos.start) + txt + content.substr(pos.end));
     var end = cursor == 'start' ? pos.start : pos.start+txt.length;
     var start = cursor == 'end' ? end : pos.start;
-    E.makeSelection(start, end);
-    return E;
+    return E.makeSelection(start, end);
   };
   E.tagSelection = function (left, right, cursor) {
     var left = left.bueText();
@@ -131,8 +130,7 @@ BUE.instance = function (T, tplid) {
     E.setContent(content.substr(0, pos.start) + left + content.substring(pos.start, pos.end) + right + content.substr(pos.end));
     var end = cursor=='start' ? pos.start+llen : pos.end+llen;
     var start = cursor=='end' ? end : pos.start+llen;
-    E.makeSelection(start, end);
-    return E;
+    return E.makeSelection(start, end);
   };
   E.makeSelection = function (start, end) {
     if (end < start) end = start;
@@ -173,8 +171,7 @@ BUE.buttonClick = function (eindex, bindex) { try {
     if (arr.length == 2) E.tagSelection(arr[0], arr[1]);
     else E.replaceSelection(arr.length == 1 ? content : arr.join(E.getSelection()), 'end');
   }
-  if (!$(domB).hasClass('stay-clicked')) E.focus();
-  } catch (e) {alert(e.name +': '+ e.message);}
+  if (!$(domB).hasClass('stay-clicked')) E.focus(); } catch (e) {alert(e.name +': '+ e.message);}
   return false;
 };
 
@@ -278,7 +275,7 @@ BUE.dialog.close = function (effect) {
 BUE.processText = BUE.mode < 2 ? (function (s) {return s}) : (function (s) {return s.replace(/\r\n/g, '\n')});
 String.prototype.bueText = function () {return BUE.processText(this)};
 
-//Mode 1 (default) functions for all except IE and opera-win
+//Mode 1 (default) functions for all except IE and Opera
 BUE.selPos = function (T) {
   return {start: T.selectionStart || 0, end: T.selectionEnd || 0};
 };
@@ -319,7 +316,7 @@ if (BUE.mode == 2) {
   };
 }
 
-//Mode 3 - Opera for windows
+//Mode 3 - Opera
 else if (BUE.mode == 3) {
   BUE.selPos = function (T) {
     var start = T.selectionStart || 0, end = T.selectionEnd || 0;
