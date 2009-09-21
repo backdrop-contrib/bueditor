@@ -1,6 +1,6 @@
 // $Id$
 
-//Introduce editor history for cross-browsers undo/redo. 
+//Introduces cross-browser editor history with two new methods. E.undo() & E.redo()
 BUE.postprocess.push(function(E) {
 
   var H = E.history = {
@@ -71,8 +71,13 @@ BUE.postprocess.push(function(E) {
   
 });
 
-//EXTEND OR HACK in your own postprocess.
-//Change settings:
+
+//Change settings in your own postprocess.
 //E.history.max = YOUR_MAXIMUM_NUMBER_OF_UNDO_STATES;
 //E.history.keys['YOUR_KEYCODE_TRIGGERING_STATE_SAVE'] = 1;
 //E.history.period = YOUR_MIN_TIME_IN_MILISECONDS_TO_PASS_BEFORE_SAVING_THE_NEXT_STATE;
+
+//Create custom buttons for your editor
+//Undo -> js: E.undo();
+//Redo -> js: E.redo();
+//Use with bue.ctrl.js and assign Z and Y keys to override browsers' default undo and redo functions.
