@@ -18,7 +18,7 @@ function bueProcessIcoField() {
   op.className = 'icon-selector-opener';
   op.title = Drupal.t('Select an icon');
   op._txt = this;
-  $(op).insertAfter(this).click(bueOpClick);
+  $(op).insertBefore(this).click(bueOpClick);
   if (Drupal.settings.BUE.iconlist[this.value]) {
     bueInsertIco(this.value, op);
   }
@@ -61,7 +61,7 @@ function bueInsertIco(name, op) {
     op._ico = document.createElement('img');
   }
   $(op._txt).val(name).hide();
-  $(op._ico).attr('src', bueIcoUrl(name)).insertBefore(op).show();
+  $(op._ico).attr({'src': bueIcoUrl(name), title: name, alt: name}).insertAfter(op).show();
 }
 
 //return URL for an icon

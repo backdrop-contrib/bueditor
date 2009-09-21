@@ -57,18 +57,19 @@
   width: 98%;
 }
 #button-table div.grippie {
-  height: 0.2em;
+  height: 0.3em;
   background-position: 50% 0%;
 }
 
 #button-table img.icon-selector-opener {
-  margin-left: 0.2em;
+  margin-right: 0.5em;
+  margin-top: 0.2em;
   cursor: pointer;
-  padding: 0.3em 0.2em 0em 0.2em;
-  border: 0.1em solid #ccc;
+  border-bottom: 0.1em solid #000;
+  vertical-align: top;
 }
 #button-table img.icon-selector-opener:hover {
-  border-color: #000;
+  border-color: #f00;
 }
 
 #icon-selector {
@@ -90,6 +91,8 @@
 }
 #icon-selector img {
   vertical-align: middle;
+  max-width: 40px;
+  max-height: 40px;
 }
 #icon-selector input {
   width: 1em;
