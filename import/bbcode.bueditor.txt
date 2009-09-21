@@ -1,0 +1,157 @@
+array (
+  'name' => 'BBCode',
+  'pages' => 'node/*
+comment/*',
+  'excludes' => 'edit-log',
+  'iconpath' => '%BUEDITOR/icons',
+  'buttons' => 
+  array (
+    0 => 
+    array (
+      'title' => 'Insert/edit image',
+      'content' => 'js: E.bbcImage();',
+      'icon' => 'image.png',
+      'accesskey' => 'M',
+      'weight' => '0',
+    ),
+    1 => 
+    array (
+      'title' => 'Insert/edit link',
+      'content' => 'js: E.bbcLink();',
+      'icon' => 'link.png',
+      'accesskey' => 'L',
+      'weight' => '1',
+    ),
+    2 => 
+    array (
+      'title' => 'tpl:Seperator',
+      'content' => '',
+      'icon' => 'separator.png',
+      'accesskey' => '',
+      'weight' => '2',
+    ),
+    3 => 
+    array (
+      'title' => 'Bold',
+      'content' => '[b]%TEXT%[/b]',
+      'icon' => 'bold.png',
+      'accesskey' => 'B',
+      'weight' => '3',
+    ),
+    4 => 
+    array (
+      'title' => 'Italic',
+      'content' => '[i]%TEXT%[/i]',
+      'icon' => 'italic.png',
+      'accesskey' => 'I',
+      'weight' => '4',
+    ),
+    5 => 
+    array (
+      'title' => 'Underline',
+      'content' => '[u]%TEXT%[/u]',
+      'icon' => 'underline.png',
+      'accesskey' => 'U',
+      'weight' => '5',
+    ),
+    6 => 
+    array (
+      'title' => 'Strikethrough',
+      'content' => '[s]%TEXT%[/s]',
+      'icon' => 'strike.png',
+      'accesskey' => 'S',
+      'weight' => '6',
+    ),
+    7 => 
+    array (
+      'title' => 'Headings',
+      'content' => 'js: E.bbcTagChooser([
+ [\'h1\', \'Heading1\'],
+ [\'h2\', \'Heading2\'],
+ [\'h3\', \'Heading3\'],
+ [\'h4\', \'Heading4\']
+]);',
+      'icon' => 'headers.png',
+      'accesskey' => 'H',
+      'weight' => '7',
+    ),
+    8 => 
+    array (
+      'title' => 'tpl:Seperator',
+      'content' => '',
+      'icon' => 'separator.png',
+      'accesskey' => '',
+      'weight' => '8',
+    ),
+    9 => 
+    array (
+      'title' => 'Ordered list. Converts selected lines to a numbered list.',
+      'content' => 'js: E.wrapLines(\'[list=1]\\n\', \'  [*]\', \'\', \'\\n[/list]\');',
+      'icon' => 'ol.png',
+      'accesskey' => 'O',
+      'weight' => '9',
+    ),
+    10 => 
+    array (
+      'title' => 'Unordered list. Converts selected lines to a bulleted list.',
+      'content' => 'js: E.wrapLines(\'[list]\\n\', \'  [*]\', \'\', \'\\n[/list]\');',
+      'icon' => 'ul.png',
+      'accesskey' => 'N',
+      'weight' => '10',
+    ),
+    11 => 
+    array (
+      'title' => 'tpl:Seperator',
+      'content' => '',
+      'icon' => 'separator.png',
+      'accesskey' => '',
+      'weight' => '11',
+    ),
+    12 => 
+    array (
+      'title' => 'Teaser break',
+      'content' => '<!--break-->',
+      'icon' => 'teaserbr.png',
+      'accesskey' => 'T',
+      'weight' => '12',
+    ),
+    13 => 
+    array (
+      'title' => 'Preview',
+      'content' => 'js: E.prvAjax();',
+      'icon' => 'preview.png',
+      'accesskey' => 'P',
+      'weight' => '13',
+    ),
+    14 => 
+    array (
+      'title' => 'Help',
+      'content' => 'js: E.help(\'fadeIn\');',
+      'icon' => 'help.png',
+      'accesskey' => 'F',
+      'weight' => '14',
+    ),
+    15 => 
+    array (
+      'title' => 'PHP execution',
+      'content' => 'php: //Do all PHP stuff here.
+//IMCE integration. Safe to delete.
+if (module_invoke(\'imce\', \'access\')) {
+  drupal_add_js(array(\'imceURL\' => url(\'imce\')), \'setting\');
+}
+//Ajax preview. In order to preview BBCode tags you need BBCode filter enabled. The preview button makes use of Ajax markup API to preview the content without a page refresh.
+module_invoke(\'ajax_markup\', \'on\');',
+      'icon' => '',
+      'accesskey' => '',
+      'weight' => '15',
+    ),
+  ),
+  'icons' => 
+  array (
+  ),
+  'library' => 
+  array (
+    '%BUEDITOR/library/bue.default.js' => '',
+    '%BUEDITOR/library/bue.bbcode.js' => '',
+  ),
+)
