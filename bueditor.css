@@ -85,7 +85,31 @@
   padding: 0em;
   border: none;
 }
+/*tag chooser*/
+.bue-popup ul.tag-chooser {
+  margin: 0em;
+  padding: 0em;
+}
+.bue-popup ul.tag-chooser li.choice {
+  background: none;
+  list-style: circle;
+  margin: 0.3em 0.5em 0.3em 1.5em;
+  padding: 0em;
+}
+.bue-popup ul.tag-chooser a.choice-link {
+  display: block;
+  color: #000;
+}
 #bue-help {
   min-width: 200px;
   max-width: 400px;
+}
+/*Imce popup*/
+#bue-imce-pop iframe {
+  width: 680px;
+  height: 460px;
+  border: none;
+}
+#bue-imce-pop .bue-popup-content {
+  margin: 0em;
 }
