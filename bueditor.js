@@ -5,7 +5,6 @@ var BUE = {
   preset: {push: function(arr) {this[arr[0]] = arr[1];}},
   instances: [],
   popups: {},
-  dialog: {},
   templates: {},
   mode: (window.getSelection || document.getSelection) ? ($.browser.opera ? 3 : 1) : (document.selection && document.selection.createRange ? 2 : 0 ),
   postprocess: []
@@ -32,17 +31,9 @@ BUE.behavior = function(context) {
 
 //editor settle.
 BUE.initiate = function () {
-  //set editor quickPop.
-  var Q = BUE.quickPop = BUE.createPopup('bue-quickpop');
-  var endQ = function() {Q.close(); $(document).unbind('mouseup', endQ);};
-  Q.oldopen = Q.open;
-  Q.open = function(content, effect) {Q.oldopen(null, content, effect);$(document).mouseup(endQ);};
-  $('.head:first', Q).hide();
-  //set editor dialog.
-  BUE.dialog.popup = BUE.createPopup('bue-dialog');
-  BUE.dialog.popup.close = function (effect) {BUE.dialog.close(effect);}
-  //set drupal behavior.
-  (Drupal.behaviors.BUE = BUE.behavior)(document);
+  BUE.initDialog();//create editor quickPop.
+  BUE.initQuickPop();//create editor dialog
+  (Drupal.behaviors.BUE = BUE.behavior)(document);//set drupal behavior.
 };
 
 //integrate editor template into textarea T
@@ -84,12 +75,12 @@ BUE.processTextarea = function (T, tplid) {
 
 //create an editor instance
 BUE.instance = function (T, tplid) {
-  var i = BUE.instances.length, E = T.editor = BUE.instances[i] = this;
+  var i = BUE.instances.length, E = T.bue = BUE.instances[i] = this;
   E.index = i;
   E.textArea = T;
   E.tpl = BUE.templates[E.tplid = tplid];
   E.UI = $(BUE.theme(tplid).replace(/\%n/g, E.index)).insertBefore(T);
-  E.buttons = $('input.bue', E.UI).get();
+  E.buttons = $('.bue-button', E.UI).get();
   E.bindex = null;
   E.safeToPreview = T.value.indexOf('<') == -1;
   E.focus = function () {
@@ -177,7 +168,7 @@ BUE.theme = function (tplid) {
   if (!BUE.templates[tplid]) return '';
   var ET = BUE.templates[tplid];
   if (ET.html) return ET.html;
-  ET.html = '<div class="editor-container" id="editor-%n">';
+  ET.html = '<div class="editor-container bue-ui clear-block" id="bueditor-%n">';
   //B(0-title, 1-content, 2-icon or caption, 3-accesskey) and 4-function for js buttons
   for (var i = 0; B = ET.buttons[i]; i++) {
     var img = B[2].search(/\.(png|gif|jpg)$/i) != -1 ? ((new Image()).src = ET.iconpath +'/'+ B[2]) : null;
@@ -188,47 +179,47 @@ BUE.theme = function (tplid) {
     }
     else {//functional button
       var attr = img ? ['image', 'image', 'src="'+ img +'" alt="'+ B[2] +'"'] : ['button', 'text', 'value="'+ B[2] +'"'];
-      ET.html += '<input id="editor-%n-button-'+ i +'" title="'+ B[0] +'" accesskey="'+ B[3] +'" type="'+ attr[0] +'" class="bue editor-'+ attr[1] +'-button" '+ attr[2] +' tabindex="-1" />';
+      ET.html += '<input id="bueditor-%n-button-'+ i +'" title="'+ B[0] +'" accesskey="'+ B[3] +'" type="'+ attr[0] +'" class="bue-button bue-'+ attr[1] +'-button editor-'+ attr[1] +'-button" '+ attr[2] +' tabindex="-1" />';
     }
   }
   ET.html += '</div>'; 
   return ET.html;
 };
 
-//default template for editor popups or dialogs.
-BUE.popHtml = '<table class="editor-popup" style="position: absolute; display: none;"><tbody><tr class="head even"><td class="title"></td><td class="close"><a>x</a></td></tr><tr class="body odd"><td colspan="2" class="cnt"></td></tr></tbody></table>';
+//default template for editor popups or dialogs. Use table wrapper against various IE positioning bugs.
+BUE.popHtml = '<table class="bue-popup" style="display: none;"><tbody class="bue-zero"><tr class="bue-zero"><td class="bue-zero"><div class="bue-popup-head clear-block"><div class="bue-popup-title"></div><div class="bue-popup-close">x</div></div><div class="bue-popup-body clear-block"><div class="bue-popup-content"></div></div></td></tr></tbody></table>';
 
 //open popup.
 BUE.openPopup = function (id, title, content, effect) {
   return BUE.createPopup(id).open(title, content, effect);
-}
+};
 
 //create popup
 BUE.createPopup = function (id, title, content) {
   if (BUE.popups[id]) {
     return BUE.popups[id];
   }
-  var P = BUE.popups[id] = $(BUE.popHtml).appendTo('body').attr('id', id).find('.title:first').html(title || '').end().find('.cnt:first').html(content || '').end().get(0);
+  var P = BUE.popups[id] = $(BUE.popHtml).appendTo('body').attr('id', id).find('.bue-popup-title').html(title || '').end().find('.bue-popup-content').html(content || '').end().get(0);
   //drag
-  $('.head:first', P).mousedown(function (e) {
-    var X = e.pageX, Y = e.pageY, pos = $(P).offset();
-    var drag =  function(e) {$(P).css({left: pos.left + e.pageX - X, top: pos.top + e.pageY - Y});return false;};
+  $('.bue-popup-head', P).mousedown(function (e) {
+    var X = e.pageX, Y = e.pageY, pos = {X: parseInt($(P).css('left')), Y: parseInt($(P).css('top'))};
+    var drag =  function(e) {$(P).css({left: pos.X + e.pageX - X, top: pos.Y + e.pageY - Y});return false;};
     var undrag = function(e) {$(document).unbind('mousemove', drag).unbind('mouseup', undrag)};
     $(document).mousemove(drag).mouseup(undrag);
   });
   //close
-  P.close = function (effect) {$(P)[effect || 'hide']()};
-  $('.close:first', P).click(function() {P.close()});
+  P.close = function (effect) {return $(P)[effect || 'hide']()[0]};
+  $('.bue-popup-close', P).click(function() {P.close()});
   //open
   P.open = function (title, content, effect) {
     var pos = $(BUE.active.buttons[BUE.active.bindex]).offset();
     $(P).css({left: pos.left - 20, top: pos.top + 10});
     P.editor = BUE.active;
     if (typeof title != 'undefined' && title != null) {
-      $('.title:first', P).html(title);
+      $('.bue-popup-title', P).html(title);
     }
     if (typeof content != 'undefined' && content != null) {
-      $('.cnt:first', P).html(content);
+      $('.bue-popup-content', P).html(content);
     }
     $(P)[effect || 'show']();
     return P;
@@ -236,32 +227,47 @@ BUE.createPopup = function (id, title, content) {
   return P;
 };
 
-//dialog functions
-BUE.dialog.open = function (title, content, effect) {
-  var D = BUE.dialog;
-  if (D.editor) D.close();
-  var E = D.editor = BUE.active;
-  E.buttonsDisabled(true);
-  $(E.buttons[E.bindex]).addClass('stay-clicked');
-  D.esp = E.posSelection();
-  D.popup.open(title, content, effect);
-  D.oldfocus = E.textArea.onfocus;
-  E.textArea.onfocus = function () {this.blur();};
-};
-BUE.dialog.close = function (effect) {
-  var E, D = BUE.dialog;
-  if (E = D.editor) {
-    E.textArea.onfocus = D.oldfocus;
+//initialize editor dialog.
+BUE.initDialog = function () {
+  var D = BUE.dialog = BUE.createPopup('bue-dialog');
+  var foc  = function () {this.blur()};
+  var Do = D.open, Dc = D.close;
+  D.open = function (title, content, effect) {
+    D.esp && D.close();
+    var E = BUE.active;
+    E.buttonsDisabled(true);
+    $(E.buttons[E.bindex]).addClass('stay-clicked');
+    D.esp = E.posSelection();
+    $(E.textArea).focus(foc);
+    return Do(title, content, effect);
+  };
+  D.close = function (effect) {
+    if (!D.esp) return D;
+    var E = D.bue;
+    $(E.textArea).unbind('focus', foc);
     E.buttonsDisabled(false);
     $(E.buttons[E.bindex]).removeClass('stay-clicked');
-    if (E.index == BUE.active.index) {// restore previous states
-      if (BUE.mode == 2) E.makeSelection(D.esp.start, D.esp.end); // selection for IE
-      else E.focus(); // focus for FF
-    }
-    D.editor = null;
+    E == BUE.active && E.makeSelection(D.esp.start, D.esp.end).focus();// restore previous states
     D.esp = null;
-    $(D.popup)[effect || 'hide']();
-  }
+    return Dc(effect);
+  };
+  return D;
+};
+
+//initialize editor quickpop.
+BUE.initQuickPop = function () {
+  var Q = BUE.quickPop = BUE.createPopup('bue-quick-pop');
+  var Qo = Q.open, Qc = Q.close;
+  Q.open = function(content, effect) {
+    $(document).mouseup(Q.close);
+    return Qo(null, content, effect);
+  };
+  Q.close = function() {
+    $(document).unbind('mouseup', Q.close);
+    return Qc();
+  };
+  $('.bue-popup-head', Q).hide();
+  return Q;
 };
 
 // browser specific selection handling functions.

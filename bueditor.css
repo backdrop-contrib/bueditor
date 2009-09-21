@@ -1,9 +1,17 @@
 /*$Id$*/
 
-.editor-container {
+.bue-ui {
   margin: 1px 0px;
 }
-.editor-text-button {
+.bue-button {
+  margin: 1px;
+  border: 1px solid #ccc;
+  vertical-align: bottom;
+}
+.bue-button:hover {
+  border-color: #fc6;
+}
+.bue-text-button {
   height: 22px;
   font-size: 11px;
   padding: 0px;
@@ -13,82 +21,71 @@
   cursor: pointer;
   text-align: center;
 }
-.editor-image-button {}
-.editor-text-button, .editor-image-button {
-  margin: 1px;
-  border: 1px solid #ccc;
-  vertical-align: bottom;
-}
-.editor-text-button:hover, .editor-image-button:hover {
-  border-color: #ffcc66;
-}
-.editor-container .stay-clicked {
+.bue-ui .stay-clicked {
   border-color: #f00;
 }
-
-/*.editor-popup tr.(head|body|odd|even) td.(title|close|content)*/
-.editor-popup {
-  z-index: 10;
-  position: absolute;
-  border: 1px solid #000;
-  font: 12px verdana;
-  width: auto;
-  text-align: left;
-}
-.editor-popup tr.head {
-  font-weight: bold;
-  border-top: none;
-  cursor: move;
-}
-.editor-popup tr.body {
-  border-bottom: none;
-}
-.editor-popup td.title {
-  font-size: 1.1em;
-  padding-right: 10px;
-}
-.editor-popup td.close {
-  text-align: right;
-  padding-right: 4px;
-}
-.editor-popup td.close a {
-  cursor: pointer;
-  font-size: 1.3em;
-}
-.editor-popup td.close a:hover {
-  text-decoration: none;
-}
-.editor-popup td.cnt {
-  padding: 0.3em 1.5em 0.3em 0.6em;
-}
-.editor-popup tbody {
-  border: none;
-}
-
-#editor-help {
-  min-width: 200px;
-  max-width: 400px;
-}
-
-/*Added with 6.x.*/
-.editor-container span.separator {
+.bue-ui span.separator {
   line-height: 24px;
   font-size: 11px;
   vertical-align: middle;
   padding: 0px 1px;
 }
-.editor-container span.separator img {
+.bue-ui span.separator img {
   vertical-align: middle;
   margin: 2px 0px;
 }
-.editor-container div {
-  display: inline;
-}
-/*quickpop*/
-table#bue-quickpop {}
-#bue-quickpop a {
-  color: #444;
-}
-#bue-quickpop tr {
+/*Popup dialogs*/
+.bue-popup {
+  z-index: 10;
+  position: absolute;
+  font: 12px verdana;
+  width: auto;
+  margin: 0;
+  text-align: left;
+  color: #333;
   border: none;
+}
+.bue-popup-head {
+  cursor: move;
+  font-weight: bold;
+  background-color: #e6e6fa;
+  border: 1px solid #999;
+  margin-bottom: -1px;
+}
+.bue-popup-title {
+  float: left;
+  margin: 0.4em 0.5em;
+}
+.bue-popup-close {
+  float: right;
+  cursor: pointer;
+  margin: 0.2em 0.5em;
+  padding: 0.2em 0.5em;
+  border: 1px solid #bbb;
+  font-size: 0.9em;
+}
+.bue-popup-close:hover {
+  background-color: #f5f5fa;
+}
+.bue-popup-body {
+  background-color: #f5f5fa;
+  border: 1px solid #999;
+}
+.bue-popup-content {
+  margin: 0.5em;
+}
+.bue-popup table {
+  margin: 0em;
+}
+.bue-popup tbody {
+  border: none;
+}
+.bue-zero {
+  margin: 0em;
+  padding: 0em;
+  border: none;
+}
+#bue-help {
+  min-width: 200px;
+  max-width: 400px;
 }
