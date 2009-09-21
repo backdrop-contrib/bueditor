@@ -621,7 +621,7 @@ function bueditor_write_editor($editor, $buttons = array()) {
 function bueditor_add_default_editor($name = 'default editor') {
   $editor = bueditor_editor_defaults($name ? $name : 'default editor');
   //__FILE__ is used to make this function shutdown compatible. Used during installation.
-  $code = file_get_contents(dirname(__FILE__) . '/default_buttons.txt');
+  $code = file_get_contents(dirname(__FILE__) . '/../import/default.bueditor.txt');
   $buttons = bueditor_grab_imported_buttons(bueditor_exec_editor_code($code));
   return bueditor_write_editor($editor, $buttons);
 }
