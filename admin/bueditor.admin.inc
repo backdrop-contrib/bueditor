@@ -324,8 +324,8 @@ function bueditor_editor_theme($form = array()) {
 
   $set['BUE']['iconpath'] = bueditor_path_tr($form['editor']['iconpath']['#value']);
   $set['BUE']['iconlist'] = bueditor_icons($set['BUE']['iconpath']);
-  drupal_add_css($path .'/admin/bueditor-edit.css');
-  drupal_add_js($path .'/admin/bueditor_edit.js');
+  drupal_add_css($path .'/admin/bueditor.edit.css');
+  drupal_add_js($path .'/admin/bueditor.edit.js');
   drupal_add_js($set, 'setting');
   drupal_add_tabledrag('button-table', 'order', 'sibling', 'input-weight');
 
@@ -667,7 +667,7 @@ function bueditor_eop() {
   if (!isset($_GET['eop']) || !isset($_GET['token']) || !drupal_valid_token($_GET['token'], 'bueditor')) {
     //Add editor name prompt for copy and add_default operations.
     //Confirm editor deletion without going to the confirmation page.
-    return drupal_add_js(drupal_get_path('module', 'bueditor') . '/admin/bueditor_eop.js');
+    return drupal_add_js(drupal_get_path('module', 'bueditor') . '/admin/bueditor.eop.js');
   }
   $editors = bueditor_editors('all');
   $eop = $_GET['eop'];
