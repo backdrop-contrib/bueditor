@@ -2,7 +2,7 @@
 
 //Global container
 var BUE = {
-  preset: {push: function(arr) {this[arr[0]] = arr[1];}},
+  preset: {push: function(arr) {this[arr[0]] = arr[1]}},
   instances: [],
   popups: {},
   templates: {},
@@ -38,14 +38,15 @@ BUE.initiate = function () {
 
 //integrate editor template into textarea T
 BUE.processTextarea = function (T, tplid) {
-  var T = typeof(T) == 'string' ? $('#'+ T).get(0) : T;
-  if (!BUE.templates[tplid] || !T || !T.tagName || T.tagName != 'TEXTAREA' || $(T).is(':hidden')) return false;
-  if (T.editor) return T.editor;
+  if (!T || !BUE.templates[tplid] || !(T = $(T).filter('textarea')[0])) return false;
+  //check visibility on the element-level only.
+  if (T.style.display == 'none' || T.style.visibility == 'hidden') return false;
+  if (T.bue) return T.bue;
   var E = new BUE.instance(T, tplid);
   $(T).focus(function () {
-    if (!(BUE.active == this.editor || BUE.dialog.editor)) {
+    if (!(BUE.active == this.bue || BUE.dialog.bue)) {
       BUE.active.accesskeys(false);
-      BUE.active = this.editor;
+      BUE.active = this.bue;
       BUE.active.accesskeys(true);
     }
   });
@@ -212,9 +213,8 @@ BUE.createPopup = function (id, title, content) {
   $('.bue-popup-close', P).click(function() {P.close()});
   //open
   P.open = function (title, content, effect) {
-    var pos = $(BUE.active.buttons[BUE.active.bindex]).offset();
+    var E = P.bue = BUE.active, pos = $(E.buttons[E.bindex]).offset();
     $(P).css({left: pos.left - 20, top: pos.top + 10});
-    P.editor = BUE.active;
     if (typeof title != 'undefined' && title != null) {
       $('.bue-popup-title', P).html(title);
     }
