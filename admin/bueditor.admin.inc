@@ -635,7 +635,7 @@ function bueditor_editor_defaults($name = '') {
     'pages' => "node/*\ncomment/*",
     'excludes' => 'edit-log',
     'iconpath' => '%BUEDITOR/icons',
-    'librarypath' => '%BUEDITOR/library/default_buttons_functions.js'
+    'librarypath' => '%BUEDITOR/library/bue.default.js'
   );
 }
 

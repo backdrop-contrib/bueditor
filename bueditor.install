@@ -183,12 +183,16 @@ function bueditor_update_6200() {
   //scan library directories for js files and insert them into librarypath field.
   $files = array();
   foreach (bueditor_editors('all') as $eid => $editor) {
-    $path = $editor->librarypath;
-    if (!isset($files[$path])) {
-      $names = file_scan_directory(bueditor_path_tr($path), '\.js$', array('.', '..', 'CVS'), 0, 0, 'basename');
-      $files[$path] = empty($names) ? '' : $path .'/'. implode("\n$path/", array_keys($names));
+    $dir = $editor->librarypath;
+    if (!isset($files[$dir])) {
+      $names = file_scan_directory(bueditor_path_tr($dir), '\.js$', array('.', '..', 'CVS'), 0, 0, 'basename');
+      if (isset($names['default_buttons_functions.js']) && $dir = '%BUEDITOR/library') {
+        unset($names['default_buttons_functions.js']);
+        $names['bue.default.js'] = 1;//rename default library
+      }
+      $files[$dir] = empty($names) ? '' : $dir .'/'. implode("\n$dir/", array_keys($names));
     }
-    db_query("UPDATE {bueditor_editors} SET librarypath = '%s' WHERE eid = %d", $files[$path], $eid);
+    db_query("UPDATE {bueditor_editors} SET librarypath = '%s' WHERE eid = %d", $files[$dir], $eid);
   }
   return $ret;
 }
