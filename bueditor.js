@@ -89,7 +89,7 @@ BUE.instance = function (T, tplid) {
     return E;
   };
   E.getContent = function () {
-    return E.textArea.value.bueText();
+    return BUE.text(E.textArea.value);
   };
   E.setContent = function (content) {
     var st = E.textArea.scrollTop;
@@ -102,7 +102,7 @@ BUE.instance = function (T, tplid) {
     return E.getContent().substring(pos.start, pos.end);
   };
   E.replaceSelection = function (txt, cursor) {
-    var txt = txt.bueText();
+    var txt = BUE.text(txt);
     var pos = E.posSelection();
     var content = E.getContent();
     E.setContent(content.substr(0, pos.start) + txt + content.substr(pos.end));
@@ -111,8 +111,8 @@ BUE.instance = function (T, tplid) {
     return E.makeSelection(start, end);
   };
   E.tagSelection = function (left, right, cursor) {
-    var left = left.bueText();
-    var right = right.bueText();
+    var left = BUE.text(left);
+    var right = BUE.text(right);
     var llen = left.length;
     var pos = E.posSelection();
     var content = E.getContent();
@@ -273,27 +273,22 @@ BUE.initQuickPop = function () {
 // browser specific selection handling functions.
 
 //New line standardization. At least make them represented by a single char.
-BUE.processText = BUE.mode < 2 ? (function (s) {return s}) : (function (s) {return s.replace(/\r\n/g, '\n')});
-String.prototype.bueText = function () {return BUE.processText(this)};
+BUE.processText = BUE.text = BUE.mode < 2 ? (function (s) {return s.toString()}) : (function (s) {return s.toString().replace(/\r\n/g, '\n')});
 
 //Mode 1 (default) functions for all except IE and Opera
-BUE.selPos = function (T) {
-  return {start: T.selectionStart || 0, end: T.selectionEnd || 0};
-};
-BUE.selMake = function (T, start, end) {
-  T.setSelectionRange(start, end);
-};
+BUE.selPos = function (T) {return {start: T.selectionStart || 0, end: T.selectionEnd || 0}};
+BUE.selMake = function (T, start, end) {T.setSelectionRange(start, end)};
 
 //mode 2 - IE.
 if (BUE.mode == 2) {
   BUE.selPos = function (T) {
     T.focus();
-    var i, val = T.value.bueText(), mark = '~`^'; //dummy text.
+    var i, val = BUE.text(T.value), mark = '~`^'; //dummy text.
     for (i = 0; val.indexOf(mark) != -1; i++) mark += mark.charAt(i); //make sure mark is unique.
     var mlen = mark.length, range = document.selection.createRange();
-    var bm = range.getBookmark(), slen = range.text.bueText().length;
+    var bm = range.getBookmark(), slen = BUE.text(range.text).length;
     range.text = mark;
-    var tmp = T.value.bueText(), start = tmp.indexOf(mark);
+    var tmp = BUE.text(T.value), start = tmp.indexOf(mark);
     for (i = 0; tmp.charAt(start+i+mlen) == '\n'; i++);
     for (var end = start+slen; val.charAt(end) == '\n'; end++);
     end -= i;
@@ -320,7 +315,7 @@ else if (BUE.mode == 3) {
     return {'start': start - i + 1, 'end': end - i - j + 2};
   };
   BUE.selMake = function (T, start, end) {
-    var text = T.value.bueText(), i = text.substring(0, start).split('\n').length, j = text.substring(start, end).split('\n').length;
+    var text = BUE.text(T.value), i = text.substring(0, start).split('\n').length, j = text.substring(start, end).split('\n').length;
     T.setSelectionRange(start + i -1 , end + i + j - 2);
   };
 }
