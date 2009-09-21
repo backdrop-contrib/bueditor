@@ -57,7 +57,7 @@ function bueditor_editors($eid = 0) {
   if ($eid == 'all') {
     if (!$gotall) {
       $gotall = TRUE;
-      $result = db_query("SELECT * FROM {bueditor_editors}");
+      $result = db_query("SELECT * FROM {bueditor_editors} ORDER BY name");
       while ($editor = db_fetch_object($result)) {
         $editors[$editor->eid] = $editor;
       }
