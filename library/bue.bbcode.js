@@ -23,13 +23,13 @@ E.bbcLink = function() {
   var E = this, S = E.getSelection();
   var M = S.match(new RegExp('^\\[url(?:=([^\\]]*))?]((?:.|[\r\n])*)\\[/url]$')) || ['', '', ''];
   var form = [
-   {name: 'href', title: 'URL', value: M[1] ? M[1] : M[2], suffix: E.imce.button('attr_href'), required: true},
+   {name: 'href', title: 'URL', value: M[1] || M[2], suffix: E.imce.button('attr_href'), required: true},
    {name: 'text', value: M[1] ? M[2] : (M[0] ? '' : S)}
   ];
   var opt = {title: 'Insert/edit link'};
   opt.func = function(tag, form) {
     var el = form.elements, url = el['attr_href'].value, txt = el['attr_text'].value;
-    E.replaceSelection('[url'+ (txt ? ('='+ url) : '') +']'+ (txt ? txt : url) +'[/url]');
+    E.replaceSelection('[url'+ (txt ? ('='+ url) : '') +']'+ (txt || url) +'[/url]');
   };
   return E.tagDialog('a', form, opt);
 };
@@ -38,10 +38,10 @@ E.bbcLink = function() {
 E.bbcTagChooser = function(tags, opt) {
   var E = this; E.tagChooser(tags, opt);
   $('a.choice-link', BUE.quickPop).unbind('click').each(function(i, a) {//override click event
-    a.onclick = function() {
+    $(a).click(function() {
       E.tagSelection('['+ tags[i][0] +']', '[/'+ tags[i][0] +']').focus();
       return false;
-    };
+    });
   });
   return E;
 };
