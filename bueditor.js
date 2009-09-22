@@ -44,7 +44,7 @@ BUE.processTextarea = function (T, tplid) {
   if (T.bue) return T.bue;
   var E = new BUE.instance(T, tplid);
   $(T).focus(function () {
-    if (!(BUE.active == this.bue || BUE.dialog.bue)) {
+    if (!(BUE.active == this.bue || BUE.dialog.esp)) {
       BUE.active.accesskeys(false);
       BUE.active = this.bue;
       BUE.active.accesskeys(true);
@@ -124,11 +124,11 @@ BUE.instance = function (T, tplid) {
   E.makeSelection = function (start, end) {
     if (end < start) end = start;
     BUE.selMake(E.textArea, start, end);
-    if (BUE.dialog.esp) BUE.dialog.esp = {'start': start, 'end': end};
+    if (E.dialog.esp) E.dialog.esp = {'start': start, 'end': end};
     return E;
   };
   E.posSelection = function () {
-    return BUE.dialog.esp ? BUE.dialog.esp : BUE.selPos(E.textArea);
+    return E.dialog.esp || BUE.selPos(E.textArea);
   };
   E.buttonsDisabled = function (state, bindex) {
     for (var B, i=0; B = E.buttons[i]; i++) {
@@ -151,7 +151,7 @@ BUE.buttonClick = function (eindex, bindex) { try {
   var tplB = E.tpl.buttons[domB.bid];
   var content = tplB[1];
   E.bindex = bindex;
-  BUE.dialog.close();
+  E.dialog.close();
   if (tplB[4]) {//execute button script.
     tplB[4](E);
   }
@@ -229,7 +229,7 @@ BUE.createPopup = function (id, title, content) {
 
 //initialize editor dialog.
 BUE.initDialog = function () {
-  var D = BUE.dialog = BUE.createPopup('bue-dialog');
+  var D = BUE.instance.prototype.dialog = BUE.dialog = BUE.createPopup('bue-dialog');
   var foc  = function () {this.blur()};
   var Do = D.open, Dc = D.close;
   D.open = function (title, content, effect) {
@@ -256,7 +256,7 @@ BUE.initDialog = function () {
 
 //initialize editor quickpop.
 BUE.initQuickPop = function () {
-  var Q = BUE.quickPop = BUE.createPopup('bue-quick-pop');
+  var Q = BUE.instance.prototype.quickPop = BUE.quickPop = BUE.createPopup('bue-quick-pop');
   var Qo = Q.open, Qc = Q.close;
   Q.open = function(content, effect) {
     $(document).mouseup(Q.close);

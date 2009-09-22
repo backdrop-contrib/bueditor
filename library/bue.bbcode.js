@@ -37,7 +37,7 @@ E.bbcLink = function() {
 //bbcode tag chooser. limited version of html tag chooser.
 E.bbcTagChooser = function(tags, opt) {
   var E = this; E.tagChooser(tags, opt);
-  $('a.choice-link', BUE.quickPop).unbind('click').each(function(i, a) {//override click event
+  $('a.choice-link', E.quickPop).unbind('click').each(function(i, a) {//override click event
     $(a).click(function() {
       E.tagSelection('['+ tags[i][0] +']', '[/'+ tags[i][0] +']').focus();
       return false;

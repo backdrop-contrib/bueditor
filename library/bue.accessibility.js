@@ -5,7 +5,7 @@ BUE.postprocess.push(function(E) {
   if (E.index) return;//run once
   //Close quickpop by pressing ESC or ENTER key.
   //Allow link focusing(ARROW KEYS) and triggering(ENTER) inside quickpop.
-  var Q = BUE.quickPop, Qo = Q.open, D = BUE.dialog;
+  var Q = E.quickPop, Qo = Q.open, D = E.dialog;
   Q.open = function(content, effect) {
     Qo(content, effect);
     setTimeout(function(){$(Q).find('a:first').focus()});
@@ -17,7 +17,7 @@ BUE.postprocess.push(function(E) {
         setTimeout(function(){Q.close().bue.focus()});
         break;
       case 38:case 40:
-        var $a = $('a', BUE.quickPop), i = $a.index(document.activeElement);
+        var $a = $('a', E.quickPop), i = $a.index(document.activeElement);
         $a.eq(i+e.keyCode-39).focus();
         return false;
     }

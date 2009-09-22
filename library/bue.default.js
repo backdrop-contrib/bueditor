@@ -304,7 +304,7 @@ E.tagDialog = function(tag, fields, opt) {
   var table = BUE.table(rows, {'class': 'bue-tgd-table'})
   var sbm = Html('div', Input('submit', 'bue_tgd_submit', opt.stitle));
   var $form = $(Html('form', table + sbm, {name: 'bue_tgd_form', id: 'bue-tgd-form'}));
-  BUE.dialog.open(opt.title, $form, opt.effect);
+  E.dialog.open(opt.title, $form, opt.effect);
   //form validate/submit
   $form.submit(function() {
     //check required fields.
@@ -317,7 +317,7 @@ E.tagDialog = function(tag, fields, opt) {
     if (V && $.isFunction(V)) {
       try {if (!V(tag, this)) return false} catch(e) {alert(e.name +': '+ e.message)};
     }
-    BUE.dialog.close();
+    E.dialog.close();
     //custom submit
     var S = opt.submit;
     S = typeof S == 'string' ? window[S] : S;
