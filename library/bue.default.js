@@ -107,14 +107,11 @@ BUE.autop = function (s) {
 //IMCE integration
 var f = {form: {}, value: '', focus: function(){}};
 var I = E.imce = BUE.imce = {field: f};
-$(function() {
-  I.url = Drupal.settings.imceURL || '';
-  if (typeof I.url != 'string') I.url = I.url[0];
-});
+$(function() {I.url = Drupal.settings.BUE.imceURL || ''});
 
 //imce button
-I.button = function(field, text) {
-  return I.url ? Input('button', 'bue_ib_'+ field, text || Drupal.t('Browse'), {'onclick': 'BUE.imce.open(this.form.elements[this.name.substr(7)])'}) : '';
+I.button = function(fname, text) {
+  return I.url ? Input('button', 'bue_ib_'+ fname, text || Drupal.t('Browse'), {'onclick': 'BUE.imce.open(this.form.elements[this.name.substr(7)])'}) : '';
 };
 
 //open imce

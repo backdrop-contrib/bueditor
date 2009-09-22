@@ -134,12 +134,9 @@ comment/*',
     15 => 
     array (
       'title' => 'PHP execution',
-      'content' => 'php: //Do all PHP stuff here.
-//IMCE integration. Safe to delete.
-if (module_invoke(\'imce\', \'access\')) {
-  drupal_add_js(array(\'imceURL\' => url(\'imce\')), \'setting\');
-}
-//Ajax preview. In order to preview BBCode tags you need BBCode filter enabled. The preview button makes use of Ajax markup API to preview the content without a page refresh.
+      'content' => 'php: //All PHP stuff goes here.
+//Turn ajax preview on. The preview button makes use of Ajax Markup API to preview the content without a page refresh.
+//In order to preview BBCode tags you need BBCode filter enabled. 
 module_invoke(\'ajax_markup\', \'on\');',
       'icon' => '',
       'accesskey' => '',

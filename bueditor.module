@@ -171,6 +171,9 @@ function bueditor_settle($editor) {
       $path = drupal_get_path('module', 'bueditor');
       drupal_add_css($path .'/bueditor.css');
       drupal_add_js($path .'/bueditor.js');
+      if (module_invoke('imce', 'access')) {
+        drupal_add_js(array('BUE' => array('imceURL' => url('imce'))), 'setting');
+      }
     }
     $editor->iconpath = bueditor_path_tr($editor->iconpath);
     bueditor_add_library($editor->librarypath);//load library files.

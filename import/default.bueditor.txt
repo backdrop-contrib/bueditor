@@ -144,18 +144,6 @@ E.tagDialog(\'a\', form, {title: \'Insert/edit link\'});',
       'accesskey' => 'F',
       'weight' => '14',
     ),
-    15 => 
-    array (
-      'title' => 'PHP execution',
-      'content' => 'php: //Do all PHP stuff here.
-//IMCE integration. Safe to delete.
-if (module_invoke(\'imce\', \'access\')) {
-  drupal_add_js(array(\'imceURL\' => url(\'imce\')), \'setting\');
-}',
-      'icon' => '',
-      'accesskey' => '',
-      'weight' => '15',
-    ),
   ),
   'icons' => 
   array (
