@@ -299,7 +299,7 @@ E.tagDialog = function(tag, fields, opt) {
     }
   }
   //dialog options
-  var opt = $.extend({title: t('Tag editor - @tag', {'@tag': tag.toUpperCase()}), stitle: t('OK'), func: function(a, b) {return E.tgdSubmit(a, b)}, effect: 'show'}, opt);
+  var opt = $.extend({title: t('Tag editor - @tag', {'@tag': tag.toUpperCase()}), stitle: t('OK'), validate: false, submit: function(a, b) {return E.tgdSubmit(a, b)}, effect: 'show'}, opt);
   //open the dialog containing the tag editing form
   var table = BUE.table(rows, {'class': 'bue-tgd-table'})
   var sbm = Html('div', Input('submit', 'bue_tgd_submit', opt.stitle));
@@ -307,12 +307,23 @@ E.tagDialog = function(tag, fields, opt) {
   BUE.dialog.open(opt.title, $form, opt.effect);
   //form validate/submit
   $form.submit(function() {
+    //check required fields.
     for (var el, i = 0; el = this.elements[i]; i++) if ($(el).is('.required') && !el.value) {
       $(el).fadeOut('fast', function(){$(this).fadeIn('fast').focus()});
       return false;
     }
+    //custom validate
+    var V = opt.validate;
+    if (V && $.isFunction(V)) {
+      try {if (!V(tag, this)) return false} catch(e) {alert(e.name +': '+ e.message)};
+    }
     BUE.dialog.close();
-    try {(typeof opt.func == 'string' ? window[opt.func] : opt.func)(tag, this)} catch(e) {alert(e.name +': '+ e.message)};
+    //custom submit
+    var S = opt.submit;
+    S = typeof S == 'string' ? window[S] : S;
+    if (S && $.isFunction(S)) {
+      try {S(tag, this)} catch(e) {alert(e.name +': '+ e.message)};
+    }
     return false;
   })[0].elements[0].focus();
   return E;
@@ -384,7 +395,7 @@ eDefPreviewShow = function(E, s, w) {E.prvShow(s, w)};
 eDefPreviewHide = function(E) {E.prvHide()};
 eDefAjaxPreview = function() {BUE.active.prvAjax()};
 eDefHelp = function(fx) {BUE.active.help(fx)};
-eDefTagDialog = function(a, b, c, d, e, f) {BUE.active.tagDialog(a, b, {title: c, stitle: d, func: e, effect: f})};
+eDefTagDialog = function(a, b, c, d, e, f) {BUE.active.tagDialog(a, b, {title: c, stitle: d, submit: e, effect: f})};
 eDefTagInsert = function(a, b) {BUE.active.tgdSubmit(a, b)};
 eDefTagger = function(a, b, c) {BUE.active.toggleTag(a, b, c)};
 eDefTagChooser = function(a, b, c, d, e) {BUE.active.tagChooser(a, {applyTag: b, wrapEach: c, wrapAll: d, effect: e})};

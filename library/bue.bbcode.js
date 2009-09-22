@@ -11,7 +11,7 @@ E.bbcImage = function() {
    {name: 'height', value: M[2], attributes: {size: 3}}
   ];
   var opt = {title: 'Insert/edit image'};
-  opt.func = function(tag, form) {
+  opt.submit = function(tag, form) {
     var el = form.elements, src = el['attr_src'].value, w = el['attr_width'].value, h = el['attr_height'].value;
     E.replaceSelection('[img'+ (w*1 ? ('='+ w +'x'+ h) : '') +']'+ src +'[/img]');
   };
@@ -27,7 +27,7 @@ E.bbcLink = function() {
    {name: 'text', value: M[1] ? M[2] : (M[0] ? '' : S)}
   ];
   var opt = {title: 'Insert/edit link'};
-  opt.func = function(tag, form) {
+  opt.submit = function(tag, form) {
     var el = form.elements, url = el['attr_href'].value, txt = el['attr_text'].value;
     E.replaceSelection('[url'+ (txt ? ('='+ url) : '') +']'+ (txt || url) +'[/url]');
   };
