@@ -111,7 +111,7 @@ $(function() {I.url = Drupal.settings.BUE.imceURL || ''});
 
 //imce button
 I.button = function(fname, text) {
-  return I.url ? Input('button', 'bue_ib_'+ fname, text || Drupal.t('Browse'), {'onclick': 'BUE.imce.open(this.form.elements[this.name.substr(7)])'}) : '';
+  return I.url ? Input('button', 'bue_ib_'+ fname, text || t('Browse'), {'onclick': 'BUE.imce.open(this.form.elements[this.name.substr(7)])'}) : '';
 };
 
 //open imce
@@ -119,7 +119,7 @@ I.open = function(field) {
   I.field = field || f;
   if (!I.pop) {
     var url = I.url + (I.url.indexOf('?') < 0 ? '?' : '&') + 'app=bue|onload@bueImceLoad';
-    I.pop = BUE.openPopup('bue-imce-pop', Drupal.t('File Browser'), '<iframe src="'+ url +'"></iframe>');
+    I.pop = BUE.openPopup('bue-imce-pop', t('File Browser'), '<iframe src="'+ url +'"></iframe>');
   }
   else {
     I.pop.open();
@@ -148,7 +148,7 @@ I.hlight = function() {
 
 //imce startup function.
 window.bueImceLoad = function(win) {
-  (I.win = win).imce.setSendTo(Drupal.t('Send to editor'), I.finish);
+  (I.win = win).imce.setSendTo(t('Send to editor'), I.finish);
   I.hlight();
 };
 
@@ -161,7 +161,7 @@ E.prv = function(safecheck) {
   var safecheck = typeof safecheck == 'undefined' ? true : safecheck;
   var content = E.getContent();
   if (safecheck && !(E.safeToPreview = E.safeToPreview || content.indexOf('<') == -1)) {
-    content = '<div class="warning">' + Drupal.t('The preview is disabled due to previously inserted HTML code in the content. This aims to protect you from any potentially harmful code inserted by other editors or users. If you own the content, just preview an empty text to re-enable the preview.') + '</div>';
+    content = '<div class="warning">' + t('The preview is disabled due to previously inserted HTML code in the content. This aims to protect you from any potentially harmful code inserted by other editors or users. If you own the content, just preview an empty text to re-enable the preview.') + '</div>';
   }
   return E.prvShow(BUE.autop(content));
 };
@@ -207,9 +207,9 @@ E.prvHide = function() {
     return E.prvHide();
   }
   if (!$.ajaxMarkup) {
-    return E.prvShow(Drupal.t('Preview requires <a href="http://drupal.org/project/ajax_markup">Ajax markup</a> module with proper permissions set.'));
+    return E.prvShow(t('Preview requires <a href="http://drupal.org/project/ajax_markup">Ajax markup</a> module with proper permissions set.'));
   }
-  E.prvShow(Drupal.t('Loading...'));
+  E.prvShow(t('Loading...'));
   $.ajaxMarkup(E.getContent(), $.ajaxMarkup.getFormat(E.textArea), function(output, status, request) {
     if (E.prvOn) {
       E.prvShow(status ? output : output.replace(/\n/g, '<br />'));
@@ -316,7 +316,7 @@ E.tagDialog = function(tag, fields, opt) {
     }
   };
   //dialog options
-  var opt = $.extend({title: Drupal.t('Tag editor - @tag', {'@tag': tag.toUpperCase()}), stitle: Drupal.t('OK'), func: eDefTagInsert, effect: 'show'}, opt);
+  var opt = $.extend({title: t('Tag editor - @tag', {'@tag': tag.toUpperCase()}), stitle: t('OK'), func: eDefTagInsert, effect: 'show'}, opt);
   //open the dialog containing the tag editing form
   var table = BUE.table(rows, {'class': 'bue-tgd-table'})
   var sbm = Html('div', Input('submit', 'bue_tgd_submit', opt.stitle));
@@ -358,6 +358,7 @@ var Html = BUE.html;
 var Input = BUE.input;
 var Nc = BUE.nctag;
 var Esc = BUE.regesc;
+var t = Drupal.t;
 
 })(BUE.instance.prototype);
 
