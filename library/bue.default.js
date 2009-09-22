@@ -298,25 +298,8 @@ E.tagDialog = function(tag, fields, opt) {
       rows[n][1] += fhtml(fproc(field));
     }
   }
-  //default tag form process
-  eDefTagInsert = function(tag, form) {
-    for (var name, el, i = 0; el = form.elements[i]; i++) {
-      if (el.name.substr(0, 5) == 'attr_') {
-        name = el.name.substr(5);
-        if (name == 'html') O.html = el.value;
-        else O.attributes[name] = el.value.replace(/\x22/g, '&quot;').replace(/>/g, '&gt;').replace(/</g, '&lt;') || null;
-      }
-    }
-    if (typeof O.html == 'string' || Nc(tag)) {
-      E.replaceSelection(Html(tag, O.html, O.attributes));
-   }
-    else {
-      var h = Html(tag, '', O.attributes);
-      E.tagSelection(h.substr(0, h.length - tag.length - 3), '</'+ tag +'>');
-    }
-  };
   //dialog options
-  var opt = $.extend({title: t('Tag editor - @tag', {'@tag': tag.toUpperCase()}), stitle: t('OK'), func: eDefTagInsert, effect: 'show'}, opt);
+  var opt = $.extend({title: t('Tag editor - @tag', {'@tag': tag.toUpperCase()}), stitle: t('OK'), func: function(a, b) {return E.tgdSubmit(a, b)}, effect: 'show'}, opt);
   //open the dialog containing the tag editing form
   var table = BUE.table(rows, {'class': 'bue-tgd-table'})
   var sbm = Html('div', Input('submit', 'bue_tgd_submit', opt.stitle));
@@ -332,6 +315,26 @@ E.tagDialog = function(tag, fields, opt) {
     try {(typeof opt.func == 'string' ? window[opt.func] : opt.func)(tag, this)} catch(e) {alert(e.name +': '+ e.message)};
     return false;
   })[0].elements[0].focus();
+  return E;
+};
+
+//default submit handler for tag form
+E.tgdSubmit = function(tag, form) {
+  var E = this, O = BUE.parseHtml(E.getSelection(), tag) || {'attributes': {}};
+  for (var name, el, i = 0; el = form.elements[i]; i++) {
+    if (el.name.substr(0, 5) == 'attr_') {
+      name = el.name.substr(5);
+      if (name == 'html') O.html = el.value;
+      else O.attributes[name] = el.value.replace(/\x22/g, '&quot;').replace(/>/g, '&gt;').replace(/</g, '&lt;') || null;
+    }
+  }
+  if (typeof O.html == 'string' || Nc(tag)) {
+    E.replaceSelection(Html(tag, O.html, O.attributes));
+ }
+  else {
+    var h = Html(tag, '', O.attributes);
+    E.tagSelection(h.substr(0, h.length - tag.length - 3), '</'+ tag +'>');
+  }
   return E;
 };
 
@@ -382,5 +385,6 @@ eDefPreviewHide = function(E) {E.prvHide()};
 eDefAjaxPreview = function() {BUE.active.prvAjax()};
 eDefHelp = function(fx) {BUE.active.help(fx)};
 eDefTagDialog = function(a, b, c, d, e, f) {BUE.active.tagDialog(a, b, {title: c, stitle: d, func: e, effect: f})};
+eDefTagInsert = function(a, b) {BUE.active.tgdSubmit(a, b)};
 eDefTagger = function(a, b, c) {BUE.active.toggleTag(a, b, c)};
 eDefTagChooser = function(a, b, c, d, e) {BUE.active.tagChooser(a, {applyTag: b, wrapEach: c, wrapAll: d, effect: e})};
