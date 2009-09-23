@@ -131,17 +131,6 @@ comment/*',
       'accesskey' => 'F',
       'weight' => '14',
     ),
-    15 => 
-    array (
-      'title' => 'PHP execution',
-      'content' => 'php: //All PHP stuff goes here.
-//Turn ajax preview on. The preview button makes use of Ajax Markup API to preview the content without a page refresh.
-//In order to preview BBCode tags you need BBCode filter enabled. 
-module_invoke(\'ajax_markup\', \'on\');',
-      'icon' => '',
-      'accesskey' => '',
-      'weight' => '15',
-    ),
   ),
   'icons' => 
   array (
