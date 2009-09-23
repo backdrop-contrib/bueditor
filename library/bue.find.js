@@ -3,11 +3,11 @@
 (function(E) {
 
 //shortcuts
-var H = BUE.html, I = BUE.input, t = Drupal.t;
+var H = BUE.html, I = BUE.input;
 
 //confirmation message that will be used multiple times.
 var CM = function() {
-  return confirm(t('End of textarea reached. Continue search at the beginning of textarea?'));
+  return confirm(Drupal.t('End of textarea reached. Continue search at the beginning of textarea?'));
 };
 
 //cookie get & set
@@ -26,8 +26,8 @@ var FRF = function () {
   var Cb = function(n, v) {return H('span', I('checkbox', n, '', {checked: K('bfr_'+ n) || null}) + v)};
   var Bt = function(n, v) {return I('button', n, v, {onclick: 'BUE.active.frSubmit(this)'})};
   var F = Dv(Ta('fn')) + Dv(Ta('rp'));
-  F += Dv(Cb('mc', t('Match case')) +' '+ Cb('re', t('Regular expressions')));
-  F += Dv(Bt('fnb', t('Find next')) +' '+ Bt('rpb', t('Replace')) +' '+ Bt('rab', t('Replace all')));
+  F += Dv(Cb('mc', Drupal.t('Match case')) +' '+ Cb('re', Drupal.t('Regular expressions')));
+  F += Dv(Bt('fnb', Drupal.t('Find next')) +' '+ Bt('rpb', Drupal.t('Replace')) +' '+ Bt('rab', Drupal.t('Replace all')));
   BUE.frPop = BUE.createPopup('bue-fr-pop', null, F = BUE.frForm = $(H('form', F))[0]);
   Drupal.behaviors.textarea(F);
   $('div.grippie', F).height(4);
@@ -60,7 +60,7 @@ E.find = function (str, mc, re) {
   var index = content.search(regx);
   if (index == -1) {
     if (from == 0) {
-      alert(t('No matching phrase found!'));
+      alert(Drupal.t('No matching phrase found!'));
     }
     else if (CM()) {
       E.makeSelection(0, 0);
@@ -79,7 +79,7 @@ E.find = function (str, mc, re) {
 E.replace = function(str1, str2, mc, re) {
   var E = this, s = E.find(str1, mc, re).getSelection();
   var rgx = new RegExp('^'+ (re ? str1 : BUE.regesc(str1)) +'$', mc ? '' : 'i');
-  if (s && s.search(rgx) == 0 && confirm(t('Replace this occurance of "!text"?', {'!text': s}))) {
+  if (s && s.search(rgx) == 0 && confirm(Drupal.t('Replace this occurance of "!text"?', {'!text': s}))) {
     str2 = re ? s.replace(new RegExp(str1, 'g' + (mc ? '' : 'i')), str2) : str2;
     E.replaceSelection(str2);
   }
@@ -93,14 +93,14 @@ E.replaceAll = function(str1, str2, mc, re) {
   var F = re ?  (function(s) {n++; return s.replace(R, str2)}) : (function() {n++; return str2;});
   var start = P.start == 0 || CM() ? 0 : P.start;
   E.setContent(C.substr(0, start) + C.substr(start).replace(R, F));
-  alert(t('Total replacements: !count', {'!count': n}));
+  alert(Drupal.t('Total replacements: !count', {'!count': n}));
   return E;
 };
 
 //open Find & Replace form.
 E.frForm = function(op, mc, re) {
   var el = FRF().elements, rp = op == 'replace';
-  BUE.frPop.open(t(rp ? 'Find & Replace' : 'Search'));
+  BUE.frPop.open(rp ? Drupal.t('Find & Replace') : Drupal.t('Search'));
   $(el.mc.parentNode)[mc ? 'show' : 'hide']();
   $(el.re.parentNode)[re ? 'show' : 'hide']();
   $([el.rp.parentNode, el.rpb, el.rab])[rp ? 'show' : 'hide']();
