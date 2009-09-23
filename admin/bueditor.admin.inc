@@ -319,7 +319,9 @@ function bueditor_editor_theme($form = array()) {
   $demo = '';
   if ($eid && bueditor_settle($eid)) {
     $set['BUE']['preset']['editor-demo'] = "e$eid";
-    $demo = '<h2 class="title">'. t('Demo') .'</h2><div class="form-item"><textarea cols="60" rows="20" id="editor-demo" class="form-textarea">DEMO</textarea></div>';
+    $demo = '<h2 class="title">'. t('Demo') .'</h2><div class="form-item"><textarea cols="60" rows="10" id="editor-demo" class="form-textarea" name="body">DEMO</textarea></div>';
+    $format = filter_form();
+    $demo .= str_replace('name=""', 'name="format"', drupal_render($format));
   }
 
   $set['BUE']['iconpath'] = bueditor_path_tr($form['editor']['iconpath']['#value']);
