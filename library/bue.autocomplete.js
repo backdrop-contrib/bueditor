@@ -1,7 +1,7 @@
 // $Id$
 
 //Autocomplete user defined phrases as they are typed in the editor.
-BUE.postprocess.push(function(E) {
+BUE.postprocess.push(function(E, $) {
 
   E.AC = {'"':  '"', "'": "'", '(': ')', '[': ']', '{': '}', '<!--': '-->', '<?php': '?>'};
   

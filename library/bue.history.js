@@ -1,7 +1,7 @@
 // $Id$
 
 //Introduces cross-browser editor history with two new methods. E.undo() & E.redo()
-BUE.postprocess.push(function(E) {
+BUE.postprocess.push(function(E, $) {
 
   var H = E.history = {
     max: 50, //maximum number of states in undo/redo history

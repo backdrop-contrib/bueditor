@@ -1,7 +1,7 @@
 // $Id$
 
 //Register button accesskeys as Ctrl shortcuts.
-BUE.postprocess.push(function(E) {
+BUE.postprocess.push(function(E, $) {
 
   //store key-button relations.
   E.ctrlKeys = {};

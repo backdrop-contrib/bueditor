@@ -1,7 +1,7 @@
 // $Id$
 
 //Accessibility improvements.
-BUE.postprocess.push(function(E) {
+BUE.postprocess.push(function(E, $) {
   if (E.index) return;//run once
   //Close quickpop by pressing ESC or ENTER key.
   //Allow link focusing(ARROW KEYS) and triggering(ENTER) inside quickpop.

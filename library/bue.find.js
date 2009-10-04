@@ -1,6 +1,6 @@
 // $Id$
 //Find & Replace library. Requires default library.
-(function(E) {
+(function(E, $) {
 
 //shortcuts
 var H = BUE.html, I = BUE.input;
@@ -127,7 +127,7 @@ E.frSubmit = function(B) {
   return E.focus();
 };
 
-})(BUE.instance.prototype);
+})(BUE.instance.prototype, jQuery);
 
 /*
  * Use js:E.frForm(type, match_case, reg_exp) in your button content

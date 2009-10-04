@@ -1,6 +1,6 @@
 // $Id$
 //BBCode library. Requires the default library.
-(function(E) {
+(function(E, $) {
 
 //open image dialog
 E.bbcImage = function() {
@@ -46,4 +46,4 @@ E.bbcTagChooser = function(tags, opt) {
   return E;
 };
 
-})(BUE.instance.prototype);
+})(BUE.instance.prototype, jQuery);
