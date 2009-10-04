@@ -1,6 +1,6 @@
 // $Id$
 //collection of functions required for default buttons.
-(function(E) {
+(function(E, $) {
 
 //html for a given tag. attributes having value=null are not printed.
 BUE.html = function(tag, ihtml, attr) {
@@ -104,54 +104,6 @@ BUE.autop = function (s) {
   return R('\n</p>$', '</p>');
 };
 
-//IMCE integration
-var f = {form: {}, value: '', focus: function(){}};
-var I = E.imce = BUE.imce = {field: f};
-$(function() {I.url = Drupal.settings.BUE.imceURL || ''});
-
-//imce button
-I.button = function(fname, text) {
-  return I.url ? Input('button', 'bue_ib_'+ fname, text || Drupal.t('Browse'), {'onclick': 'BUE.imce.open(this.form.elements[this.name.substr(7)])'}) : '';
-};
-
-//open imce
-I.open = function(field) {
-  I.field = field || f;
-  if (!I.pop) {
-    var url = I.url + (I.url.indexOf('?') < 0 ? '?' : '&') + 'app=bue|onload@bueImceLoad';
-    I.pop = BUE.openPopup('bue-imce-pop', Drupal.t('File Browser'), '<iframe src="'+ url +'"></iframe>');
-  }
-  else {
-    I.pop.open();
-    I.hlight();
-  }
-  var $p = $(I.pop), $w = $(window), o = $.browser.opera;
-  var h = (o ? $w[0].innerHeight : $w.height()) - $p.height(), w = $w.width() - $p.width();
-  $p.css({'top': $w.scrollTop() + Math.max(0, h/2), 'left': Math.max(0, w/2)});
-};
-
-//close imce & process file
-I.finish = function(file, win) {
-  I.field.value = file.url;
-  var el = I.field.form.elements || {}, val = {'alt': file.name, 'width': file.width, 'height': file.height};
-  for (var i in val) {
-    if (el['attr_'+i]) el['attr_'+i].value = val[i];
-  }
-  I.pop.close();
-  I.field.focus();
-};
-
-//highlight file
-I.hlight = function() {
-  I.win.imce.highlight(I.field.value.substr(I.field.value.lastIndexOf('/')+1));
-};
-
-//imce startup function.
-window.bueImceLoad = function(win) {
-  (I.win = win).imce.setSendTo(Drupal.t('Send to editor'), I.finish);
-  I.hlight();
-};
-
 //Show/hide content preview.
 E.prv = function(safecheck) {
   var E = this;
@@ -170,7 +122,7 @@ E.prv = function(safecheck) {
 E.prvShow = function(html, wrap) {
   var E = this;
   var $T = $(E.textArea);
-  var $P = E.prvArea ? $(E.prvArea) : $(E.prvArea = document.createElement('div')).addClass('preview').css({'display': 'none', 'overflow': 'auto'}).insertBefore($T);
+  var $P = E.preview ? $(E.preview) : $(E.preview = document.createElement('div')).addClass('preview').css({'display': 'none', 'overflow': 'auto'}).insertBefore($T);
   if (typeof wrap == 'undefined' || wrap) {
     html = '<div class="'+ (E.textArea.name == 'comment' ? 'comment' : 'node') +'"><div class="content">' + html + '</div></div>';
   }
@@ -190,7 +142,7 @@ E.prvShow = function(html, wrap) {
 E.prvHide = function() {
   var E = this;
   if (E.prvOn) {
-    var $P = $(E.prvArea);
+    var $P = $(E.preview);
     $(E.textArea).height($P.height());
     $P.hide();
     $(E.buttons[E.bindex]).removeClass('stay-clicked');
@@ -303,7 +255,7 @@ E.tagDialog = function(tag, fields, opt) {
   //open the dialog containing the tag editing form
   var table = BUE.table(rows, {'class': 'bue-tgd-table'})
   var sbm = Html('div', Input('submit', 'bue_tgd_submit', opt.stitle));
-  var $form = $(Html('form', table + sbm, {name: 'bue_tgd_form', id: 'bue-tgd-form'}));
+  var $form = $html(Html('form', table + sbm, {name: 'bue_tgd_form', id: 'bue-tgd-form'}));
   E.dialog.open(opt.title, $form, opt.effect);
   //form validate/submit
   $form.submit(function() {
@@ -352,11 +304,11 @@ E.tgdSubmit = function(tag, form) {
 //create clickable tag options that insert corresponding tags into the editor.[[tag, title, attributes],[...],...]
 E.tagChooser = function(tags, opt) {
   var E = this, opt = $.extend({wrapEach: 'li', wrapAll: 'ul', applyTag: true, effect: 'fadeIn'}, opt);
-  var wa = Html(opt.wrapAll || 'div', '', {'class': 'tag-chooser'}), $wa = $(wa);
+  var wa = Html(opt.wrapAll || 'div', '', {'class': 'tag-chooser'}), $wa = $html(wa);
   var we = Html(opt.wrapEach, '', {'class': 'choice'});
   var lnk = Html('a', '', {href: '#', 'class': 'choice-link'});
   for (var i in tags) {
-    var data = {nc: Nc(tags[i][0]), html: Html(tags[i][0], tags[i][1], tags[i][2])}, $lnk = $(lnk);
+    var data = {nc: Nc(tags[i][0]), html: Html(tags[i][0], tags[i][1], tags[i][2])}, $lnk = $html(lnk);
     $lnk.html(opt.applyTag ? data.html : tags[i][1]).bind('click', data, function(e) {
       var h = e.data.html, p1 = h.substr(0, h.indexOf('>')+1);
       e.data.nc ? E.replaceSelection(p1).focus() : E.tagSelection(p1, h.substr(h.lastIndexOf('<'))).focus();
@@ -367,13 +319,62 @@ E.tagChooser = function(tags, opt) {
   return E;
 };
 
+//IMCE integration
+var f = {form: {}, value: '', focus: function(){}};
+var I = E.imce = BUE.imce = {field: f};
+$(function() {I.url = Drupal.settings.BUE.imceURL || ''});
+
+//imce button
+I.button = function(fname, text) {
+  return I.url ? Input('button', 'bue_ib_'+ fname, text || Drupal.t('Browse'), {'onclick': 'BUE.imce.open(this.form.elements[this.name.substr(7)])'}) : '';
+};
+
+//open imce
+I.open = function(field) {
+  I.field = field || f;
+  if (!I.pop) {
+    var url = I.url + (I.url.indexOf('?') < 0 ? '?' : '&') + 'app=bue|onload@bueImceLoad';
+    I.pop = BUE.openPopup('bue-imce-pop', Drupal.t('File Browser'), '<iframe src="'+ url +'"></iframe>');
+  }
+  else {
+    I.pop.open();
+    I.hlight();
+  }
+  var $p = $(I.pop), $w = $(window), o = $.browser.opera;
+  var h = (o ? $w[0].innerHeight : $w.height()) - $p.height(), w = $w.width() - $p.width();
+  $p.css({'top': $w.scrollTop() + Math.max(0, h/2), 'left': Math.max(0, w/2)});
+};
+
+//close imce & process file
+I.finish = function(file, win) {
+  I.field.value = file.url;
+  var el = I.field.form.elements || {}, val = {'alt': file.name, 'width': file.width, 'height': file.height};
+  for (var i in val) {
+    if (el['attr_'+i]) el['attr_'+i].value = val[i];
+  }
+  I.pop.close();
+  I.field.focus();
+};
+
+//highlight file
+I.hlight = function() {
+  I.win.imce.highlight(I.field.value.substr(I.field.value.lastIndexOf('/')+1));
+};
+
+//imce startup function.
+window.bueImceLoad = function(win) {
+  (I.win = win).imce.setSendTo(Drupal.t('Send to editor'), I.finish);
+  I.hlight();
+};
+
 //shortcuts
+var $html = function(s){return $(document.createElement('div')).html(s).children()};
 var Html = BUE.html;
 var Input = BUE.input;
 var Nc = BUE.nctag;
 var Esc = BUE.regesc;
 
-})(BUE.instance.prototype);
+})(BUE.instance.prototype, jQuery);
 
 //backward compatibility.
 eDefHTML = BUE.html;
