@@ -152,7 +152,7 @@ function bueditor_preset_textarea($tid, $editor) {
   if ($editor && !bueditor_check_match($editor->excludes, $tid)) {
     bueditor_settle($editor);
     $settings['BUE']['preset'][$tid] = 'e'. $editor->eid;
-    drupal_add_js($settings, 'setting');
+    drupal_add_js($settings, 'setting', 'footer');
     return TRUE;
   }
   return FALSE;
@@ -167,11 +167,14 @@ function bueditor_settle($editor) {
     $editor = bueditor_editors($editor);
   }
   if ($editor && $editor->eid && !isset($settled[$editor->eid])) {
+    $settings = array();
     if (empty($settled)) {//run once
       $path = drupal_get_path('module', 'bueditor');
       drupal_add_css($path .'/bueditor.css');
       drupal_add_js($path .'/bueditor.js');
-      module_invoke('imce', 'access') && drupal_add_js(array('BUE' => array('imceURL' => url('imce'))), 'setting');
+      if (module_invoke('imce', 'access')) {
+        $settings['BUE']['imceURL'] = url('imce');
+      }
       module_invoke('ajax_markup', 'on');
     }
     $editor->iconpath = bueditor_path_tr($editor->iconpath);
@@ -180,7 +183,7 @@ function bueditor_settle($editor) {
       'iconpath' => base_path() . $editor->iconpath,
       'buttons' => bueditor_processed_buttons($editor->eid),
     );
-    drupal_add_js($settings, 'setting');
+    drupal_add_js($settings, 'setting', 'footer');
     $settled[$editor->eid] = TRUE;
   }
   return $editor && isset($settled[$editor->eid]);

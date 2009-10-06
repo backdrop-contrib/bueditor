@@ -328,7 +328,7 @@ function bueditor_editor_theme($form = array()) {
   $set['BUE']['iconlist'] = bueditor_icons($set['BUE']['iconpath']);
   drupal_add_css($path .'/admin/bueditor.edit.css');
   drupal_add_js($path .'/admin/bueditor.edit.js');
-  drupal_add_js($set, 'setting');
+  drupal_add_js($set, 'setting', 'footer');
   drupal_add_tabledrag('button-table', 'order', 'sibling', 'input-weight');
 
   $output = $name . $visibility . $paths;
