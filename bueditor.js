@@ -14,13 +14,11 @@ BUE.initiate = function () {
 BUE.behavior = function(context) {
   var set = Drupal.settings.BUE || null, tpls = BUE.templates, pset = BUE.preset;
   if (set) {
-    $.each(set.templates || {}, function (id, tpl) {
+    $.each(set.templates, function (id, tpl) {
       tpls[id] = tpls[id] || $.extend({}, tpl);
     });
+    $.extend(pset, set.preset);
     set.templates = {};
-    $.each(set.preset || {}, function (id, tplid) {
-      pset[id] = pset[id] || tplid;
-    });
     set.preset = {};
   }
   $.each(pset, function (tid, tplid) {
