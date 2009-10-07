@@ -840,7 +840,7 @@ function bueditor_editor_defaults($name = '') {
     'pages' => "node/*\ncomment/*",
     'excludes' => 'edit-log',
     'iconpath' => '%BUEDITOR/icons',
-    'librarypath' => '%BUEDITOR/library/bue.default.js'
+    'librarypath' => '%BUEDITOR/library/bue.min.default.js'
   );
 }
 

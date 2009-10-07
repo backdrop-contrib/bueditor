@@ -1,12 +1,13 @@
 // $Id$
 
 //Autocomplete user defined phrases as they are typed in the editor.
+//Requires: none
 BUE.postprocess.push(function(E, $) {
 
-  E.AC = {'"':  '"', "'": "'", '(': ')', '[': ']', '{': '}', '<!--': '-->', '<?php': '?>'};
+  E.AC = {'<!--': '-->', '<?php': '?>'};
   
   //make sure string preparation runs last as other processes may extend autocomplete list.
-  if (!E.index) BUE.postprocess.push(function(E){
+  if (!E.index) BUE.postprocess.push(function(E, $){
     $.each(E.AC, function(a, b) {
       var len = a.length;
       if (len > 1) {

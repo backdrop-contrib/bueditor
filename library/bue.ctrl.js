@@ -1,6 +1,7 @@
 // $Id$
 
 //Register button accesskeys as Ctrl shortcuts.
+//Requires: none
 BUE.postprocess.push(function(E, $) {
 
   //store key-button relations.

@@ -1,10 +1,10 @@
 // $Id$
 
 //Accessibility improvements.
+//Close popups on ESC. Navigate(UP-DOWN) & trigger(ENTER) links in quickPop
+//Requires: bue.popup.js
 BUE.postprocess.push(function(E, $) {
   if (E.index) return;//run once
-  //Close quickpop by pressing ESC or ENTER key.
-  //Allow link focusing(ARROW KEYS) and triggering(ENTER) inside quickpop.
   var Q = E.quickPop, Qo = Q.open, D = E.dialog;
   Q.open = function(content, effect) {
     Qo(content, effect);
@@ -22,7 +22,6 @@ BUE.postprocess.push(function(E, $) {
         return false;
     }
   });
-  //Make dialogs close on ESC too.
   $(D).attr('tabindex', 0).keydown(function (e) {
     e.keyCode == 27 && D.close();
   });

@@ -150,6 +150,6 @@ E.tagDialog(\'a\', form, {title: \'Insert/edit link\'});',
   ),
   'library' => 
   array (
-    '%BUEDITOR/library/bue.default.js' => '',
+    '%BUEDITOR/library/bue.min.default.js' => '',
   ),
 )

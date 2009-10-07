@@ -1,55 +1,7 @@
 // $Id$
-//Find & Replace library. Requires default library.
+//Introdue find & replace forms
+//Requires: bue.popup, bue.html.js
 (function(E, $) {
-
-//shortcuts
-var H = BUE.html, I = BUE.input;
-
-//confirmation message that will be used multiple times.
-var CM = function() {
-  return confirm(Drupal.t('End of textarea reached. Continue search at the beginning of textarea?'));
-};
-
-//cookie get & set
-var K = function (name, value) {
-  if (typeof(value) == 'undefined') {//get
-    return unescape((document.cookie.match(new RegExp('(^|;) *'+ name +'=([^;]*)(;|$)')) || ['', '', ''])[2]);
-  }
-  document.cookie = name +'='+ escape(value) +'; expires='+ (new Date(new Date()*1 + 30*86400000)).toGMTString() +'; path=/';//set
-};
-
-//return find&replace form
-var FRF = function () {
-  if (BUE.frForm) return BUE.frForm;
-  var Dv = function(s) {return H('div', s, {style: 'margin-bottom: 4px'})};
-  var Ta = function(n) {return H('span', H('textarea', K('bfr_'+ n), {name: n, cols: 36, rows: 1, 'class': 'resizable'}))};
-  var Cb = function(n, v) {return H('span', I('checkbox', n, '', {checked: K('bfr_'+ n) || null}) + v)};
-  var Bt = function(n, v) {return I('button', n, v, {onclick: 'BUE.active.frSubmit(this)'})};
-  var F = Dv(Ta('fn')) + Dv(Ta('rp'));
-  F += Dv(Cb('mc', Drupal.t('Match case')) +' '+ Cb('re', Drupal.t('Regular expressions')));
-  F += Dv(Bt('fnb', Drupal.t('Find next')) +' '+ Bt('rpb', Drupal.t('Replace')) +' '+ Bt('rab', Drupal.t('Replace all')));
-  BUE.frPop = BUE.createPopup('bue-fr-pop', null, F = BUE.frForm = $(H('form', F))[0]);
-  Drupal.behaviors.textarea(F);
-  $('div.grippie', F).height(4);
-  $(window).unload(function() {
-    if (!BUE.frForm) return;
-    var el = BUE.frForm.elements;
-    K('bfr_fn', el.fn.value);
-    K('bfr_rp', el.rp.value);
-    K('bfr_mc', el.mc.checked ? 'checked' : '');
-    K('bfr_re', el.re.checked ? 'checked' : '');
-  });
-  return F;
-};
-
-//scroll editor textarea to the specified character index. 
-E.scrollTo = function(index) {
-  var E = this, T = E.textArea, h = $(T).height();
-  var sT = BUE.scrlT = BUE.scrlT || $(document.createElement('textarea')).css({width: $(T).width(), height: 1, visibility: 'hidden'}).appendTo(document.body)[0];
-  sT.value = T.value.substr(0, index);
-  T.scrollTop = sT.scrollHeight > h ? sT.scrollHeight - Math.ceil(h/2) : 0;
-  return E;
-};
 
 //find a string inside editor content. search options: mc-match case, re-regular expression
 E.find = function (str, mc, re) {
@@ -97,6 +49,15 @@ E.replaceAll = function(str1, str2, mc, re) {
   return E;
 };
 
+//scroll editor textarea to the specified character index. 
+E.scrollTo = function(index) {
+  var E = this, T = E.textArea, h = $(T).height();
+  var sT = BUE.scrlT = BUE.scrlT || $(document.createElement('textarea')).css({width: $(T).width(), height: 1, visibility: 'hidden'}).appendTo(document.body)[0];
+  sT.value = T.value.substr(0, index);
+  T.scrollTop = sT.scrollHeight > h ? sT.scrollHeight - Math.ceil(h/2) : 0;
+  return E;
+};
+
 //open Find & Replace form.
 E.frForm = function(op, mc, re) {
   var el = FRF().elements, rp = op == 'replace';
@@ -125,6 +86,46 @@ E.frSubmit = function(B) {
     case 'rab': E.replaceAll(fn, rp, mc, re); break;//replace all
   }
   return E.focus();
+};
+
+//shortcuts
+var H = BUE.html, I = BUE.input;
+
+//confirmation message that will be used multiple times.
+var CM = function() {
+  return confirm(Drupal.t('End of textarea reached. Continue search at the beginning of textarea?'));
+};
+
+//cookie get & set
+var K = function (name, value) {
+  if (typeof(value) == 'undefined') {//get
+    return unescape((document.cookie.match(new RegExp('(^|;) *'+ name +'=([^;]*)(;|$)')) || ['', '', ''])[2]);
+  }
+  document.cookie = name +'='+ escape(value) +'; expires='+ (new Date(new Date()*1 + 30*86400000)).toGMTString() +'; path=/';//set
+};
+
+//return find&replace form
+var FRF = function () {
+  if (BUE.frForm) return BUE.frForm;
+  var Dv = function(s) {return H('div', s, {style: 'margin-bottom: 4px'})};
+  var Ta = function(n) {return H('span', H('textarea', K('bfr_'+ n), {name: n, cols: 36, rows: 1, 'class': 'resizable'}))};
+  var Cb = function(n, v) {return H('span', I('checkbox', n, '', {checked: K('bfr_'+ n) || null}) + v)};
+  var Bt = function(n, v) {return I('button', n, v, {onclick: 'BUE.active.frSubmit(this)'})};
+  var F = Dv(Ta('fn')) + Dv(Ta('rp'));
+  F += Dv(Cb('mc', Drupal.t('Match case')) +' '+ Cb('re', Drupal.t('Regular expressions')));
+  F += Dv(Bt('fnb', Drupal.t('Find next')) +' '+ Bt('rpb', Drupal.t('Replace')) +' '+ Bt('rab', Drupal.t('Replace all')));
+  BUE.frPop = BUE.createPopup('bue-fr-pop', null, F = BUE.frForm = $(H('form', F))[0]);
+  Drupal.behaviors.textarea(F);
+  $('div.grippie', F).height(4);
+  $(window).unload(function() {
+    if (!BUE.frForm) return;
+    var el = BUE.frForm.elements;
+    K('bfr_fn', el.fn.value);
+    K('bfr_rp', el.rp.value);
+    K('bfr_mc', el.mc.checked ? 'checked' : '');
+    K('bfr_re', el.re.checked ? 'checked' : '');
+  });
+  return F;
 };
 
 })(BUE.instance.prototype, jQuery);
