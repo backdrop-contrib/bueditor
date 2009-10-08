@@ -22,7 +22,7 @@ BUE.createPopup = function (id, title, content) {
   var P = BUE.popups[id] = $html(BUE.popHtml).appendTo('body').attr('id', id).find('.bue-popup-title').html(title || '').end().find('.bue-popup-content').html(content || '').end().get(0);
   //open
   P.open = function (title, content, effect) {
-    var E = P.bue = BUE.active, pos = $(E.buttons[E.bindex]).offset();
+    var E = P.bue = BUE.active, B = E.buttons[E.bindex], pos = $(B).offset();
     $(P).css({left: pos.left - 20, top: pos.top + 10});
     if (typeof title != 'undefined' && title != null) {
       $('.bue-popup-title', P).html(title);
@@ -31,6 +31,8 @@ BUE.createPopup = function (id, title, content) {
       $('.bue-popup-content', P).html(content);
     }
     $(P)[effect || 'show']();
+    B.pops = true;
+    P.focus && P.focus();
     return P;
   };
   //close

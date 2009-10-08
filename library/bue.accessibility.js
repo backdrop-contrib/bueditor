@@ -8,7 +8,7 @@ BUE.postprocess.push(function(E, $) {
   var Q = E.quickPop, Qo = Q.open, D = E.dialog;
   Q.open = function(content, effect) {
     Qo(content, effect);
-    setTimeout(function(){$(Q).find('a:first').focus()});
+    $(Q).find('a:first').focus();
     return Q;
   };
   $(Q).attr('tabindex', 0).keydown(function (e) {

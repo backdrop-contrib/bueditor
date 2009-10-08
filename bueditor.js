@@ -69,7 +69,8 @@ BUE.buttonClick = function (eindex, bindex) { try {
     if (arr.length == 2) E.tagSelection(arr[0], arr[1]);
     else E.replaceSelection(arr.length == 1 ? content : arr.join(E.getSelection()), 'end');
   }
-  if (!$(domB).hasClass('stay-clicked')) E.focus(); } catch (e) {alert(e.name +': '+ e.message);}
+  !(domB.pops || $(domB).is('.stay-clicked')) && E.focus();
+  } catch (e) {alert(e.name +': '+ e.message);}
   return false;
 };
 
