@@ -1,74 +1,74 @@
 /*$Id$*/
 
-#button-table {
+.button-table {
   width: 100%;
   font-size: 0.9em;
 }
-#button-table * {
+.button-table * {
   font-size: 1em;
 }
 
-#button-table .th-title {
+.button-table .th-title {
   width: 12em;
   #width: 13.5em;/*<=ie7*/
   _width: 14.5em;/*<=ie6*/
 }
-#button-table .input-title {
+.button-table .input-title {
   width: 8.8em;
 }
-#button-table a.tabledrag-handle {
+.button-table a.tabledrag-handle {
   padding-right: 0.8em;
 }
 
-#button-table .th-content {
+.button-table .th-content {
 }
 
-#button-table .th-icon {
+.button-table .th-icon {
   width: 5em;
 }
-#button-table .input-icon {
+.button-table .input-icon {
   width: 3em;
 }
 
-#button-table .th-key {
+.button-table .th-key {
   width: 3em;
 }
-#button-table .input-key {
+.button-table .input-key {
   width: 2em;
 }
 
-#button-table th.select-all {
+.button-table th.select-all {
   width: 2em;
 }
 
-#button-table td {
+.button-table td {
   vertical-align: top;
 }
-#button-table tr.new-button {
+.button-table tr.new-button {
   background-color: #feebed;
 }
 
-#button-table div.form-item {
+.button-table div.form-item {
   display: inline;
   margin: 0em;
   padding: 0em;
 }
-#button-table div.resizable-textarea {
+.button-table div.resizable-textarea {
   width: 98%;
 }
-#button-table div.grippie {
+.button-table div.grippie {
   height: 0.3em;
   background-position: 50% 0%;
 }
 
-#button-table img.icon-selector-opener {
+.button-table img.icon-selector-opener {
   margin-right: 0.5em;
   margin-top: 0.2em;
   cursor: pointer;
   border-bottom: 0.1em solid #000;
   vertical-align: top;
 }
-#button-table img.icon-selector-opener:hover {
+.button-table img.icon-selector-opener:hover {
   border-color: #f00;
 }
 
