@@ -40,8 +40,8 @@ BUE.createPopup = function (id, title, content) {
   $('.bue-popup-close', P).click(function() {P.close()});
   //drag
   $('.bue-popup-head', P).mousedown(function (e) {
-    var X = e.pageX, Y = e.pageY, pos = {X: parseInt($(P).css('left')), Y: parseInt($(P).css('top'))};
-    var drag =  function(e) {$(P).css({left: pos.X + e.pageX - X, top: pos.Y + e.pageY - Y});return false;};
+    var pos = {X: parseInt($(P).css('left')) - e.pageX, Y: parseInt($(P).css('top')) - e.pageY};
+    var drag =  function(e) {$(P).css({left: pos.X + e.pageX, top: pos.Y + e.pageY});return false;};
     var undrag = function(e) {$(document).unbind('mousemove', drag).unbind('mouseup', undrag)};
     $(document).mousemove(drag).mouseup(undrag);
   });
