@@ -734,7 +734,7 @@ function bueditor_varexport_editor($editor) {
     }
   }
 
-  //include library files.
+  //include library files if they are not in default library directory.
   $editor['library'] = array();
   $buelib = $buepath .'/library';
   foreach (bueditor_get_library($library) as $key => $filepath) {
