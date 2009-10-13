@@ -1,6 +1,6 @@
 // $Id$
 
-//Miscellaneous helpful methods: E.wrapLines(), E.toggleTag(), E.help(), E.tagChooser(), E.tagDialog()
+//Miscellaneous methods used in default editor: E.wrapLines(), E.toggleTag(), E.help(), E.tagChooser(), E.tagDialog()
 //Requires: bue.popup.js, bue.html.js
 (function(E, $) {
 
@@ -51,7 +51,7 @@ E.help = function(effect) {
 
 //create clickable tag options that insert corresponding tags into the editor.[[tag, title, attributes],[...],...]
 E.tagChooser = function(tags, opt) {
-  var E = this, opt = $.extend({wrapEach: 'li', wrapAll: 'ul', applyTag: true, effect: 'fadeIn'}, opt);
+  var E = this, opt = $.extend({wrapEach: 'li', wrapAll: 'ul', applyTag: true, effect: 'slideDown'}, opt);
   var wa = BUE.html(opt.wrapAll || 'div', '', {'class': 'tag-chooser'}), $wa = $html(wa);
   var we = BUE.html(opt.wrapEach, '', {'class': 'choice'});
   var lnk = BUE.html('a', '', {href: '#', 'class': 'choice-link'});
