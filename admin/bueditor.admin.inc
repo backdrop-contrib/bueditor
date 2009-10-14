@@ -503,6 +503,7 @@ function bueditor_delete_editor($eid) {
  * Editor import form.
  */
 function bueditor_editor_import_form(&$form_state) {
+  bueditor_set_quick_import();
   $form['name'] = array('#type' => 'textfield',
     '#title' => t('Editor name'),
     '#maxlength' => 255,
@@ -512,7 +513,7 @@ function bueditor_editor_import_form(&$form_state) {
     '#title' => t('Directory of editor files'),
     '#maxlength' => 255,
     '#field_prefix' => file_directory_path() .'/',
-    '#description' => t('Define a directory to store the icons and library files imported from the editor code. An additional subdirectory named "icons" will be created to store the icons. If you do not want to import the files or if the editor uses existing ones you can leave this field blank.'),
+    '#description' => t('Define a directory to store the library files imported from the editor code. Icons will be stored in a directory named "icons" under this directory. If you do not want to import the files or if the editor uses existing ones you can leave this field blank.'),
   );
   $form['code'] = array('#type' => 'textarea',
     '#title' => t('Editor code (PHP)'),
@@ -880,4 +881,17 @@ function bueditor_export_text($text, $filename) {
  */
 function bueditor_message_added($name) {
   drupal_set_message(t('Editor %name has been added.', array('%name' => $name)));
+}
+
+/**
+ * Allow quick import of predefined editors by ajax.
+ */
+function bueditor_set_quick_import() {
+  $path = drupal_get_path('module', 'bueditor');
+  $setting['BUE']['imp'] = array(
+    'editors' => array('default', 'bbcode', 'commenter', 'lab'),
+    'dir' => $path . '/import/',
+  );
+  drupal_add_js($path . '/admin/bueditor.import.js');
+  drupal_add_js($setting, 'setting');
 }
