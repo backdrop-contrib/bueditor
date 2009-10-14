@@ -1,0 +1,348 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  bueditor.module: n/a
+#  bueditor.info: n/a
+#  admin/bueditor.admin.inc: n/a
+#  bueditor.install: n/a
+#  admin/bueditor.eop.js: n/a
+#  admin/bueditor.edit.js: n/a
+#  admin/bueditor.import.js: n/a
+#  library/bue.min.all.js: n/a
+#  library/bue.min.default.js: n/a
+#  library/bue.preview.js: n/a
+#  library/bue.find.js: n/a
+#  library/bue.imce.js: n/a
+#  library/bue.misc.js: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-10-14 22:50+0300\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: bueditor.module:40
+msgid "administer bueditor"
+msgstr ""
+
+#: bueditor.module:14
+msgid "Customize your text editor."
+msgstr ""
+
+#: bueditor.module:18 admin/bueditor.admin.inc:16;366
+msgid "Add new editor"
+msgstr ""
+
+#: bueditor.module:22 admin/bueditor.admin.inc:16
+msgid "Import editor"
+msgstr ""
+
+#: bueditor.module:26
+msgid "Editor settings"
+msgstr ""
+
+#: bueditor.module:30
+msgid "Delete editor"
+msgstr ""
+
+#: bueditor.info:0
+msgid "A plain textarea editor aiming to facilitate code writing."
+msgstr ""
+
+#: admin/bueditor.admin.inc:11;196;294;508 admin/bueditor.eop.js:0
+msgid "Editor name"
+msgstr ""
+
+#: admin/bueditor.admin.inc:14
+msgid "Copy"
+msgstr ""
+
+#: admin/bueditor.admin.inc:16
+msgid "Add the default editor"
+msgstr ""
+
+#: admin/bueditor.admin.inc:17
+msgid "Available editors"
+msgstr ""
+
+#: admin/bueditor.admin.inc:32
+msgid "user #1"
+msgstr ""
+
+#: admin/bueditor.admin.inc:50
+msgid "User role"
+msgstr ""
+
+#: admin/bueditor.admin.inc:50
+msgid "Assigned editor"
+msgstr ""
+
+#: admin/bueditor.admin.inc:50
+msgid "Alternative editor"
+msgstr ""
+
+#: admin/bueditor.admin.inc:56
+msgid "For users who have <strong>multiple roles</strong>, the <strong>weight</strong> property will determine the assigned editor. Lighter roles that are placed upper will take the precedence. So, an administrator role should be placed over other roles by having a smaller weight, ie. -10."
+msgstr ""
+
+#: admin/bueditor.admin.inc:68
+msgid "Role-editor assignments"
+msgstr ""
+
+#: admin/bueditor.admin.inc:70
+msgid "Assign editors to user roles."
+msgstr ""
+
+#: admin/bueditor.admin.inc:70
+msgid "Alternative editor makes it possible to use different editors for different textareas or different editors on diffrent pages. You just have to configure visibility settings for each editor."
+msgstr ""
+
+#: admin/bueditor.admin.inc:202
+msgid "Show the editor on specific pages"
+msgstr ""
+
+#: admin/bueditor.admin.inc:204
+msgid "Enter one page per line as Drupal paths. The * character is a wildcard."
+msgstr ""
+
+#: admin/bueditor.admin.inc:207
+msgid "Hide the editor for specific textareas"
+msgstr ""
+
+#: admin/bueditor.admin.inc:209
+msgid "Enter one textarea ID per line. The * character is a wildcard."
+msgstr ""
+
+#: admin/bueditor.admin.inc:212
+msgid "Directory of editor icons"
+msgstr ""
+
+#: admin/bueditor.admin.inc:215
+msgid "Web accessible directory path where editor icons reside."
+msgstr ""
+
+#: admin/bueditor.admin.inc:215;220
+msgid "Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme's path)."
+msgstr ""
+
+#: admin/bueditor.admin.inc:218
+msgid "Editor specific library files"
+msgstr ""
+
+#: admin/bueditor.admin.inc:220
+msgid "Web accessible javascript(.js) or style sheet(.css) file paths to be included with the editor. Enter one file path per line."
+msgstr ""
+
+#: admin/bueditor.admin.inc:233
+msgid "There is no button to import."
+msgstr ""
+
+#: admin/bueditor.admin.inc:239
+msgid "New buttons are ready to be saved."
+msgstr ""
+
+#: admin/bueditor.admin.inc:267
+msgid "Icon"
+msgstr ""
+
+#: admin/bueditor.admin.inc:268
+msgid "Key"
+msgstr ""
+
+#: admin/bueditor.admin.inc:291
+msgid "Settings for the editor %name"
+msgstr ""
+
+#: admin/bueditor.admin.inc:300
+msgid "Visibility settings"
+msgstr ""
+
+#: admin/bueditor.admin.inc:306
+msgid "Editor paths"
+msgstr ""
+
+#: admin/bueditor.admin.inc:314
+msgid "Import Buttons"
+msgstr ""
+
+#: admin/bueditor.admin.inc:315
+msgid "<em>You can either upload a CSV file exported from BUEditor 6.x-1.x or earlier</em> !csvfield <em>OR paste the editor code containing the buttons</em> !codefield"
+msgstr ""
+
+#: admin/bueditor.admin.inc:322
+msgid "Demo"
+msgstr ""
+
+#: admin/bueditor.admin.inc:335
+msgid "Buttons"
+msgstr ""
+
+#: admin/bueditor.admin.inc:365
+msgid "... selecteds"
+msgstr ""
+
+#: admin/bueditor.admin.inc:365
+msgid "Copy to editor"
+msgstr ""
+
+#: admin/bueditor.admin.inc:369
+msgid "Go"
+msgstr ""
+
+#: admin/bueditor.admin.inc:400
+msgid "Selected buttons have been deleted."
+msgstr ""
+
+#: admin/bueditor.admin.inc:416
+msgid "There is no button to export."
+msgstr ""
+
+#: admin/bueditor.admin.inc:423
+msgid "CSV file containing the buttons"
+msgstr ""
+
+#: admin/bueditor.admin.inc:425
+msgid "Editor code"
+msgstr ""
+
+#: admin/bueditor.admin.inc:427;522
+msgid "Enter previously exported editor code."
+msgstr ""
+
+#: admin/bueditor.admin.inc:427
+msgid "The code will be scanned for only buttons and all other data will be ignored."
+msgstr ""
+
+#: admin/bueditor.admin.inc:427;522
+msgid "This code will be evaluated as PHP, therefore you must be sure that it is harmless and produces proper editor data."
+msgstr ""
+
+#: admin/bueditor.admin.inc:445;535
+msgid "The editor code did not produce proper editor data."
+msgstr ""
+
+#: admin/bueditor.admin.inc:474 admin/bueditor.eop.js:0
+msgid "Are you sure you want to delete the editor @name?"
+msgstr ""
+
+#: admin/bueditor.admin.inc:474 admin/bueditor.eop.js:0
+msgid "All buttons and settings of this editor will be removed."
+msgstr ""
+
+#: admin/bueditor.admin.inc:483
+msgid "Editor %name has been deleted."
+msgstr ""
+
+#: admin/bueditor.admin.inc:513
+msgid "Directory of editor files"
+msgstr ""
+
+#: admin/bueditor.admin.inc:516
+msgid "Define a directory to store the library files imported from the editor code. Icons will be stored in a directory named \"icons\" under this directory. If you do not want to import the files or if the editor uses existing ones you can leave this field blank."
+msgstr ""
+
+#: admin/bueditor.admin.inc:519
+msgid "Editor code (PHP)"
+msgstr ""
+
+#: admin/bueditor.admin.inc:883
+msgid "Editor %name has been added."
+msgstr ""
+
+#: admin/bueditor.edit.js:0
+msgid "Text button"
+msgstr ""
+
+#: admin/bueditor.edit.js:0
+msgid "Are you sure want to delete the selected buttons?"
+msgstr ""
+
+#: admin/bueditor.edit.js:0
+msgid "Select an icon"
+msgstr ""
+
+#: admin/bueditor.import.js:0
+msgid "You can use these quick-import templates: !list"
+msgstr ""
+
+#: admin/bueditor.import.js:0 library/bue.min.all.js:0 library/bue.min.default.js:0 library/bue.preview.js:0
+msgid "Loading..."
+msgstr ""
+
+#: library/bue.find.js:0 library/bue.min.all.js:0
+msgid "No matching phrase found!"
+msgstr ""
+
+#: library/bue.find.js:0 library/bue.min.all.js:0
+msgid "Replace this occurance of \"!text\"?"
+msgstr ""
+
+#: library/bue.find.js:0 library/bue.min.all.js:0
+msgid "Total replacements: !count"
+msgstr ""
+
+#: library/bue.find.js:0 library/bue.min.all.js:0
+msgid "Find & Replace"
+msgstr ""
+
+#: library/bue.find.js:0 library/bue.min.all.js:0
+msgid "End of textarea reached. Continue search at the beginning of textarea?"
+msgstr ""
+
+#: library/bue.find.js:0 library/bue.min.all.js:0
+msgid "Match case"
+msgstr ""
+
+#: library/bue.find.js:0 library/bue.min.all.js:0
+msgid "Regular expressions"
+msgstr ""
+
+#: library/bue.find.js:0 library/bue.min.all.js:0
+msgid "Find next"
+msgstr ""
+
+#: library/bue.find.js:0 library/bue.min.all.js:0
+msgid "Replace"
+msgstr ""
+
+#: library/bue.find.js:0 library/bue.min.all.js:0
+msgid "Replace all"
+msgstr ""
+
+#: library/bue.imce.js:0 library/bue.min.all.js:0 library/bue.min.default.js:0
+msgid "Browse"
+msgstr ""
+
+#: library/bue.imce.js:0 library/bue.min.all.js:0 library/bue.min.default.js:0
+msgid "File Browser"
+msgstr ""
+
+#: library/bue.imce.js:0 library/bue.min.all.js:0 library/bue.min.default.js:0
+msgid "Send to editor"
+msgstr ""
+
+#: library/bue.min.all.js:0 library/bue.min.default.js:0 library/bue.preview.js:0
+msgid "The preview is disabled due to previously inserted HTML code in the content. This aims to protect you from any potentially harmful code inserted by other editors or users. If you own the content, just preview an empty text to re-enable the preview."
+msgstr ""
+
+#: library/bue.min.all.js:0 library/bue.min.default.js:0 library/bue.preview.js:0
+msgid "Preview requires <a href=\"http://drupal.org/project/ajax_markup\">Ajax markup</a> module with proper permissions set."
+msgstr ""
+
+#: library/bue.min.all.js:0 library/bue.min.default.js:0 library/bue.misc.js:0
+msgid "Tag editor - @tag"
+msgstr ""
+
+#: library/bue.min.all.js:0 library/bue.min.default.js:0 library/bue.misc.js:0
+msgid "OK"
+msgstr ""
+
