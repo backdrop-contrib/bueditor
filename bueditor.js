@@ -62,7 +62,7 @@ BUE.buttonClick = function (eindex, bindex) { try {
   E.bindex = bindex;
   E.dialog.close();
   if (tplB[4]) {//execute button script.
-    tplB[4](E);
+    tplB[4](E, $);
   }
   else if (content) {//or insert content
     var arr = content.split('%TEXT%');
@@ -81,9 +81,9 @@ BUE.theme = function (tplid) {
   //B(0-title, 1-content, 2-icon or caption, 3-accesskey) and 4-function for js buttons
   for (var B, i = 0; B = tpl.buttons[i]; i++) {
     var img = B[2].search(/\.(png|gif|jpg)$/i) != -1 ? ((new Image()).src = tpl.iconpath +'/'+ B[2]) : null;
-    B[4] = B[1].substr(0, 3) == 'js:' ? new Function('E', B[1].substr(3)) : null;//set functions for js buttons
+    B[4] = B[1].substr(0, 3) == 'js:' ? new Function('E', '$', B[1].substr(3)) : null;//set functions for js buttons
     if (B[0].substr(0, 4) == 'tpl:') {//theme button.
-      html += B[4] ? B[4]() : B[1];
+      html += B[4] ? B[4](BUE, $) : B[1];
       html += B[2] ? ('<span class="separator">'+ (img ? '<img src="'+ img +'" />' : B[2]) +'</span>') : '';
     }
     else {//functional button
