@@ -1,7 +1,8 @@
 // $Id$
 (function($) {
 
-//Faster alternative to resizable textareas
+//Faster alternative to resizable textareas.
+//Make textareas full expand/shrink on dblclick to grippie
 Drupal.behaviors.textarea = function(context) {
   $('textarea.resizable:not(.textarea-processed)', context).each(textArea);
 };
@@ -22,24 +23,15 @@ Drupal.behaviors.tableHeader = function(context) {
 
 //process resizable textareas
 var textArea = function(i, T) {
-  var wrp = El('div');
-  var spn = El('span');
-  var grp = El('div');
-  wrp.className = 'resizable-textarea';
-  grp.className = 'grippie';
-  grp.T = T;
-  spn.appendChild(grp);
-  wrp.appendChild(spn);
-  T.parentNode.insertBefore(wrp, T);
-  spn.insertBefore(T, grp);
-  $(grp).mousedown(TDrag);
-  $(T).focus(TFocus).blur(TBlur).addClass('textarea-processed');
+  var spn = El('span'), wrp = $(El('div')).addClass('resizable-textarea').append(spn);
+  $(El('div')).addClass('grippie').mousedown(TDrag).dblclick(TExpand).appendTo(spn)[0].bueT = T;
+  $(T).before(wrp).prependTo(spn).addClass('textarea-processed');
   //grp.style.marginRight = (grp.offsetWidth - T.offsetWidth) +'px';//slow
 };
 
 //start resizing textarea
 var TDrag = function(e) {
-  var $T = $(this.T), $doc = $(document);
+  var $T = $(this.bueT), $doc = $(document);
   var doDrag = function(e) {$T.height(Math.max(18, bue.Y + e.pageY));return false;}
   var noDrag = function(e) {$doc.unbind('mousemove', doDrag).unbind('mouseup', noDrag);$T.css('opacity', 1);}
   bue.Y = $T.css('opacity', 0.25).height() - e.pageY;
@@ -47,22 +39,24 @@ var TDrag = function(e) {
   return false;
 };
 
-//resize the textarea to its scroll height on focus
-var TFocus = function(e) {
-  var T = this, sH = T.scrollHeight, $T = $(T), tH = $T.height();
-  (T.bueH = sH > tH ? tH : 0) && $T.height(sH);
-}
+//resize the textarea to its scroll height
+var TExpand = function(e) {
+  $(this).unbind('dblclick', TExpand).dblclick(TShrink);
+  var T = this.bueT, sH = T.scrollHeight, $T = $(T), tH = $T.height();
+  if (tH >= sH) return;
+  this.bueH = tH;
+  $T.height(sH).focus();
+};
 
-//restrore the textarea height on blur
-var TBlur = function(e) {
-  var T = this, $T = $(T);
-  if (T.bueH) {
-    var tY = $T.offset().top, wY = $(window).scrollTop(), tH = tY < wY ? $T.height() : 0;
-    $(T).height(T.bueH);
-    //reflect the change in textarea height to the window scroll height if the textarea is above the current view.
-    tH && $(window).scrollTop(wY - (tH - T.bueH));
-  }
-}
+//resize the textarea to its original height
+var TShrink = function(e) {
+  $(this).unbind('dblclick', TShrink).dblclick(TExpand);
+  if (!this.bueH) return;
+  var T = this.bueT, $T = $(T), oriH = this.bueH, $w = $(window), sTop = $w.scrollTop();
+  var diffH = $T.offset().top < sTop  ? $T.height() - oriH : 0;
+  $T.height(oriH);
+  $w.scrollTop(sTop - diffH);
+};
 
 //create (table header)
 var createHeader = function(table) {
