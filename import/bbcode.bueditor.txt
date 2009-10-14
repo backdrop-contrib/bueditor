@@ -54,9 +54,9 @@ E.tagDialog(\'a\', form, opt);',
     ),
     2 => 
     array (
-      'title' => 'tpl:Seperator',
+      'title' => 'tpl:dot',
       'content' => '',
-      'icon' => 'separator.png',
+      'icon' => 'dot.png',
       'accesskey' => '',
       'weight' => '2',
     ),
@@ -94,6 +94,38 @@ E.tagDialog(\'a\', form, opt);',
     ),
     7 => 
     array (
+      'title' => 'tpl:dot',
+      'content' => '',
+      'icon' => 'dot.png',
+      'accesskey' => '',
+      'weight' => '7',
+    ),
+    8 => 
+    array (
+      'title' => 'Ordered list. Converts selected lines to a numbered list.',
+      'content' => 'js: E.wrapLines(\'[list=1]\\n\', \'  [*]\', \'\', \'\\n[/list]\');',
+      'icon' => 'ol.png',
+      'accesskey' => 'O',
+      'weight' => '8',
+    ),
+    9 => 
+    array (
+      'title' => 'Unordered list. Converts selected lines to a bulleted list.',
+      'content' => 'js: E.wrapLines(\'[list]\\n\', \'  [*]\', \'\', \'\\n[/list]\');',
+      'icon' => 'ul.png',
+      'accesskey' => 'N',
+      'weight' => '9',
+    ),
+    10 => 
+    array (
+      'title' => 'tpl:dot',
+      'content' => '',
+      'icon' => 'dot.png',
+      'accesskey' => '',
+      'weight' => '10',
+    ),
+    11 => 
+    array (
       'title' => 'Headings',
       'content' => 'js:
 var tags = [[\'h1\', \'Heading1\'], [\'h2\', \'Heading2\'], [\'h3\', \'Heading3\'], [\'h4\', \'Heading4\']];
@@ -106,63 +138,55 @@ $(\'a.choice-link\', E.quickPop).unbind(\'click\').each(function(i, a) {
 });',
       'icon' => 'headers.png',
       'accesskey' => 'H',
-      'weight' => '7',
-    ),
-    8 => 
-    array (
-      'title' => 'tpl:Seperator',
-      'content' => '',
-      'icon' => 'separator.png',
-      'accesskey' => '',
-      'weight' => '8',
-    ),
-    9 => 
-    array (
-      'title' => 'Ordered list. Converts selected lines to a numbered list.',
-      'content' => 'js: E.wrapLines(\'[list=1]\\n\', \'  [*]\', \'\', \'\\n[/list]\');',
-      'icon' => 'ol.png',
-      'accesskey' => 'O',
-      'weight' => '9',
-    ),
-    10 => 
-    array (
-      'title' => 'Unordered list. Converts selected lines to a bulleted list.',
-      'content' => 'js: E.wrapLines(\'[list]\\n\', \'  [*]\', \'\', \'\\n[/list]\');',
-      'icon' => 'ul.png',
-      'accesskey' => 'N',
-      'weight' => '10',
-    ),
-    11 => 
-    array (
-      'title' => 'tpl:Seperator',
-      'content' => '',
-      'icon' => 'separator.png',
-      'accesskey' => '',
       'weight' => '11',
     ),
     12 => 
+    array (
+      'title' => 'Quote',
+      'content' => '[quote]%TEXT%[/quote]',
+      'icon' => 'quote.png',
+      'accesskey' => 'Q',
+      'weight' => '12',
+    ),
+    13 => 
+    array (
+      'title' => 'Code',
+      'content' => '[code]%TEXT%[/code]',
+      'icon' => 'code.png',
+      'accesskey' => 'D',
+      'weight' => '13',
+    ),
+    14 => 
+    array (
+      'title' => 'tpl:dot',
+      'content' => '',
+      'icon' => 'dot.png',
+      'accesskey' => '',
+      'weight' => '14',
+    ),
+    15 => 
     array (
       'title' => 'Teaser break',
       'content' => '<!--break-->',
       'icon' => 'teaserbr.png',
       'accesskey' => 'T',
-      'weight' => '12',
+      'weight' => '15',
     ),
-    13 => 
+    16 => 
     array (
       'title' => 'Preview',
       'content' => 'js: E.prvAjax();',
       'icon' => 'preview.png',
       'accesskey' => 'P',
-      'weight' => '13',
+      'weight' => '16',
     ),
-    14 => 
+    17 => 
     array (
       'title' => 'Help',
       'content' => 'js: E.help(\'fadeIn\');',
       'icon' => 'help.png',
       'accesskey' => 'F',
-      'weight' => '14',
+      'weight' => '17',
     ),
   ),
   'icons' => 

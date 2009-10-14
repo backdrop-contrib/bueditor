@@ -1,5 +1,5 @@
 array (
-  'name' => 'default',
+  'name' => 'Default',
   'pages' => 'node/*
 comment/*',
   'excludes' => 'edit-log',
@@ -37,9 +37,9 @@ E.tagDialog(\'a\', form, {title: \'Insert/edit link\'});',
     ),
     2 => 
     array (
-      'title' => 'tpl:Seperator',
+      'title' => 'tpl:dot',
       'content' => '',
-      'icon' => 'separator.png',
+      'icon' => 'dot.png',
       'accesskey' => '',
       'weight' => '2',
     ),
@@ -77,23 +77,18 @@ E.tagDialog(\'a\', form, {title: \'Insert/edit link\'});',
     ),
     7 => 
     array (
-      'title' => 'Headings',
-      'content' => 'js: E.tagChooser([
- [\'h1\', \'Heading1\'],
- [\'h2\', \'Heading2\'],
- [\'h3\', \'Heading3\'],
- [\'h4\', \'Heading4\']
-]);',
-      'icon' => 'headers.png',
-      'accesskey' => 'H',
+      'title' => 'tpl:dot',
+      'content' => '',
+      'icon' => 'dot.png',
+      'accesskey' => '',
       'weight' => '7',
     ),
     8 => 
     array (
-      'title' => 'tpl:Seperator',
-      'content' => '',
-      'icon' => 'separator.png',
-      'accesskey' => '',
+      'title' => 'Unordered list. Converts selected lines to a bulleted list.',
+      'content' => 'js: E.wrapLines(\'<ul>\\n\', \'  <li>\', \'</li>\', \'\\n</ul>\');',
+      'icon' => 'ul.png',
+      'accesskey' => 'N',
       'weight' => '8',
     ),
     9 => 
@@ -106,43 +101,72 @@ E.tagDialog(\'a\', form, {title: \'Insert/edit link\'});',
     ),
     10 => 
     array (
-      'title' => 'Unordered list. Converts selected lines to a bulleted list.',
-      'content' => 'js: E.wrapLines(\'<ul>\\n\', \'  <li>\', \'</li>\', \'\\n</ul>\');',
-      'icon' => 'ul.png',
-      'accesskey' => 'N',
+      'title' => 'tpl:dot',
+      'content' => '',
+      'icon' => 'dot.png',
+      'accesskey' => '',
       'weight' => '10',
     ),
     11 => 
     array (
-      'title' => 'tpl:Seperator',
-      'content' => '',
-      'icon' => 'separator.png',
-      'accesskey' => '',
+      'title' => 'Headings',
+      'content' => 'js: E.tagChooser([
+ [\'h1\', \'Heading1\'],
+ [\'h2\', \'Heading2\'],
+ [\'h3\', \'Heading3\'],
+ [\'h4\', \'Heading4\']
+]);',
+      'icon' => 'headers.png',
+      'accesskey' => 'H',
       'weight' => '11',
     ),
     12 => 
+    array (
+      'title' => 'Quote',
+      'content' => '<blockquote>%TEXT%</blockquote>',
+      'icon' => 'quote.png',
+      'accesskey' => 'Q',
+      'weight' => '12',
+    ),
+    13 => 
+    array (
+      'title' => 'Code',
+      'content' => '<code>%TEXT%</code>',
+      'icon' => 'code.png',
+      'accesskey' => 'D',
+      'weight' => '13',
+    ),
+    14 => 
+    array (
+      'title' => 'tpl:dot',
+      'content' => '',
+      'icon' => 'dot.png',
+      'accesskey' => '',
+      'weight' => '14',
+    ),
+    15 => 
     array (
       'title' => 'Teaser break',
       'content' => '<!--break-->',
       'icon' => 'teaserbr.png',
       'accesskey' => 'T',
-      'weight' => '12',
+      'weight' => '15',
     ),
-    13 => 
+    16 => 
     array (
       'title' => 'Preview',
       'content' => 'js: E.prv();',
       'icon' => 'preview.png',
       'accesskey' => 'P',
-      'weight' => '13',
+      'weight' => '16',
     ),
-    14 => 
+    17 => 
     array (
       'title' => 'Help',
       'content' => 'js: E.help(\'fadeIn\');',
       'icon' => 'help.png',
       'accesskey' => 'F',
-      'weight' => '14',
+      'weight' => '17',
     ),
   ),
   'icons' => 
