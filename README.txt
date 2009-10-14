@@ -26,28 +26,40 @@ It's the most customizable text editor of the web because it allows you to;
  - eDefTagDialog accepts "textarea" as a field type.
 
 6.x-2.x
+ - bueditor.js got smaller.
+ - new buttons for the default editor: Underline, Strike-through, Quote, Code 
  - ability to extend editor instances via post process functions.
  - proper support for selection handling in Opera
  - open() method of popups and dialogs now accepts DOM or jQuery objects as content.
  - new popup markup for better theming.
  - improved admin interface: drag & drop, visual icon selector.
  - ability to include library files from different directories.
- - ability to include custom css files per editor.
+ - ability to include custom css files.
  - import/export complete editor settings, icons, and libraries.
  - IMCE now opens in an editor pop up.
- - No need for php buttons to get IMCE URL which is now stored in Drupal.settings.BUE.imceURL(or BUE.imce.url when the default library is used)
+ - No need for php buttons to get IMCE URL which is now stored in Drupal.settings.BUE.imceURL(or BUE.imce.url when the bue.imce library is used)
  - new E.prvAjax() method for live previewing html or non-html markup with the help of Ajax Markup module.
  - new optional library files:
-   - bue.default.js: the old default_buttons_functions.js renamed and rewritten with backward compatibility.
-   - bue.bbcode.js: introduces some methods for BBCode editor(import/bbcode.bueditor.txt).
    - bue.accessibility.js: enables closing(ESC/ENTER) and link navigation(UP/DOWN) inside popups.
    - bue.autocomplete.js: enables AC inside textareas for a set of predefined text pairs.
    - bue.ctrl.js: converts access keys into CTRL shortcuts.
-   - bue.find.js: enables search and replace inside textareas.
+   - bue.find.js: enables search and replace inside textareas.(Depends on: popup, html)
    - bue.history.js: cross-browser undo-redo functionality for textareas.
+   - bue.html.js: introduces HTML creating and parsing methods.
+   - bue.imce.js: integrates IMCE file browser in a popup.(Depends on: popup)
    - bue.li.js: auto inserts list items.
-   - bue.tab.js: enables usage of TAB, indent, unindent and auto-indent inside textareas
-   - bue.popup.css: experimental styling of editor popups, targeting browsers that implement CSS3 properties.
+   - bue.misc.js: miscellaneous methods used in default editor.(Depends on: popup, html)
+   - bue.popup.js: introduces editor popups: E.dialog & E.quickPop
+   - bue.popup.css: experimental CSS3 styling of editor popups
+   - bue.preview.js: introduces preview methods E.prv(), E.prvAjax()
+   - bue.tab.js: enables indent(TAB), unindent(Shift+TAB) and auto-indent(ENTER) inside textareas
+   - bue.min.default.js: minified sum of popup, html, preview, imce, and misc libraries
+   - bue.min.all.js: minified sum of all libraries
+ - new quick-import templates:
+   - bbcode.bueditor.txt: BBCode editor having equivalent buttons of the default editor.
+   - commenter.bueditor.txt: Simple editor having no library dependency.
+   - default.bueditor.txt: The default editor having various buttons inserting HTML.
+   - lab.bueditor.txt: BUEditor lab for experimental code.
 
 
 - HOW TO INSTALL:
@@ -60,10 +72,10 @@ It's the most customizable text editor of the web because it allows you to;
 
 
 - ADDING BUTTONS:
-You can add buttons to an editor by two methods;
+You can add buttons to an editor by three methods;
 1- Manually entering the values for new button fields located at the bottom of the button list.
-2- Importing a CSV file that contains previously exported buttons.(deprecated)
 3- Importing editor code(PHP) that contains buttons.
+2- Importing a CSV file that contains previously exported buttons.(deprecated)
 
 
 - EXPORTING AND DELETING BUTTONS:
@@ -84,7 +96,7 @@ ICON: Image or text to display the button.
 
 KEY: Accesskey that is supported by most browsers as a shortcut on web pages. With the right
 key combinations users can fire the button's click event. Use Alt+KEY in Internet Explorer, and
-Shift+Alt+KEY in Firefox.
+Shift+Alt+KEY in Firefox. You can activate Ctrl+KEY by including the library bue.ctrl.js 
 
 WEIGHT: Required for sorting the buttons. Line-up is from the lightest to the heaviest.
 This is handled by dragging and dropping the button rows in the list.
@@ -170,9 +182,12 @@ You can also create groups of buttons by creating wrappers around them;
 [title: "tpl:", content: "</div>"] (End wrapping by closing the div)
 
 
-- EDITOR VARIABLES
+- EDITOR PROPERTIES AND METHODS
 BUE:
 the top most container variable having other variables and methods in it.
+
+BUE.mode
+Integer representing the selection handling mode. 0- None, 1- Gecko and Webkit, 2- IE, 3- Opera
 
 BUE.templates
 container for editor templates(configurations, buttons and interface)
@@ -188,52 +203,67 @@ BUE.active is widely used in javascript buttons since the methods of the current
 using it. Each editor instance has its own variables and methods that can(should) be used by javascript buttons. 
 See EDITOR INSTANCE
 
-BUE.dialog:
-dialog object of the editor used like a pop-up window for getting user input or displaying data.
-It has its own variables and methods. See EDITOR DIALOG
-
-BUE.quickPop:
-another dialog object of the editor. It has no title or close button.
-It has its own variables and methods. See EDITOR QUICK-POP
-
-BUE.postprocess:
-an array post process functions which are called with E(editor instance) and $(jQuery) parameters just after instance creation.
-BUE.postprocess.push(function(E, $){/* Extend/alter the instance E */});
-
-- EDITOR METHODS
 BUE.processTextarea(T, tplid):
 integrates the editor template(BUE.templates[tplid]) into the textarea T.
 This can be used for dynamic editor integration at any time after page load.
 
+BUE.postprocess:
+an array of post process functions which are called with the parameters E(editor instance) and $(jQuery) just after instance creation.
+BUE.postprocess.push(function(E, $){/* Extend/alter the instance E */});
+
+BUE.buttonClick(eindex, bindex):
+Trigger click event of the button BUE.instances[eindex].buttons[bindex]
+
+BUE.text(text)
+Process text for standardizing the new line characters.
+
+Introduced by bue.popup library:
+
+BUE.dialog:
+dialog object of the editor used like a pop-up window for getting user input or displaying data.
+
+BUE.dialog.open(title, content, effect):
+Opens the dialog with the given title and content in it.
+optional effect parameter is one of the jQuery effects ('slideDown' or 'fadeIn')
+
+BUE.dialog.close(effect):
+Closes the dialog.
+
+BUE.quickPop:
+another dialog object of the editor. It has no title or close button.
+It has its own variables and methods.
+
+BUE.quickPop.open(content, effect):
+Opens the quick-pop with the content in it.
+
 BUE.openPopup(id, title, content, effect):
-Opens a pop-up dialog having the given "id", titled as "title" and containing the "content".
+Opens a pop-up having the given "id", titled as "title" and containing the "content".
 Returns the js object representing the pop-up(a html table object).
 This pop-up object has its internal "open(title, content, effect)" and "close(effect)" methods which can be used for 
 further opening and closing operations.
 Since pop-up object is a html table object, it has all the methods and properties of a regular table.
 The difference between a pop-up and editor.dialog is that editor.dialog can only have one instance visible at a time, and it doesnt allow textarea editing when it is open.
-optional effect parameter is one of the jQuery effects (opening: 'slideDown', 'fadeIn', closing: 'slideUp', 'fadeOut')
+Optional effect parameter is one of the jQuery effects (opening: 'slideDown', 'fadeIn', closing: 'slideUp', 'fadeOut')
 
 BUE.createPopup(id, title, content):
 This method is used by openPopup method. Creates and returns the pop-up object for further use.(does not open it)
 
-
-- EDITOR INSTANCE (a must-read for javascript button creators)
-Each editor running on the page for a textarea is called an instance. Editor instances have their own variables 
+- EDITOR INSTANCE
+Each editor running on a textarea is called an instance. Editor instances have their own variables 
 and methods that make it easy to edit textarea content. Active instance on the page can be accessed by the 
 variable "BUE.active".
 
-A js button script is executed in a function with the argument E that refers to BUE.active.
-Here are the VARIABLES of the istance E:
+A js button's script is executed in a function with the argument E that refers to BUE.active and the $ that refers to jQuery.
+Here are the properties and variables of the istance E:
 
 E.index: index of the instance in the array BUE.instances
 E.textArea: textarea of the instance as an HTML object.
+E.safeToPreview: initial state of html existance in the textarea.
+E.tplid: template id used by the editor.
 E.tpl: editor template that this instance uses.(one of BUE.templates)
 E.UI: html object that wraps the instance interface. (<div class="bue-ui" id="bue-ui-%index"></div>)
 E.buttons: array of buttons of the instance as HTML objects(input objects having the type "button" or "image")
 E.bindex: latest/currently clicked button index that can be used in E.buttons. Ex: E.buttons[E.bindex]
-
-Here are the METHODS of the instance E:
 
 E.focus():
 Focus on the textarea of the instance.
@@ -277,32 +307,8 @@ Ex: to disable all buttons except the pressed button;
 js: E.buttonsDisabled(true, E.bindex);
 
 
-- EDITOR DIALOG
-Editor dialog is an object shared by all editor instances. It can be used to display any kind of data, ie. a html form
-to get some user input. 
-Here are the methods of editor dialog
-
-BUE.dialog.open(title, content, effect):
-Opens the dialog with the given title and content in it.
-optional effect parameter is one of the jQuery effects ('slideDown' or 'fadeIn')
-
-BUE.dialog.close(effect):
-Closes the dialog.
-optional effect parameter is one of the jQuery effects ('slideUp' or 'fadeOut')
-
-
-- EDITOR QUICK-POP
-This is a pop-up object without a title and a close button. It shows just the content and closes automatically
-when the user clicks somewhere in the document.
-To open a quick-pop:
-
-BUE.quickPop.open(content, effect):
-Opens the quick-pop with the content in it.
-optional effect parameter is one of the jQuery effects ('slideDown' or 'fadeIn')
-
-
 - EDITOR ICONS
-All images with jpg, gif or png extensions in the editor's icon path (which is bueditor_path/icons by default) are accessible by the editor and listed in the icon list in the editor editing page.
+All images with jpg, gif or png extensions in the editor's icon path (which is bueditor_path/icons by default) are accessible by the editor and they are listed in the icon list in the editor editing page.
 
 
 - EDITOR LIBRARY
@@ -325,6 +331,7 @@ insertion/replacement. Specify new line characters as "\n", if you have to use a
 
 POST variable limit:
 Although it's a rare case, you may have to increase your server post variable limit if you have problems while adding too many buttons.
+
 
 - DEFAULT BUTTONS
 BUEditor comes with a few default buttons that may help you extend the editor:
@@ -352,6 +359,12 @@ Encloses the selected text with the tag <del>
 
 Headings:
 Pops a dialog showing h1, h2, h2, h4 heading tags to choose among.
+
+Quote:
+Encloses the selected text with the tag <blockquote>
+
+Code:
+Encloses the selected text with the tag <code>
 
 Ordered list:
 Converts the lines in the selected text to a numbered list. It is also possible to start a new list with no selection. 
@@ -421,10 +434,10 @@ The field object to pass to E.tagDialog is;
 Lets add it to the form in the image button's content:
 
 var form = [
- {name: 'src', title: 'Image URL'},
+ {name: 'src', title: 'Image URL', required: true},
  {name: 'width', title: 'Width x Height', suffix: ' x ', getnext: true, attributes: {size: 3}},
  {name: 'height', attributes: {size: 3}},
- {name: 'alt', title: 'Alternative text'},
+ {name: 'alt', title: 'Alternative text', required: true},
  {name: 'align', title: 'Image align', type: 'select', options: {'': '', left: 'Left', right: 'Right', center: 'Center'}} //align
 ];
 E.tagDialog('img', form, {title: 'Insert/edit image'});
@@ -436,17 +449,17 @@ How to create a button that gets user input and adds it to the textarea?
 
 Button content could be like this:
 js:
-// function that inserts the user input from the form into the textarea.
-BUE.getUserInput = function(form) {
-  E.replaceSelection('User input is: '+ form.elements["user_input"].value);
-  BUE.dialog.close();//close the dialog when done.
-}
 //form html. we define an input field named as "user_input".
-var userForm = '<form onsubmit="editor.getUserInput(this); return false;">';//run getUserInput on submission
-userForm += 'Input : <input type="text" name="user_input" />';
-userForm += '<input type="submit" value="Submit" /></form>';
-//open editor dialog with a title and the user form.
-BUE.dialog.open('User Input', userForm);
+var form = '<form>';
+form += 'Input : <input type="text" name="user_input" />';
+form += '<input type="submit" value="Submit" />';
+form += '</form>';
+form = BUE.$html(form).submit(function() {//set submit event
+  E.replaceSelection('User input is: '+ this.elements["user_input"].value);
+  return false;
+});
+//open editor dialog with a title and the form.
+E.dialog.open('User Input', form);
 
 The above example uses a form which is more suitable for complex user input. If you want to get just a single input you may consider using javascript prompt(). Here is an example that gets image URL as a user input
 js:
@@ -522,7 +535,7 @@ Classic method: converts the selection "<tag>foo</tag>" to "<tag><tag>foo</tag><
 E.toggleTag('tag'): converts the selection "<tag>foo</tag>" to "foo"
 
 - In classic method you define the attributes of the tag in the usual way, whereas in E.toggleTag you pass them as an object
-<tag class="foo" id="bar">%TEXT%</tag> <=> eDefTagger('tag', {'class': 'foo', 'id': 'bar'})
+<tag class="foo" id="bar">%TEXT%</tag> <=> E.toggleTag('tag', {'class': 'foo', 'id': 'bar'})
 
 - In classic method It's possible to use the selected text for any purpose, whereas in E.toggleTag the only goal is to html.
  Classic method can use the selection multiple times and do anything with it: [bbcode]%TEXT%[/bbcode]: (%TEXT%)
@@ -530,27 +543,32 @@ E.toggleTag('tag'): converts the selection "<tag>foo</tag>" to "foo"
 
 - BACKWARD COMPATIBILITY
 
-In 6x.-2.x the default library was completely rewritten and all functions starting with eDef are deprecated and new equivalents were implemented as either bueditor methods or editor instance methods.
+In 6x.-2.x the default library was removed and all functions starting with eDef are deprecated and new equivalents were implemented as either bueditor methods or editor instance methods in corresponding libraries.
 Below is the list of equivalents:
-eDefHTML = BUE.html;
-eDefInput = BUE.input;
-eDefSelectBox = BUE.selectbox;
-eDefTable = BUE.table;
-eDefRow = BUE.trow;
-eDefAutoP = BUE.autop;
-eDefNoEnd = BUE.nctag;
-eDefRegEsc = BUE.regesc;
-eDefParseTag = BUE.parseHtml;
-eDefInputText = function(n, v, s) {return BUE.input('text', n, v, {'size': s||null})};
-eDefInputSubmit = function(n, v) {return BUE.input('submit', n, v)};
-eDefBrowseButton = function(l, f, t) {return BUE.imce.button(f, t)};
-eDefSelProcessLines = eDefTagLines = function (a, b, c, d) {BUE.active.wrapLines(a, b, c, d)};
-eDefPreview = function() {BUE.active.prv()};
-eDefPreviewShow = function(E, s, w) {E.prvShow(s, w)};
-eDefPreviewHide = function(E) {E.prvHide()};
-eDefAjaxPreview = function() {BUE.active.prvAjax()};
-eDefHelp = function(fx) {BUE.active.help(fx)};
-eDefTagDialog = function(a, b, c, d, e, f) {BUE.active.tagDialog(a, b, {title: c, stitle: d, submit: e, effect: f})};
-eDefTagInsert = function(a, b) {BUE.active.tgdSubmit(a, b)};
-eDefTagger = function(a, b, c) {BUE.active.toggleTag(a, b, c)};
-eDefTagChooser = function(a, b, c, d, e) {BUE.active.tagChooser(a, {applyTag: b, wrapEach: c, wrapAll: d, effect: e})};
+
+bue.html.js
+  eDefHTML = BUE.html;
+  eDefInput = BUE.input;
+  eDefSelectBox = BUE.selectbox;
+  eDefTable = BUE.table;
+  eDefRow = BUE.trow;
+  eDefNoEnd = BUE.nctag;
+  eDefRegEsc = BUE.regesc;
+  eDefParseTag = BUE.parseHtml;
+  eDefInputText = function(n, v, s) {return BUE.input('text', n, v, {'size': s||null})};
+  eDefInputSubmit = function(n, v) {return BUE.input('submit', n, v)};
+bue.preview.js
+  eDefAutoP = BUE.autop;
+  eDefPreview = function() {BUE.active.prv()};
+  eDefPreviewShow = function(E, s, w) {E.prvShow(s, w)};
+  eDefPreviewHide = function(E) {E.prvHide()};
+  eDefAjaxPreview = function() {BUE.active.prvAjax()};
+bue.imce.js
+  eDefBrowseButton = function(l, f, t) {return BUE.imce.button(f, t)};
+bue.misc.js
+  eDefSelProcessLines = eDefTagLines = function (a, b, c, d) {BUE.active.wrapLines(a, b, c, d)};
+  eDefHelp = function(fx) {BUE.active.help(fx)};
+  eDefTagDialog = function(a, b, c, d, e, f) {BUE.active.tagDialog(a, b, {title: c, stitle: d, submit: e, effect: f})};
+  eDefTagInsert = function(a, b) {BUE.active.tgdSubmit(a, b)};
+  eDefTagger = function(a, b, c) {BUE.active.toggleTag(a, b, c)};
+  eDefTagChooser = function(a, b, c, d, e) {BUE.active.tagChooser(a, {applyTag: b, wrapEach: c, wrapAll: d, effect: e})};
