@@ -4,6 +4,7 @@ array (
 comment/*',
   'excludes' => 'edit-log',
   'iconpath' => '%BUEDITOR/icons',
+  'spriteon' => '1',
   'buttons' => 
   array (
     0 => 
@@ -128,7 +129,7 @@ E.tagDialog(\'a\', form, opt);',
     array (
       'title' => 'Headings',
       'content' => 'js:
-var tags = [[\'h1\', \'Heading1\'], [\'h2\', \'Heading2\'], [\'h3\', \'Heading3\'], [\'h4\', \'Heading4\']];
+var tags = [[\'h1\', \'Heading1\'], [\'h2\', \'Heading2\'], [\'h3\', \'Heading3\'], [\'h4\', \'Heading4\'], [\'h5\', \'Heading5\'], [\'h6\', \'Heading6\']];
 E.tagChooser(tags);
 $(\'a.choice-link\', E.quickPop).unbind(\'click\').each(function(i, a) {
   $(a).click(function() {
@@ -185,7 +186,7 @@ $(\'a.choice-link\', E.quickPop).unbind(\'click\').each(function(i, a) {
       'title' => 'Help',
       'content' => 'js: E.help(\'fadeIn\');',
       'icon' => 'help.png',
-      'accesskey' => 'F',
+      'accesskey' => '1',
       'weight' => '17',
     ),
   ),

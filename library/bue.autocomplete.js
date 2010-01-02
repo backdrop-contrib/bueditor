@@ -2,12 +2,12 @@
 
 //Autocomplete user defined phrases as they are typed in the editor.
 //Requires: none
-BUE.postprocess.push(function(E, $) {
+BUE.preprocess.autocomplete = function(E, $) {
 
   E.AC = {'<!--': '-->', '<?php': '?>'};
   
   //make sure string preparation runs last as other processes may extend autocomplete list.
-  if (!E.index) BUE.postprocess.push(function(E, $){
+  if (!E.index) BUE.postprocess.autocomplete = function(E, $) {
     $.each(E.AC, function(a, b) {
       var len = a.length;
       if (len > 1) {
@@ -19,10 +19,10 @@ BUE.postprocess.push(function(E, $) {
         delete E.AC[a];
       }
     });
-  });
+  };
 
   $(E.textArea).keypress(function(e) {
-    var code = typeof e.charCode == 'undefined' ? e.keyCode : e.charCode;
+    var code = e.charCode === undefined ? e.keyCode : e.charCode;
     //disable keycodes that have multi-meaning in opera. 39: hypen-right, 40: parenthesis-down.
     //extend 37:percentage-left, 38:ampersand-up, 33:exclamation-pageup, 34:double quote-pagedown...
     if ($.browser.opera && (code+'').search(/^(39|40)$/) != -1) return;
@@ -40,7 +40,7 @@ BUE.postprocess.push(function(E, $) {
     }
   });
  
-});
+};
 
 
 //Extend or alter autocomplete list in your own postprocess:

@@ -4,6 +4,7 @@ array (
 comment/*',
   'excludes' => 'edit-log',
   'iconpath' => '%BUEDITOR/icons',
+  'spriteon' => '1',
   'buttons' => 
   array (
     0 => 
@@ -85,18 +86,18 @@ E.tagDialog(\'a\', form, {title: \'Insert/edit link\'});',
     ),
     8 => 
     array (
-      'title' => 'Unordered list. Converts selected lines to a bulleted list.',
-      'content' => 'js: E.wrapLines(\'<ul>\\n\', \'  <li>\', \'</li>\', \'\\n</ul>\');',
-      'icon' => 'ul.png',
-      'accesskey' => 'N',
-      'weight' => '8',
-    ),
-    9 => 
-    array (
       'title' => 'Ordered list. Converts selected lines to a numbered list.',
       'content' => 'js: E.wrapLines(\'<ol>\\n\', \'  <li>\', \'</li>\', \'\\n</ol>\');',
       'icon' => 'ol.png',
       'accesskey' => 'O',
+      'weight' => '8',
+    ),
+    9 => 
+    array (
+      'title' => 'Unordered list. Converts selected lines to a bulleted list.',
+      'content' => 'js: E.wrapLines(\'<ul>\\n\', \'  <li>\', \'</li>\', \'\\n</ul>\');',
+      'icon' => 'ul.png',
+      'accesskey' => 'N',
       'weight' => '9',
     ),
     10 => 
@@ -114,7 +115,9 @@ E.tagDialog(\'a\', form, {title: \'Insert/edit link\'});',
  [\'h1\', \'Heading1\'],
  [\'h2\', \'Heading2\'],
  [\'h3\', \'Heading3\'],
- [\'h4\', \'Heading4\']
+ [\'h4\', \'Heading4\'],
+ [\'h5\', \'Heading5\'],
+ [\'h6\', \'Heading6\']
 ]);',
       'icon' => 'headers.png',
       'accesskey' => 'H',
@@ -165,7 +168,7 @@ E.tagDialog(\'a\', form, {title: \'Insert/edit link\'});',
       'title' => 'Help',
       'content' => 'js: E.help(\'fadeIn\');',
       'icon' => 'help.png',
-      'accesskey' => 'F',
+      'accesskey' => '1',
       'weight' => '17',
     ),
   ),

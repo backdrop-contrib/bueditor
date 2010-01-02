@@ -3,14 +3,15 @@
 
 //Faster alternative to resizable textareas.
 //Make textareas full expand/shrink on dblclick to grippie
-Drupal.behaviors.textarea = function(context) {
-  $('textarea.resizable:not(.textarea-processed)', context).each(textArea);
-};
+//runs async to cause no lag
+Drupal.behaviors.textarea = {attach: function(context, settings) {
+  setTimeout(function() {$('textarea.resizable', context).once('textarea', textArea)});
+}};
 
 //Faster alternative to sticky headers.
 //Header creation is skipped on load and done once the user scrolls on a table.
 //Fixes tableselect bug where the state of checkbox in the cloned header is not updated.
-Drupal.behaviors.tableHeader = function(context) {
+Drupal.behaviors.tableHeader = {attach: function(context, settings) {
   var tables =$('table.sticky-enabled:not(.sticky-table)', context).addClass('sticky-table').get();
   if (tables.length) {
     if (!bue.tables) {
@@ -19,13 +20,17 @@ Drupal.behaviors.tableHeader = function(context) {
     }
     bue.tables = bue.tables.concat(tables);
   }
-};
+}};
 
 //process resizable textareas
 var textArea = function(i, T) {
-  var spn = El('span'), wrp = $(El('div')).addClass('resizable-textarea').append(spn);
-  $(El('div')).addClass('grippie').mousedown(TDrag).dblclick(TExpand).appendTo(spn)[0].bueT = T;
-  $(T).before(wrp).prependTo(spn).addClass('textarea-processed');
+  var spn = El('span'), $wrp = $(El('div')).addClass('resizable-textarea').append(spn);
+  var grp = $(El('div')).addClass('grippie').mousedown(TDrag).dblclick(TExpand).appendTo(spn)[0];
+  $wrp.insertBefore(T);
+  $.browser.msie && $(T).is('.input-content') && $(T).width(bue.iewrp || (bue.iewrp = $wrp[0].offsetWidth));
+  $(T).prependTo(spn).addClass('textarea-processed');
+  grp.bueT = T;
+  grp.title = Drupal.t('Double click to fully expand the text area');
   //grp.style.marginRight = (grp.offsetWidth - T.offsetWidth) +'px';//slow
 };
 
@@ -62,7 +67,7 @@ var TShrink = function(e) {
 var createHeader = function(table) {
   var $fixed = table.$fixed = $(table.cloneNode(false));
   var $repo = table.$repo = $(El('table')).append(table.tHead.cloneNode(true));
-  $repo.css({visibility: 'hidden', position: 'absolute', left: -1000, top: -1000}).insertBefore(table);
+  $repo.css({visibility: 'hidden', position: 'absolute', left: '-999em', top: '-999em'}).insertBefore(table);
   $fixed.addClass('sticky-header').css('position', 'fixed')[0].id += '-fixed';
   return $fixed.insertBefore(table);
 };
@@ -119,7 +124,7 @@ var iconProc = function(i, inp) {
 //click event for selector opener.
 var sopClick = function(e) {
   var pos = $(activeSop = this).offset();
-  $(bue.IS).css({left: pos.left-parseInt($(bue.IS).width()/2)+10, top: pos.top+10}).show();
+  $(bue.IS).css({left: pos.left-parseInt($(bue.IS).width()/2)+10, top: pos.top+20}).show();
   $('#edit-selaction').addClass('ie6');//fix ie6's selectbox z-index bug.
   setTimeout(function(){$(document).click(doClick)});
   return false;
@@ -175,8 +180,8 @@ var iconCreate = function(name) {
 };
 
 //create icon selector table
-var createIS = function() {
-  var table = $html('<table><tbody><tr><td title="'+ Drupal.t('Text button') +'"><input type="text" size="1" /></td></tr></tbody></table>')[0];
+var iconSelector = function() {
+  var table = $html('<table id="icon-selector" class="selector-table" style="display: none"><tbody><tr><td title="'+ Drupal.t('Text button') +'"><input type="text" size="1" class="form-text" /></td></tr></tbody></table>')[0];
   var tbody = table.tBodies[0];
   var row = tbody.rows[0];
   row.cells[0].onclick = textClick;
@@ -196,7 +201,52 @@ var createIS = function() {
   for(; i < 6; i++) {
     row.appendChild(El('td'));
   }
-  return $(table).attr('id', 'icon-selector').appendTo(document.body).hide()[0];
+  return $(table).appendTo(document.body)[0];
+};
+
+//create key selector table
+var keySelector = function() {
+  var table = $html('<table id="key-selector" class="selector-table" style="display: none"><tbody></tbody></table>')[0];
+  var tbody = table.tBodies[0];
+  var keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
+  bue.keys = {};
+  for (var row, key, i = 0; key = keys[i]; i++) {
+    i%6 == 0 && tbody.appendChild(row = El('tr'));
+    bue.keys[key] = $(El('td')).mousedown(keyClick).html(key).attr({title: key}).appendTo(row)[0];
+  }
+  return $(table).appendTo(document.body)[0];
+};
+
+//click on a key in key selector.
+var keyClick = function() {
+  var key = $(this).text();
+  activeSop.value = key;
+  keyUsed(key, true, activeSop);
+};
+
+//get&set current used state for a key
+var keyUsed = function(key, state, inp) {
+  var key = key.toString().toUpperCase();
+  if (state === undefined) return bue.keys[key] && $(bue.keys[key]).is('.used');
+  var F = state ? ['addClass', 'unbind'] : ['removeClass', 'bind'];
+  var title = inp ? $(inp).parents('tr:first').find('input.input-title').val() : key;
+  bue.keys[key] && $(bue.keys[key])[F[0]]('used')[F[1]]('mousedown', keyClick).attr({title: title || key});
+};
+
+//process key fields to update key states
+var keyProc = function(i, inp) {
+  keyUsed(inp.value, true, inp);
+  $(inp).parents('tr:first').find('input.input-title').val();
+  $(inp).focus(function() {
+    var pos = $(activeSop = this).offset();
+    keyUsed(this.value, false);
+    $(bue.KS).css({left: pos.left-parseInt($(bue.KS).width()/2)+10, top: pos.top+20}).show();
+    $('#edit-selaction').addClass('ie6');//fix ie6's selectbox z-index bug.
+  }).blur(function() {
+    $(bue.KS).hide();
+    keyUsed(this.value, true, this);
+    $('#edit-selaction').removeClass('ie6');
+  });
 };
 
 //table drag adjustment. make value updating simpler and start from 0.
@@ -223,8 +273,21 @@ var selAction = function() {
     }).change();
   }
   else {
-    $('#sel-action-wrapper').hide();
+    $('#sel-action-wrapper').css({display: 'none'});
   }
+};
+
+//alter editor textarea process in order to calculate the process time
+var eTime = function() {
+  var oldProc = BUE.processTextarea;
+  BUE.processTextarea = function (T, tplid) {
+    var t = new Date(), E = oldProc(T,  tplid), jstime = '' + (new Date() - t);
+    E && T.id == 'editor-demo' && setTimeout(function() {
+      var phptime = '' + Drupal.settings.BUE.demotime, pad = ['000', '00', '0'];
+      T.value += '\n\nEditor load times (milliseconds): \n  -Server side (PHP)\t: '+ (pad[phptime.length] || '') + phptime +'\n  -Client side (JS)\t: '+ (pad[jstime.length] || '') + jstime;
+    });
+    return E;
+  };
 };
 
 //initiate variables and process page elements
@@ -234,10 +297,14 @@ var init = function() {
   bue.IP = bue.BP + Drupal.settings.BUE.iconpath +'/';
   bue.$div = $(El('div'));
   bue.sop = $html('<img class="icon-selector-opener" src="'+ bue.BP +'misc/menu-expanded.png" title="'+ Drupal.t('Select an icon') +'" />')[0];
-  bue.IS = createIS(); //create icon selector
-  $('input.input-icon').each(iconProc);//process icon textfields
-  selAction();//selected buttons actions
-  tableDrag();//alter table drag
+  //sync safe modifications
+  setTimeout(function() {
+    bue.IS = iconSelector(); //create icon selector
+    bue.KS = keySelector(); //create key selector
+    $('input').filter('.input-icon').each(iconProc).end().filter('.input-key').each(keyProc);//process icons and keys
+    selAction();//selected buttons actions
+    tableDrag();//alter table drag
+  });
 };
 
 //local container
@@ -246,6 +313,8 @@ var bue = {};
 var El = function(name) {return document.createElement(name)};
 //html to jQuery
 var $html = function(s){return bue.$div.html(s).children()};
+//calculate editor instance creation time
+window.BUE && eTime();
 //initiate
 $(document).ready(init);
 

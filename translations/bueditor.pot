@@ -38,7 +38,7 @@ msgstr ""
 msgid "Customize your text editor."
 msgstr ""
 
-#: bueditor.module:18 admin/bueditor.admin.inc:16;366
+#: bueditor.module:18 admin/bueditor.admin.inc:16;371
 msgid "Add new editor"
 msgstr ""
 
@@ -142,119 +142,127 @@ msgstr ""
 msgid "Web accessible javascript(.js) or style sheet(.css) file paths to be included with the editor. Enter one file path per line."
 msgstr ""
 
-#: admin/bueditor.admin.inc:233
+#: admin/bueditor.admin.inc:223
+msgid "Enable CSS sprites"
+msgstr ""
+
+#: admin/bueditor.admin.inc:225
+msgid "<a href="http://www.alistapart.com/articles/sprites">What are CSS sprites?</a>. The sprites will be stored in %dir."
+msgstr ""
+
+#: admin/bueditor.admin.inc:238
 msgid "There is no button to import."
 msgstr ""
 
-#: admin/bueditor.admin.inc:239
+#: admin/bueditor.admin.inc:244
 msgid "New buttons are ready to be saved."
 msgstr ""
 
-#: admin/bueditor.admin.inc:267
+#: admin/bueditor.admin.inc:272
 msgid "Icon"
 msgstr ""
 
-#: admin/bueditor.admin.inc:268
+#: admin/bueditor.admin.inc:273
 msgid "Key"
 msgstr ""
 
-#: admin/bueditor.admin.inc:291
-msgid "Settings for the editor %name"
+#: admin/bueditor.admin.inc:296
+msgid "Settings for the editor @name"
 msgstr ""
 
-#: admin/bueditor.admin.inc:300
+#: admin/bueditor.admin.inc:305
 msgid "Visibility settings"
 msgstr ""
 
-#: admin/bueditor.admin.inc:306
+#: admin/bueditor.admin.inc:311
 msgid "Editor paths"
 msgstr ""
 
-#: admin/bueditor.admin.inc:314
+#: admin/bueditor.admin.inc:319
 msgid "Import Buttons"
 msgstr ""
 
-#: admin/bueditor.admin.inc:315
+#: admin/bueditor.admin.inc:320
 msgid "<em>You can either upload a CSV file exported from BUEditor 6.x-1.x or earlier</em> !csvfield <em>OR paste the editor code containing the buttons</em> !codefield"
 msgstr ""
 
-#: admin/bueditor.admin.inc:322
+#: admin/bueditor.admin.inc:327
 msgid "Demo"
 msgstr ""
 
-#: admin/bueditor.admin.inc:335
+#: admin/bueditor.admin.inc:340
 msgid "Buttons"
 msgstr ""
 
-#: admin/bueditor.admin.inc:365
+#: admin/bueditor.admin.inc:370
 msgid "... selecteds"
 msgstr ""
 
-#: admin/bueditor.admin.inc:365
+#: admin/bueditor.admin.inc:370
 msgid "Copy to editor"
 msgstr ""
 
-#: admin/bueditor.admin.inc:369
+#: admin/bueditor.admin.inc:374
 msgid "Go"
 msgstr ""
 
-#: admin/bueditor.admin.inc:400
+#: admin/bueditor.admin.inc:405
 msgid "Selected buttons have been deleted."
 msgstr ""
 
-#: admin/bueditor.admin.inc:416
+#: admin/bueditor.admin.inc:421
 msgid "There is no button to export."
 msgstr ""
 
-#: admin/bueditor.admin.inc:423
+#: admin/bueditor.admin.inc:428
 msgid "CSV file containing the buttons"
 msgstr ""
 
-#: admin/bueditor.admin.inc:425
+#: admin/bueditor.admin.inc:430
 msgid "Editor code"
 msgstr ""
 
-#: admin/bueditor.admin.inc:427;522
+#: admin/bueditor.admin.inc:432;527
 msgid "Enter previously exported editor code."
 msgstr ""
 
-#: admin/bueditor.admin.inc:427
+#: admin/bueditor.admin.inc:432
 msgid "The code will be scanned for only buttons and all other data will be ignored."
 msgstr ""
 
-#: admin/bueditor.admin.inc:427;522
+#: admin/bueditor.admin.inc:432;527
 msgid "This code will be evaluated as PHP, therefore you must be sure that it is harmless and produces proper editor data."
 msgstr ""
 
-#: admin/bueditor.admin.inc:445;535
+#: admin/bueditor.admin.inc:450;540
 msgid "The editor code did not produce proper editor data."
 msgstr ""
 
-#: admin/bueditor.admin.inc:474 admin/bueditor.eop.js:0
+#: admin/bueditor.admin.inc:479 admin/bueditor.eop.js:0
 msgid "Are you sure you want to delete the editor @name?"
 msgstr ""
 
-#: admin/bueditor.admin.inc:474 admin/bueditor.eop.js:0
+#: admin/bueditor.admin.inc:479 admin/bueditor.eop.js:0
 msgid "All buttons and settings of this editor will be removed."
 msgstr ""
 
-#: admin/bueditor.admin.inc:483
+#: admin/bueditor.admin.inc:488
 msgid "Editor %name has been deleted."
 msgstr ""
 
-#: admin/bueditor.admin.inc:513
+#: admin/bueditor.admin.inc:518
 msgid "Directory of editor files"
 msgstr ""
 
-#: admin/bueditor.admin.inc:516
+#: admin/bueditor.admin.inc:521
 msgid "Define a directory to store the library files imported from the editor code. Icons will be stored in a directory named \"icons\" under this directory. If you do not want to import the files or if the editor uses existing ones you can leave this field blank."
 msgstr ""
 
-#: admin/bueditor.admin.inc:519
+#: admin/bueditor.admin.inc:524
 msgid "Editor code (PHP)"
 msgstr ""
 
-#: admin/bueditor.admin.inc:883
+#: admin/bueditor.admin.inc:894
 msgid "Editor %name has been added."
 msgstr ""
 
@@ -268,6 +276,10 @@ msgstr ""
 
 #: admin/bueditor.edit.js:0
 msgid "Select an icon"
+msgstr ""
+
+#: admin/bueditor.edit.js:0
+msgid "Double click to fully expand the text area"
 msgstr ""
 
 #: admin/bueditor.import.js:0
@@ -346,3 +358,6 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
+#: bueditor.module:0
+msgid "Administer BUEditor"
+msgstr ""

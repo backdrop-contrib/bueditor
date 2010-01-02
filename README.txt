@@ -2,9 +2,9 @@
 
 - BUEditor:
 A plain textarea editor aiming to facilitate code writing.
-It's the most customizable text editor of the web because it allows you to;
+It's the most flexible text editor of the web because it allows you to;
  - build the editor from scratch.
- - determine the functionality by defining image or text buttons that generate code snippets, html tags, bbcode tags etc.
+ - determine the functionality by defining image or text buttons that generate code snippets, html tags, BBCode tags etc.
  - determine the design and layout by defining theme buttons that insert html to the layout.
 
 
@@ -12,7 +12,7 @@ It's the most customizable text editor of the web because it allows you to;
 
 6.x-1.x:
  - custom icon and library paths for each editor.
- - support using different editor templates for differnet textareas in a page.
+ - support using different editor templates for different textareas in a page.
  - alternative editor assignment for user roles.
  - theme buttons that provide unlimited theming options.
  - headings (h1, h2, h3, h4) and separators in default editor.
@@ -26,13 +26,15 @@ It's the most customizable text editor of the web because it allows you to;
  - eDefTagDialog accepts "textarea" as a field type.
 
 6.x-2.x
+ - CSS sprites support.
  - bueditor.js got smaller.
  - new buttons for the default editor: Underline, Strike-through, Quote, Code 
  - ability to extend editor instances via post process functions.
  - proper support for selection handling in Opera
  - open() method of popups and dialogs now accepts DOM or jQuery objects as content.
  - new popup markup for better theming.
- - improved admin interface: drag & drop, visual icon selector.
+ - popup shortcuts: ENTER(link click), ESC(close), UP & DOWN (link navigation)
+ - improved admin interface: drag & drop, visual icon and key selector.
  - ability to include library files from different directories.
  - ability to include custom css files.
  - import/export complete editor settings, icons, and libraries.
@@ -40,7 +42,6 @@ It's the most customizable text editor of the web because it allows you to;
  - No need for php buttons to get IMCE URL which is now stored in Drupal.settings.BUE.imceURL(or BUE.imce.url when the bue.imce library is used)
  - new E.prvAjax() method for live previewing html or non-html markup with the help of Ajax Markup module.
  - new optional library files:
-   - bue.accessibility.js: enables closing(ESC/ENTER) and link navigation(UP/DOWN) inside popups.
    - bue.autocomplete.js: enables AC inside textareas for a set of predefined text pairs.
    - bue.ctrl.js: converts access keys into CTRL shortcuts.
    - bue.find.js: enables search and replace inside textareas.(Depends on: popup, html)
@@ -65,7 +66,7 @@ It's the most customizable text editor of the web because it allows you to;
 - HOW TO INSTALL:
 1) Copy editor directory to your modules directory.
 2) Enable the module at module administration page.
-3) Add/edit editors and buttons at: admin/settings/bueditor.
+3) Add/edit editors and buttons at: admin/config/content/bueditor.
 4) There is the default editor you can use as a starting point.
 5) You may install IMCE module to use it as a file/image browser in editor's image & link dialogs.
 6) Make sure your input format does not filter the tags the editor inserts.
@@ -118,14 +119,14 @@ For example, assume that the button content is:
 and it is clicked after selecting the "Hello world!" text in the textarea. Then the result is:
 <p>Hello world!</p>
 with the selection preserved.
-Multiple occurances of %TEXT% is possible and each will be replaced by the selected text. 
+Multiple occurrences of %TEXT% is possible and each will be replaced by the selected text. 
 These type of buttons are useful for simple html tags or other tag systems like BBCode.
 Note: if you want to insert some text containing the phrase %TEXT%, use a javascript button.
 
 
 - JAVASCRIPT BUTTONS
 These type of buttons are used for special cases where it is insufficient to just replace the selected text.
-The content of a javascript button must begin with a 3 charater text "js:" to be differentiated from a
+The content of a javascript button must begin with a 3 character text "js:" to be differentiated from a
 html button. The remaining code is treated as a javascript code and executed in a function when the
 button is clicked. The function is called with the parameter E which represents the active editor. 
 Editor has many ready-to-use methods and variables making it easy to create javascript buttons.
@@ -145,7 +146,7 @@ if (user_access('access foo')) {
   return 'js: alert("You have the permission to access foo")';
 }
 turns into a javascript button having the returned content for users having "access foo" permission. for others 
-it is disabled and doesnt show up.
+it is disabled and doesn't show up.
 
 
 - THEME BUTTONS
@@ -196,7 +197,7 @@ BUE.instances
 array containing the editor instances in the page
 
 BUE.active:
-currently active or last used editor istance. When a button is clicked or a textarea is focused, 
+currently active or last used editor instance. When a button is clicked or a textarea is focused, 
 the corresponding editor instance becomes the BUE.active. If there are multiple editor instances, accesskeys 
 are switched to work on the BUE.active.
 BUE.active is widely used in javascript buttons since the methods of the current editor instance are accessed 
@@ -208,8 +209,8 @@ integrates the editor template(BUE.templates[tplid]) into the textarea T.
 This can be used for dynamic editor integration at any time after page load.
 
 BUE.postprocess:
-an array of post process functions which are called with the parameters E(editor instance) and $(jQuery) just after instance creation.
-BUE.postprocess.push(function(E, $){/* Extend/alter the instance E */});
+a list(object) of post process functions which are called with the parameters E(editor instance) and $(jQuery) just after instance creation.
+BUE.postprocess.yourProcessName = function(E, $){/* Extend/alter the instance E */};
 
 BUE.buttonClick(eindex, bindex):
 Trigger click event of the button BUE.instances[eindex].buttons[bindex]
@@ -225,6 +226,7 @@ dialog object of the editor used like a pop-up window for getting user input or 
 BUE.dialog.open(title, content, effect):
 Opens the dialog with the given title and content in it.
 optional effect parameter is one of the jQuery effects ('slideDown' or 'fadeIn')
+see also the openPopup() method below.
 
 BUE.dialog.close(effect):
 Closes the dialog.
@@ -242,8 +244,15 @@ Returns the js object representing the pop-up(a html table object).
 This pop-up object has its internal "open(title, content, effect)" and "close(effect)" methods which can be used for 
 further opening and closing operations.
 Since pop-up object is a html table object, it has all the methods and properties of a regular table.
-The difference between a pop-up and editor.dialog is that editor.dialog can only have one instance visible at a time, and it doesnt allow textarea editing when it is open.
+The difference between a pop-up and editor.dialog is that editor.dialog can only have one instance visible at a time, and it doesn't allow textarea editing when it is open.
 Optional effect parameter is one of the jQuery effects (opening: 'slideDown', 'fadeIn', closing: 'slideUp', 'fadeOut')
+or it can be a set of options: 
+{
+  effect: jQuery effect (default: 'show'),
+  speed: either milliseconds or one of the 'slow', 'normal', 'fast' (default: 'normal'),
+  callback: function to be run after opening (default: internal function to focus on the popup),
+  offset: position of the popup(default: {top: top offset of the active button, left: left offset of the active button})
+}
 
 BUE.createPopup(id, title, content):
 This method is used by openPopup method. Creates and returns the pop-up object for further use.(does not open it)
@@ -278,16 +287,16 @@ E.getSelection():
 Returns the selected text in the textarea.
 
 E.replaceSelection(text, cursor):
-Replace the selected text in the textrea with the given text.
-The optinal second argument specifies the position of the caret after replacement.
-if cursor='start', it is placed at the begining of the replaced text.
+Replace the selected text in the textarea with the given text.
+The optional second argument specifies the position of the caret after replacement.
+if cursor='start', it is placed at the beginning of the replaced text.
 if cursor='end', it is placed at the end of the replaced text.
 if cursor is not defined, the selection is preserved containing the replaced text.
 
 E.tagSelection(left, right, cursor):
 Encloses the selected text in the textarea with the given left and right texts.
 The optional third argument specifies the position of the caret after enclosing.
-if cursor='start', it is placed at the begining of the selected text.
+if cursor='start', it is placed at the beginning of the selected text.
 if cursor='end', it is placed at the end of the selected text.
 if cursor is not defined, the selection is preserved.
 
@@ -306,6 +315,11 @@ the optional second argument defines the index of the button whose state will no
 Ex: to disable all buttons except the pressed button;
 js: E.buttonsDisabled(true, E.bindex);
 
+E.stayClicked(state, bindex):
+Add/remove "stay-clicked" class to/from a user defined button.
+This method is usually used to toggle a stay-clicked effect on the active button without supplying the second argument.
+
+
 
 - EDITOR ICONS
 All images with jpg, gif or png extensions in the editor's icon path (which is bueditor_path/icons by default) are accessible by the editor and they are listed in the icon list in the editor editing page.
@@ -322,7 +336,12 @@ Pressing an accesskey(Alt+KEY) when there is a selection, deselects it preservin
 
 Accesskeys in Firefox:
 If there are multiple editors in the page, accesskeys(Shift+Alt+KEY) will work on only the first editor instance. 
-This is becouse FF does not allow dynamic adjustment of accesskeys.
+This is because FF does not allow dynamic adjustment of accesskeys.
+
+CTRL shortcuts:
+Ctrl shortcuts are disabled in Opera since it does not suppress the default ones.
+Do not use A(select all), C(copy), V(paste), X(cut) keys as they are text operation keys by default.
+Do not use F(find), O(open), P(print) keys in IE and Safari as they will always fire their default actions.
 
 New line character:
 Since new line is represented by different characters (\r, \r\n, \n) on different platforms, there may be some 
@@ -358,7 +377,7 @@ Strike-through:
 Encloses the selected text with the tag <del>
 
 Headings:
-Pops a dialog showing h1, h2, h2, h4 heading tags to choose among.
+Pops a dialog showing h1, h2, h2, h4, h5, h6 heading tags to choose among.
 
 Quote:
 Encloses the selected text with the tag <blockquote>
@@ -368,11 +387,11 @@ Encloses the selected text with the tag <code>
 
 Ordered list:
 Converts the lines in the selected text to a numbered list. It is also possible to start a new list with no selection. 
-If the selection is an ordered list which was previosly created by this button, the lines in the text are restored.
+If the selection is an ordered list which was previously created by this button, the lines in the text are restored.
 
 Unordered list:
-Converts the lines in the selected text to a bulleted list. It is also possible to start a new list with no selection. 
-If the selection is an unordered list which was previosly created by this button, the lines in the text are restored.
+Converts the lines in the selected text to a bullet list. It is also possible to start a new list with no selection. 
+If the selection is an unordered list which was previously created by this button, the lines in the text are restored.
 
 Teaser break:
 Inserts Drupal teaser break which is <!--break-->
@@ -396,8 +415,8 @@ fields -> an array of attributes that are eiter strings or objects.
 options -> object containing optional parameters:
   title: dialog title. if not specified, "Tag editor - (tag)" is used.
   stitle: laber for submit button. if not specified, "OK" is used.
-  submit: custom submit handler. called with two parameters (tag, form)
-  validate: custom validator. called with two parameters (tag, form)
+  submit: custom submit handler. called with two parameters (tag, form, options, E)
+  validate: custom validator. called with two parameters (tag, form, options, E)
   effect: jQuery effect ('slideDown' or 'fadeIn')
 
 The simplest form, for example:
@@ -409,7 +428,7 @@ After submission, it will enclose/replace the selection in the textarea.
 You might have noticed that fields in image/link dialogs are declared as objects not as strings. That's a
 customized form of declaring attributes. It is ideal to use an object if you want
 - a field type other than textfield (type: 'select', options: {'left': 'Left', 'right': 'Right'})
-  textarea and select are the two options other than the default.
+  the default type is text and other supported types are select, textarea, hidden
 - a custom label (title: 'Image URL')
 - a default value (value: ' ')
 - some prefix or suffix text or html (prefix: '[ ', suffix: ' ]')
@@ -426,8 +445,8 @@ So lets add an "align" attribute field to the image dialog(note that it's not XH
 The field object to pass to E.tagDialog is;
 {
   name: 'align',//required
-  title: 'Image align', // if we dont set it, it will be set as 'Align' automatically.(the name with the first letter uppercase)
-  type: 'select', // we use a selectbox instead of a plain textfield.
+  title: 'Image align', // if we don't set it, it will be set as 'Align' automatically.(the name with the first letter uppercase)
+  type: 'select', // we use a select box instead of a plain text field.
   options: {'': '', left: 'Left', right: 'Right', center: 'Center'} //structure is {attribute-value: 'Visible value'}
 }
 
@@ -474,11 +493,11 @@ How to create an image chooser(ie. smiley chooser) using E.tagChooser?
 Firstly, we should understand what E.tagChooser does.
 E.tagChooser(tags, options)
 
-Parameter "tags": an array of tag infos, each having the format:
+Parameter "tags": an array of tag info, each having the format:
  [tag, title, attributes]
   tag: the tag that will enclose the selected text in the textarea
   title: the text or html to help the user choose this tag
-  attributes: attriutes that will be inserted inside the tag. ex:{'id': 'site-name', 'class': 'dark'}
+  attributes: attributes that will be inserted inside the tag. ex:{'id': 'site-name', 'class': 'dark'}
 
 ex tags: [ ['span', 'Red', {'style': 'color: red'}], ['span', 'Blue', {'class': 'blue-text'}] ]
 this will create two options:
@@ -530,7 +549,7 @@ First of all, the classic tag insertion method does not require the default butt
 Classic method: converts the selection "foo" to "<tag>foo</tag>", ("foo" still being selected)
 E.toggleTag('tag'): converts the selection "foo" to "<tag>foo</tag>" (<tag>foo</tag> is selected)
 
-- Classic method doesnt parse the selection to check if it is an instance of the tag, whereas E.toggleTag does and toggles it.
+- Classic method doesn't parse the selection to check if it is an instance of the tag, whereas E.toggleTag does and toggles it.
 Classic method: converts the selection "<tag>foo</tag>" to "<tag><tag>foo</tag></tag>"
 E.toggleTag('tag'): converts the selection "<tag>foo</tag>" to "foo"
 

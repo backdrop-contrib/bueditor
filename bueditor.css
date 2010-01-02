@@ -7,6 +7,8 @@
   margin: 1px;
   border: 1px solid #ccc;
   vertical-align: bottom;
+  cursor: pointer;
+  padding: 0;
 }
 .bue-button:hover {
   border-color: #fc6;
@@ -14,12 +16,13 @@
 .bue-text-button {
   height: 22px;
   font-size: 11px;
-  padding: 0px;
   font-weight: bold;
   background-color: #fff;
   color: #444;
-  cursor: pointer;
   text-align: center;
+}
+.bue-sprite-button {
+  background: transparent none no-repeat 0 0;
 }
 .bue-ui .stay-clicked {
   border-color: #f00;
@@ -44,6 +47,7 @@
   text-align: left;
   color: #333;
   border: none;
+  outline: none;
 }
 .bue-popup-head {
   cursor: move;
@@ -70,33 +74,35 @@
 .bue-popup-body {
   background-color: #f5f5fa;
   border: 1px solid #999;
+  overflow: hidden;
 }
 .bue-popup-content {
   margin: 0.5em;
 }
-.bue-popup table {
+.bue-popup-content table {
   margin: 0em;
-}
-.bue-popup tbody {
   border: none;
 }
-.bue-zero {
+.bue-popup-content tbody {
+  border: none;
+}
+.bue-popup .bue-zero, .bue-zero {
   margin: 0em;
   padding: 0em;
   border: none;
 }
 /*tag chooser*/
-.bue-popup ul.tag-chooser {
+.bue-popup-content ul.tag-chooser {
   margin: 0em;
   padding: 0em;
 }
-.bue-popup ul.tag-chooser li.choice {
+.bue-popup-content ul.tag-chooser li.choice {
   background: none;
   list-style: circle;
   margin: 0.3em 0.5em 0.3em 1.5em;
   padding: 0em;
 }
-.bue-popup ul.tag-chooser a.choice-link {
+.bue-popup-content ul.tag-chooser a.choice-link {
   display: block;
   color: #000;
 }
@@ -106,8 +112,8 @@
 }
 /*Imce popup*/
 #bue-imce-pop iframe {
-  width: 680px;
-  height: 460px;
+  width: 720px;
+  height: 480px;
   border: none;
 }
 #bue-imce-pop .bue-popup-content {

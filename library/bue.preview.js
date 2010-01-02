@@ -10,7 +10,7 @@ E.prv = function(safecheck) {
   if (E.prvOn) {
     return E.prvHide();
   }
-  var safecheck = typeof safecheck == 'undefined' ? true : safecheck;
+  var safecheck = safecheck === undefined ? true : safecheck;
   var content = E.getContent();
   if (safecheck && !(E.safeToPreview = E.safeToPreview || content.indexOf('<') == -1)) {
     content = '<div class="warning">' + Drupal.t('The preview is disabled due to previously inserted HTML code in the content. This aims to protect you from any potentially harmful code inserted by other editors or users. If you own the content, just preview an empty text to re-enable the preview.') + '</div>';
@@ -23,17 +23,17 @@ E.prvShow = function(html, wrap) {
   var E = this;
   var $T = $(E.textArea);
   var $P = $(E.preview = E.preview || BUE.$html('<div class="preview" style="display:none; overflow:auto"></div>').insertBefore($T)[0]);
-  if (typeof wrap == 'undefined' || wrap) {
+  if (wrap === undefined || wrap) {
     html = '<div class="'+ (E.textArea.name == 'comment' ? 'comment' : 'node') +'"><div class="content">' + html + '</div></div>';
   }
   if (E.prvOn) {
     $P.html(html);
     return E;
   }
+  E.prvPos = E.posSelection();
   $P.show().height($T.height()).width($T.width()).html(html);
   $T.height(1);
-  E.buttonsDisabled(true, E.bindex);
-  $(E.buttons[E.bindex]).addClass('stay-clicked');
+  E.buttonsDisabled(true, E.bindex).stayClicked(true);
   E.prvOn = true;
   return E;
 };
@@ -45,9 +45,9 @@ E.prvHide = function() {
     var $P = $(E.preview);
     $(E.textArea).height($P.height());
     $P.hide();
-    $(E.buttons[E.bindex]).removeClass('stay-clicked');
-    E.buttonsDisabled(false);
+    E.buttonsDisabled(false).stayClicked(false);
     E.prvOn = false;
+    E.prvPos && (E.makeSelection(E.prvPos.start, E.prvPos.end).prvPos = null);
   }
   return E;
 };

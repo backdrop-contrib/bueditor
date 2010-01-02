@@ -3,24 +3,24 @@
 //Requires: bue.popup, bue.html.js
 (function(E, $) {
 
-//find a string inside editor content. search options: mc-match case, re-regular expression
-E.find = function (str, mc, re) {
+//find a string inside editor content.
+E.find = function (str, matchcase, regexp) {
   var E = this, from = E.posSelection().end, content = E.getContent();
   if (from == content.length) from = 0;
   var content = content.substr(from);
-  var regx = new RegExp(re ? str : BUE.regesc(str), mc ? '' : 'i');
-  var index = content.search(regx);
+  var rgx = new RegExp(regexp ? str : BUE.regesc(str), matchcase ? '' : 'i');
+  var index = content.search(rgx);
   if (index == -1) {
     if (from == 0) {
       alert(Drupal.t('No matching phrase found!'));
     }
-    else if (CM()) {
+    else if (confirmEOT()) {
       E.makeSelection(0, 0);
-      E.find(str, mc, re);
+      E.find(str, matchcase, regexp);
     }
   }
   else {
-    var strlen = re ? content.match(regx)[0].length : str.length;
+    var strlen = regexp ? content.match(rgx)[0].length : str.length;
     index += from;
     E.makeSelection(index, index+strlen).scrollTo(index);
   }
@@ -28,22 +28,22 @@ E.find = function (str, mc, re) {
 };
 
 //replace str1 with str2.
-E.replace = function(str1, str2, mc, re) {
-  var E = this, s = E.find(str1, mc, re).getSelection();
-  var rgx = new RegExp('^'+ (re ? str1 : BUE.regesc(str1)) +'$', mc ? '' : 'i');
-  if (s && s.search(rgx) == 0 && confirm(Drupal.t('Replace this occurance of "!text"?', {'!text': s}))) {
-    str2 = re ? s.replace(new RegExp(str1, 'g' + (mc ? '' : 'i')), str2) : str2;
+E.replace = function(str1, str2, matchcase, regexp) {
+  var E = this, s = E.getSelection(), rgx = new RegExp('^'+ (regexp ? str1 : BUE.regesc(str1)) +'$', matchcase ? '' : 'i');
+  var found = s && s.search(rgx) == 0 || (s = E.find(str1, matchcase, regexp).getSelection()) && s.search(rgx) == 0;
+  if (found && confirm(Drupal.t('Replace this occurance of "!text"?', {'!text': s}))) {
+    str2 = regexp ? s.replace(new RegExp(str1, 'g' + (matchcase ? '' : 'i')), str2) : str2;
     E.replaceSelection(str2);
   }
   return E;
 };
 
 //replace all occurrences of str1 with str2.
-E.replaceAll = function(str1, str2, mc, re) {
+E.replaceAll = function(str1, str2, matchcase, regexp) {
   var E = this, P = E.posSelection(), C = E.getContent(), n = 0;
-  var R = new RegExp(re ? str1 : BUE.regesc(str1), 'g' + (mc ? '' : 'i'));
-  var F = re ?  (function(s) {n++; return s.replace(R, str2)}) : (function() {n++; return str2;});
-  var start = P.start == 0 || CM() ? 0 : P.start;
+  var R = new RegExp(regexp ? str1 : BUE.regesc(str1), 'g' + (matchcase ? '' : 'i'));
+  var F = regexp ?  (function(s) {n++; return s.replace(R, str2)}) : (function() {n++; return str2;});
+  var start = P.start == 0 || confirmEOT() ? 0 : P.start;
   E.setContent(C.substr(0, start) + C.substr(start).replace(R, F));
   alert(Drupal.t('Total replacements: !count', {'!count': n}));
   return E;
@@ -59,71 +59,69 @@ E.scrollTo = function(index) {
 };
 
 //open Find & Replace form.
-E.frForm = function(op, mc, re) {
-  var el = FRF().elements, rp = op == 'replace';
-  BUE.frPop.open(rp ? Drupal.t('Find & Replace') : Drupal.t('Search'));
-  $(el.mc.parentNode)[mc ? 'show' : 'hide']();
-  $(el.re.parentNode)[re ? 'show' : 'hide']();
-  $([el.rp.parentNode, el.rpb, el.rab])[rp ? 'show' : 'hide']();
-  $(el.fnb)[rp ? 'hide' : 'show']();
-  el.fn.focus();
+E.frForm = function(replacetext, matchcase, regexp, title) {
+  var F = theForm(), el = F.elements;
+  BUE.frPop.open(title || (replacetext ? Drupal.t('Find & Replace') : Drupal.t('Search')));
+  $(el.matchcase.parentNode)[matchcase ? 'show' : 'hide']();
+  $(el.regexp.parentNode)[regexp ? 'show' : 'hide']();
+  $(el.replacetext).parents('div.bue-fr-row').add([el.replacebutton, el.replaceallbutton])[replacetext ? 'show' : 'hide']();
   return this;
 };
 
 //submit Find & Replace form.
 E.frSubmit = function(B) {
-  var E = this, el = B.form.elements, fn = BUE.text(el.fn.value);
-  if (!fn) {
-    el.fn.focus();
+  var E = this, el = B.form.elements, findtext = BUE.text(el.findtext.value);
+  if (!findtext) {
+    el.findtext.focus();
     return E;
   }
-  var op = B.name, rp = BUE.text(el.rp.value);
-  var mc = $(el.mc.parentNode).is(':visible') && el.mc.checked;
-  var re = $(el.re.parentNode).is(':visible') && el.re.checked;
+  var op = B.name, replacetext = BUE.text(el.replacetext.value);
+  var matchcase = $(el.matchcase.parentNode).is(':visible') && el.matchcase.checked;
+  var regexp = $(el.regexp.parentNode).is(':visible') && el.regexp.checked;
   switch (op) {
-    case 'fnb': E.find(fn, mc, re); break;//find
-    case 'rpb': E.replace(fn, rp, mc, re); break;//replace
-    case 'rab': E.replaceAll(fn, rp, mc, re); break;//replace all
+    case 'findbutton': E.find(findtext, matchcase, regexp); break;//find
+    case 'replacebutton': E.replace(findtext, replacetext, matchcase, regexp); break;//replace
+    case 'replaceallbutton': E.replaceAll(findtext, replacetext, matchcase, regexp); break;//replace all
   }
-  return E.focus();
+  return E;
 };
 
 //shortcuts
 var H = BUE.html, I = BUE.input;
 
 //confirmation message that will be used multiple times.
-var CM = function() {
+var confirmEOT = function() {
   return confirm(Drupal.t('End of textarea reached. Continue search at the beginning of textarea?'));
 };
 
 //cookie get & set
 var K = function (name, value) {
-  if (typeof(value) == 'undefined') {//get
+  if (value === undefined) {//get
     return unescape((document.cookie.match(new RegExp('(^|;) *'+ name +'=([^;]*)(;|$)')) || ['', '', ''])[2]);
   }
   document.cookie = name +'='+ escape(value) +'; expires='+ (new Date(new Date()*1 + 30*86400000)).toGMTString() +'; path=/';//set
 };
 
 //return find&replace form
-var FRF = function () {
+var theForm = function () {
   if (BUE.frForm) return BUE.frForm;
-  var Dv = function(s) {return H('div', s, {style: 'margin-bottom: 4px'})};
-  var Ta = function(n) {return H('span', H('textarea', K('bfr_'+ n), {name: n, cols: 36, rows: 1, 'class': 'resizable'}))};
-  var Cb = function(n, v) {return H('span', I('checkbox', n, '', {checked: K('bfr_'+ n) || null}) + v)};
-  var Bt = function(n, v) {return I('button', n, v, {onclick: 'BUE.active.frSubmit(this)'})};
-  var F = Dv(Ta('fn')) + Dv(Ta('rp'));
-  F += Dv(Cb('mc', Drupal.t('Match case')) +' '+ Cb('re', Drupal.t('Regular expressions')));
-  F += Dv(Bt('fnb', Drupal.t('Find next')) +' '+ Bt('rpb', Drupal.t('Replace')) +' '+ Bt('rab', Drupal.t('Replace all')));
+  var Dv = function(s, c) {return H('div', s, {style: 'margin-bottom: 4px', 'class': c||'bue-fr-row'})};
+  var Ta = function(n) {return H('span', H('textarea', K('bfr_'+ n), {name: n, cols: 36, rows: 1, 'class': 'resizable form-textarea'}))};
+  var Cb = function(n, v) {return H('span', I('checkbox', n, '', {checked: K('bfr_'+ n) || null, 'class': 'form-checkbox'}) + v)};
+  var Bt = function(n, v) {return I('button', n, v, {onclick: 'BUE.active.frSubmit(this)', 'class': 'form-submit'})};
+  var F = Dv(Ta('findtext')) + Dv(Ta('replacetext'));
+  F += Dv(Cb('matchcase', Drupal.t('Match case')) +' '+ Cb('regexp', Drupal.t('Regular expressions')));
+  F += Dv(Bt('findbutton', Drupal.t('Find next')) +' '+ Bt('replacebutton', Drupal.t('Replace')) +' '+ Bt('replaceallbutton', Drupal.t('Replace all')));
   BUE.frPop = BUE.createPopup('bue-fr-pop', null, F = BUE.frForm = $(H('form', F))[0]);
-  Drupal.behaviors.textarea(F);
+  Drupal.behaviors.textarea && Drupal.behaviors.textarea.attach(F);
   $('div.grippie', F).height(4);
   $(window).unload(function() {
     if (!BUE.frForm) return;
     var el = BUE.frForm.elements;
-    K('bfr_fn', el.fn.value);
-    K('bfr_rp', el.rp.value);
-    K('bfr_mc', el.mc.checked ? 'checked' : '');
-    K('bfr_re', el.re.checked ? 'checked' : '');
+    K('bfr_findtext', el.findtext.value);
+    K('bfr_replacetext', el.replacetext.value);
+    K('bfr_matchcase', el.matchcase.checked ? 'checked' : '');
+    K('bfr_regexp', el.regexp.checked ? 'checked' : '');
   });
   return F;
 };
@@ -131,11 +129,10 @@ var FRF = function () {
 })(BUE.instance.prototype, jQuery);
 
 /*
- * Use js:E.frForm(type, match_case, reg_exp) in your button content
- * type - either 'find' or 'replace'
- * match_case - boolean that shows/hides a checkbox allowing case insensitive search.
+ * Use js:E.frForm(include_replace, match_case, reg_exp) in your button content
+ * match_case - boolean that shows/hides a checkbox allowing case sensitive search.
  * reg_exp - boolean that shows/hides a checkbox allowing regular expression search.
- * E.frForm('find') - Pops up the simplest search form
- * E.frForm('replace', true, true) - Pops up a replace form with match-case and regular-expression options.
+ * E.frForm() - Pops up the simplest search form
+ * E.frForm(true, true, true) - Pops up a replace form with match-case and regular-expression options.
  */
 

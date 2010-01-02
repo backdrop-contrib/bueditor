@@ -1,11 +1,11 @@
 // $Id$
 (function($) {
 
-var BUE = window.BUE = window.BUE || {preset: {}, templates: {}, instances: [], postprocess: []};
+var BUE = window.BUE = window.BUE || {preset: {}, templates: {}, instances: [], preprocess: {}, postprocess: {}};
 
 //Get editor settings from Drupal.settings and process preset textareas.
-BUE.behavior = function(context) {
-  var set = Drupal.settings.BUE || null, tpls = BUE.templates, pset = BUE.preset;
+BUE.behavior = function(context, settings) {
+  var set = settings.BUE || null, tpls = BUE.templates, pset = BUE.preset;
   if (set) {
     $.each(set.templates, function (id, tpl) {
       tpls[id] = tpls[id] || $.extend({}, tpl);
@@ -17,8 +17,8 @@ BUE.behavior = function(context) {
   $.each(pset, function (tid, tplid) {
     BUE.processTextarea($('#'+ tid, context).get(0), tplid);
   });
-  //fix enter key on autocomplete fields triggering button click.
-  $('input.form-autocomplete', context).keydown(function(e) {return e.keyCode != 13});
+  //fix enter key on textfields triggering button click.
+  $('input:text', context).keydown(function(e) {e.keyCode == 13 && (BUE.clickTime = new Date())});
 };
 
 //integrate editor template into textarea T
@@ -29,10 +29,9 @@ BUE.processTextarea = function (T, tplid) {
   if (T.bue) return T.bue;
   var E = new BUE.instance(T, tplid);
   !BUE.active || BUE.active.textArea.disabled ? E.activate() : E.accesskeys(false);
-  //post process. this kind of loop does not miss processes added by processes.
-  for (var F, i = 0; F = BUE.postprocess[i]; i++) {
-    $.isFunction(F) && F(E, $, i);
-  }
+  //pre&post process.
+  for (var i in BUE.preprocess) BUE.preprocess[i](E, $);
+  for (var i in BUE.postprocess) BUE.postprocess[i](E, $);
   return E;
 };
 
@@ -48,7 +47,9 @@ BUE.instance = function (T, tplid) {
   E.UI = BUE.$html(BUE.theme(tplid).replace(/\%n/g, i)).insertBefore(T);
   E.buttons = $('.bue-button', E.UI).each(function(i, B) {
     var arr = B.id.split('-');
-    $($.extend(B, {eindex: arr[1], bid: arr[3], bindex: i})).click(function(){return BUE.buttonClick(B.eindex, B.bindex)});
+    $($.extend(B, {eindex: arr[1], bid: arr[3], bindex: i})).click(function() {
+      return !(BUE.clickTime && new Date() - BUE.clickTime < 100) && BUE.buttonClick(B.eindex, B.bindex);
+    });
   }).get();
   $(T).focus(function() {!T.bue.dialog.esp && T.bue.activate()});
 };
@@ -69,29 +70,56 @@ BUE.buttonClick = function (eindex, bindex) { try {
     if (arr.length == 2) E.tagSelection(arr[0], arr[1]);
     else E.replaceSelection(arr.length == 1 ? content : arr.join(E.getSelection()), 'end');
   }
-  !(domB.pops || $(domB).is('.stay-clicked')) && E.focus();
+  !(domB.pops || domB.stayClicked) && E.focus();
   } catch (e) {alert(e.name +': '+ e.message);}
   return false;
 };
 
 //return html for editor templates.
 BUE.theme = function (tplid) {
-  var tpl = BUE.templates[tplid] || {html: ''}, html = '';
+  var tpl = BUE.templates[tplid] || {html: ''}, html = '', sprite;
   if (typeof tpl.html == 'string') return tpl.html;
-  //B(0-title, 1-content, 2-icon or caption, 3-accesskey) and 4-function for js buttons
-  for (var B, i = 0; B = tpl.buttons[i]; i++) {
-    var img = B[2].search(/\.(png|gif|jpg)$/i) != -1 ? ((new Image()).src = tpl.iconpath +'/'+ B[2]) : null;
-    B[4] = B[1].substr(0, 3) == 'js:' ? new Function('E', '$', B[1].substr(3)) : null;//set functions for js buttons
-    if (B[0].substr(0, 4) == 'tpl:') {//theme button.
-      html += B[4] ? B[4](BUE, $) : B[1];
-      html += B[2] ? ('<span class="separator">'+ (img ? '<img src="'+ img +'" />' : B[2]) +'</span>') : '';
-    }
-    else {//functional button
-      var attr = img ? ['image', 'image', 'src="'+ img +'" alt="'+ B[2] +'"'] : ['button', 'text', 'value="'+ B[2] +'"'];
-      html += '<input id="bue-%n-button-'+ i +'" title="'+ B[0] +'" accesskey="'+ B[3] +'" type="'+ attr[0] +'" class="bue-button bue-'+ attr[1] +'-button editor-'+ attr[1] +'-button" '+ attr[2] +' tabindex="-1" />';
-    }
+  //load sprite
+  if (sprite = tpl.sprite) {
+    var surl = (new Image()).src = sprite.url, sunit = sprite.unit, sx1 = sprite.x1;
+    $(document.body).append('<style type="text/css" media="all">.bue-'+ tplid +' .bue-sprite-button {background-image: url('+ surl +'); width: '+ sunit +'px; height: '+ sunit +'px;}</style>');
   }
-  return tpl.html = '<div class="bue-ui editor-container clear-block" id="bue-ui-%n">'+ html +'</div>';
+  var access = $.browser.mozilla && 'Shift + Alt' || $.browser.msie && 'Alt', title, content, icon, key, func;
+  //create html for buttons. B(0-title, 1-content, 2-icon or caption, 3-accesskey) and 4-function for js buttons
+  for (var B, isimg, src, type, btype, attr, i = 0, s = 0; B = tpl.buttons[i]; i++) {
+    //empty button.
+    if (B.length == 0) {
+      s++;
+      continue;
+    }
+    title = B[0], content = B[1], icon = B[2], key = B[3], func = null;
+    //set button function
+    if (content.substr(0, 3) == 'js:') {
+      func = B[4] = new Function('E', '$', content.substr(3));
+    }
+    isimg = icon.search(/\.(png|gif|jpg)$/i) > -1;
+    //theme button.
+    if (title.substr(0, 4) == 'tpl:') {
+      html += func ? (func(null, $) || '') : content;
+      html += icon ? ('<span class="separator">'+ (isimg ? '<img src="'+ tpl.iconpath +'/'+ icon +'" />' : icon) +'</span>') : '';
+      continue;
+    }
+    if (!isimg) {//text button
+      type = 'button', btype = 'text', attr = 'value="'+ icon +'"';
+    }
+    else {
+      type = 'image', attr = 'alt="'+ icon +'"';
+      if (sprite) {//sprite button
+        btype = 'sprite', attr += ' src="'+ sx1 +'" style="background-position: -'+ (s * sunit) +'px 0;"';
+        s++;
+      }
+      else {//image button
+        btype = 'image', attr += ' src="'+ tpl.iconpath +'/'+ icon +'"';
+      }
+    }
+    html += '<input type="'+ type +'" title="'+ title + (access && key ? ' ('+ access +' + '+ key +')' : '') +'" accesskey="'+ key +'" id="bue-%n-button-'+ i +'" class="bue-button bue-'+ btype +'-button editor-'+ btype +'-button" '+ attr +' tabindex="-1" />';
+  }
+  return tpl.html = '<div class="bue-ui bue-'+ tplid +' editor-container clearfix" id="bue-ui-%n">'+ html +'</div>';
 };
 
 //Cross browser selection handling. 0-1=All, 2=IE, 3=Opera
@@ -119,25 +147,26 @@ function (T, start, end) {
 //Return the selection coordinates in a textarea
 BUE.selPos = BUE.mode == 2 ? function (T) {
   T.focus();
-  var i, val = BUE.text(T.value), mark = '~`^'; //dummy text.
-  for (i = 0; val.indexOf(mark) != -1; i++) mark += mark.charAt(i); //make sure mark is unique.
-  var mlen = mark.length, range = document.selection.createRange();
-  var bm = range.getBookmark(), slen = BUE.text(range.text).length;
-  range.text = mark;
-  var tmp = BUE.text(T.value), start = tmp.indexOf(mark);
-  for (i = 0; tmp.charAt(start+i+mlen) == '\n'; i++);
-  for (var end = start+slen; val.charAt(end) == '\n'; end++);
-  end -= i;
-  T.value = val;
-  if (start == end && !val.charAt(end)) range.collapse(false);//bookmark has problems with a cursor at the end
-  else range.moveToBookmark(bm);
-  range.select();
-  return {'start': start, 'end': end};
+  var orange = document.selection.createRange(), range = orange.duplicate();
+  range.moveToElementText(T);
+  range.setEndPoint('EndToEnd', orange);
+  var otext = orange.text, olen = otext.length, prelen = range.text.length - olen;
+  var start = prelen - (T.value.substr(0, prelen).split('\r\n').length - 1);
+  start && range.moveStart('character', start);
+  for (; range.compareEndPoints('StartToStart', orange) < 0; start++) {
+    range.moveStart('character', 1);
+  }
+  var end = start + olen - (otext.split('\r\n').length - 1);
+  for (; range.compareEndPoints('EndToStart', orange) > 0; end++) {
+    range.moveEnd('character', -1);
+    if (range.text.length != olen) break;
+  }
+  return {start: start, end: end};
 } :
 BUE.mode == 3 ? function (T) {
-  var start = T.selectionStart || 0, end = T.selectionEnd || 0;
-  var i = T.value.substring(0, start).split('\r\n').length, j = T.value.substring(start, end).split('\r\n').length;
-  return {'start': start - i + 1, 'end': end - i - j + 2};
+  var start = T.selectionStart || 0, end = T.selectionEnd || 0, val = T.value;
+  var i = val.substring(0, start).split('\r\n').length, j = val.substring(start, end).split('\r\n').length;
+  return {start: start - i + 1, end: end - i - j + 2};
 } :
 function (T) {
   return {start: T.selectionStart || 0, end: T.selectionEnd || 0}
@@ -149,7 +178,8 @@ BUE.$html = function(s){return $(document.createElement('div')).html(s).children
 window.editor = window.editor || BUE;
 //initiate bueditor
 $(document).ready(function () {
-  (Drupal.behaviors.BUE = BUE.behavior)(document);//set drupal behavior.
+  var b = Drupal.behaviors.BUE = {};//set drupal behavior.
+  (b.attach = BUE.behavior)(document, Drupal.settings);
 });
 
 })(jQuery);
@@ -204,7 +234,7 @@ E.makeSelection = function (start, end) {
   var E = this;
   if (end < start) end = start;
   BUE.selMake(E.textArea, start, end);
-  if (E.dialog.esp) E.dialog.esp = {'start': start, 'end': end};
+  E.dialog.esp && (E.dialog.esp = {start: start, end: end}) || E.focus();
   return E;
 };
 
@@ -218,6 +248,13 @@ E.buttonsDisabled = function (state, bindex) {
   for (var B, i=0; B = this.buttons[i]; i++) {
     B.disabled = i == bindex ? !state : state;
   }
+  return this;
+};
+
+//make active/custom button stay clicked
+E.stayClicked = function (state, bindex) {
+  var B = this.buttons[bindex === undefined ? this.bindex : bindex];
+  B && jQuery(B)[state ? 'addClass' : 'removeClass']('stay-clicked') && (B.stayClicked = state || false);
   return this;
 };
 

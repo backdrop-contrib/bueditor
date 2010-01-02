@@ -4,6 +4,7 @@ array (
 comment/*',
   'excludes' => 'edit-log',
   'iconpath' => '%BUEDITOR/icons',
+  'spriteon' => '1',
   'buttons' => 
   array (
     0 => 
@@ -91,28 +92,6 @@ url && E.tagSelection(\'<a href="\'+ url +\'">\', \'</a>\');',
       'icon' => 'link.png',
       'accesskey' => 'L',
       'weight' => '9',
-    ),
-    10 => 
-    array (
-      'title' => 'Preview',
-      'content' => 'js:
-var $T = $(E.textArea), $P = $(E.preview = E.preview || $(\'<div class="preview" style="display:none;overflow:auto"></div>\').insertBefore($T)[0]), $B = $(E.buttons[E.bindex]);
-if ($P.is(\':hidden\')) {
-  if (!E.safeToPreview) return alert(\'Preview is disabled\');
-  $P.show().height($T.height()).width($T.width()).html($T.val());
-  $T.height(1);
-  E.buttonsDisabled(true, E.bindex);
-  $B.addClass(\'stay-clicked\');
-}
-else {
-  $T.height($P.height());
-  $P.hide();
-  $B.removeClass(\'stay-clicked\');
-  E.buttonsDisabled(false);
-}',
-      'icon' => 'preview.png',
-      'accesskey' => 'P',
-      'weight' => '10',
     ),
   ),
   'icons' => 

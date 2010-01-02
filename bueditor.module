@@ -2,50 +2,61 @@
 // $Id$
 
 /**
- * Implementation of hook_menu().
+ * Implement hook_menu().
  */
 function bueditor_menu() {
   $items = array();
-  $path = 'admin/settings/bueditor';
-  $common = array('access arguments' => array('administer bueditor'), 'file' => 'admin/bueditor.admin.inc');
-  $form = array('page callback' => 'drupal_get_form', 'type' => MENU_CALLBACK) + $common;
+  $path = 'admin/config/content/bueditor';
+  $common = array(
+    'access arguments' => array('administer bueditor'),
+    'file' => 'admin/bueditor.admin.inc',
+  );
+  $form = array(
+    'page callback' => 'drupal_get_form',
+    'type' => MENU_CALLBACK,
+  ) + $common;
   $items[$path] = $common + array(
     'title' => 'BUEditor',
     'description' => 'Customize your text editor.',
     'page callback' => 'bueditor_admin',
   );
-  $items[$path .'/new'] = $form + array(
+  $items[$path . '/new'] = $form + array(
     'title' => 'Add new editor',
     'page arguments' => array('bueditor_editor_form'),
   );
-  $items[$path .'/import'] = $form + array(
+  $items[$path . '/import'] = $form + array(
     'title' => 'Import editor',
     'page arguments' => array('bueditor_editor_import_form'),
   );
-  $items[$path .'/%bueditor_editor'] = $form + array(
+  $items[$path . '/%bueditor_editor'] = $form + array(
     'title' => 'Editor settings',
-    'page arguments' => array('bueditor_editor_form', 3),
+    'page arguments' => array('bueditor_editor_form', 4),
   );
-  $items[$path .'/%bueditor_editor/delete'] = $form + array(
+  $items[$path . '/%bueditor_editor/delete'] = $form + array(
     'title' => 'Delete editor',
-    'page arguments' => array('bueditor_delete_form', 3),
+    'page arguments' => array('bueditor_delete_form', 4),
   );
   return $items;
 }
 
 /**
- * Implementation of hook_perm().
+ * Implement hook_permission().
  */
-function bueditor_perm() {
-  return array('administer bueditor');
+function bueditor_permission() {
+  return array(
+    'administer bueditor' => array(
+      'title' => t('Administer BUEditor'),
+      'description' => t('Warning: Give to trusted roles only; this permission has security implications.'),
+    ),
+  );
 }
 
 /**
- * Implementation of hook_theme().
+ * Implement hook_theme().
  */
 function bueditor_theme() {
-  $theme['bueditor_admin']['function'] = 'bueditor_admin_theme';
-  $theme['bueditor_editor']['function'] = 'bueditor_editor_theme';
+  $theme['bueditor_admin'] = array('function' => 'bueditor_admin_theme', 'render element' => 'form');
+  $theme['bueditor_editor'] = array('function' => 'bueditor_editor_theme', 'render element' => 'form');
   return $theme;
 }
 
@@ -58,14 +69,14 @@ function bueditor_editors($eid = 0) {
     if (!$gotall) {
       $gotall = TRUE;
       $result = db_query("SELECT * FROM {bueditor_editors} ORDER BY name");
-      while ($editor = db_fetch_object($result)) {
+      foreach ($result as $editor) {
         $editors[$editor->eid] = $editor;
       }
     }
     return $editors;
   }
-  else if (!isset($editors[$eid]) && !$gotall && is_numeric($eid) && $eid > 0) {
-    $editors[$eid] = db_fetch_object(db_query("SELECT * FROM {bueditor_editors} WHERE eid = %d", $eid));
+  elseif (!isset($editors[$eid]) && !$gotall && is_numeric($eid) && $eid > 0) {
+    $editors[$eid] = db_query("SELECT * FROM {bueditor_editors} WHERE eid = :eid", array(':eid' => $eid))->fetchObject();
   }
   return isset($editors[$eid]) ? $editors[$eid] : FALSE;
 }
@@ -74,8 +85,8 @@ function bueditor_editors($eid = 0) {
  * All buttons of an editor.
  */
 function bueditor_buttons($eid) {
-  $sql = 'SELECT * FROM {bueditor_buttons} WHERE eid = %d ORDER BY weight, title';
-  return $eid ? bueditor_query_buttons($sql, $eid) : array();
+  $sql = 'SELECT * FROM {bueditor_buttons} WHERE eid = :eid ORDER BY weight, title';
+  return $eid ? bueditor_query_buttons($sql, array(':eid' => $eid)) : array();
 }
 
 /**
@@ -84,7 +95,7 @@ function bueditor_buttons($eid) {
 function bueditor_query_buttons($sql, $var = array()) {
   $buttons = array();
   $result = db_query($sql, $var);
-  while ($button = db_fetch_object($result)) {
+  foreach ($result as $button) {
     $buttons[$button->bid] = $button;
   }
   return $buttons;
@@ -97,10 +108,14 @@ function bueditor_processed_buttons($eid) {
   $buttons = array();
   foreach (bueditor_buttons($eid) as $bid => $button) {
     if (substr($button->content, 0, 4) == 'php:') {
-      if ($content = drupal_eval('<?php '. substr($button->content, 4) .' ?>')) {
+      if ($content = bueditor_eval(substr($button->content, 4))) {
         $button->content = $content;
       }
-      else {//php returned false or nothing. dont include this button.
+      else {
+        //php returned false or nothing. include empty button in order not to break sprite index.
+        if (substr($button->title, 0, 4) != 'tpl:' && preg_match('/\.(png|gif|jpg)$/', $button->icon)) {
+          $buttons[] = array();
+        }
         continue;
       }
     }
@@ -111,16 +126,20 @@ function bueditor_processed_buttons($eid) {
 }
 
 /**
- * Implementation of hook_elements().
+ * Implement hook_elements().
  */
-function bueditor_elements() {
-  return array('textarea' => array('#process' => array('bueditor_textarea')));
+function bueditor_element_info() {
+  return array(
+    'textarea' => array(
+      '#process' => array('bueditor_textarea'),
+    ),
+  );
 }
 
 /**
  * Integrate the editor into textareas.
  */
-function bueditor_textarea($element) {
+function bueditor_textarea($element, $form_state) {
   static $editors, $textareas = array();
 
   if (isset($textareas[$element['#id']])) {
@@ -151,8 +170,8 @@ function bueditor_textarea($element) {
 function bueditor_preset_textarea($tid, $editor) {
   if ($editor && !bueditor_check_match($editor->excludes, $tid)) {
     bueditor_settle($editor);
-    $settings['BUE']['preset'][$tid] = 'e'. $editor->eid;
-    drupal_add_js($settings, 'setting', 'footer');
+    $settings['BUE']['preset'][$tid] = 'e' . $editor->eid;
+    drupal_add_js($settings, 'setting');
     return TRUE;
   }
   return FALSE;
@@ -168,22 +187,33 @@ function bueditor_settle($editor) {
   }
   if ($editor && $editor->eid && !isset($settled[$editor->eid])) {
     $settings = array();
-    if (empty($settled)) {//run once
-      $path = drupal_get_path('module', 'bueditor');
-      drupal_add_css($path .'/bueditor.css');
-      drupal_add_js($path .'/bueditor.js');
+    $path = drupal_get_path('module', 'bueditor');
+    if (empty($settled)) {
+      //run once
+      drupal_add_css($path . '/bueditor.css');
+      drupal_add_js($path . '/bueditor.js');
       if (module_invoke('imce', 'access')) {
         $settings['BUE']['imceURL'] = url('imce');
       }
       module_invoke('ajax_markup', 'on');
     }
     $editor->iconpath = bueditor_path_tr($editor->iconpath);
-    bueditor_add_library($editor->librarypath);//load library files.
-    $settings['BUE']['templates']['e'. $editor->eid] = array(
+    bueditor_add_library($editor->librarypath); //load library files.
+    $settings['BUE']['templates']['e' . $editor->eid] = array(
       'iconpath' => base_path() . $editor->iconpath,
       'buttons' => bueditor_processed_buttons($editor->eid),
     );
-    drupal_add_js($settings, 'setting', 'footer');
+    if ($editor->spriteon && $editor->spritename) {
+      $sprite_path = bueditor_sprites_dir() . '/' . $editor->spritename;
+      if ($info = getimagesize($sprite_path)) {
+        $settings['BUE']['templates']['e' . $editor->eid]['sprite'] = array(
+          'url' => file_create_url($sprite_path),
+          'unit' => $info[1],
+          'x1' => base_path() . $path . '/icons/x1.png',
+        );
+      }
+    }
+    drupal_add_js($settings, 'setting');
     $settled[$editor->eid] = TRUE;
   }
   return $editor && isset($settled[$editor->eid]);
@@ -193,13 +223,16 @@ function bueditor_settle($editor) {
  * Include js and css files from library.
  */
 function bueditor_add_library($library) {
+  $internal = array('weight' => JS_THEME);
+  $external = array('type' => 'external', 'scope' => 'footer');
   foreach (bueditor_get_library($library) as $key => $file) {
+    $options = strpos($file, '://') ? $external : $internal;
     $ext = substr($file, -4);
     if ($ext == '.css') {
-      drupal_add_css($file, 'theme');
+      drupal_add_css($file, $options);
     }
     elseif (substr($ext, 1) == '.js') {
-      drupal_add_js($file, 'theme');
+      drupal_add_js($file, $options);
     }
   }
 }
@@ -210,8 +243,8 @@ function bueditor_add_library($library) {
 function bueditor_get_library($library) {
   $files = array();
   foreach (preg_split("/\s+/", $library) as $path) {
-    if ($path && is_file($path_tr = bueditor_path_tr($path))) {
-      $files[$path] = $path_tr;
+    if ($path && $trpath = bueditor_path_tr($path)) {
+      $files[$path] = $trpath;
     }
   }
   return $files;
@@ -253,7 +286,7 @@ function bueditor_check_page($page, $editor) {
     }
     if (arg(0) == 'node' && arg(2) == 'edit') {
       $node = node_load(arg(1));
-      if ($node && drupal_match_path('node/add/'.  $node->type, $editor->pages)) {
+      if ($node && drupal_match_path('node/add/' .  $node->type, $editor->pages)) {
         return $editor;
       }
     }
@@ -269,7 +302,7 @@ function bueditor_check_match($needle, $haystack) {
   if ($needle == '') {
     return FALSE;
   }
-  $needle = '/^'. preg_replace("/\r\n?|\n/", '|', str_replace(array('*', '-', '/'), array('.*', '\\-', '\\/'), trim($needle))) .'$/';
+  $needle = '/^' . preg_replace("/\r\n?|\n/", '|', str_replace(array('*', '-', '/'), array('.*', '\\-', '\\/'), trim($needle))) . '$/';
   return preg_match($needle, $haystack);
 }
 
@@ -284,8 +317,8 @@ function bueditor_path_tr($path, $reverse = FALSE) {
   if (!isset($tokens)) {
     $tokens = array(
       '%BUEDITOR' => drupal_get_path('module', 'bueditor'),
-      '%FILES' => file_directory_path(),
-      '%THEME' => path_to_theme()
+      '%FILES' => file_directory_path('public'),
+      '%THEME' => path_to_theme(),
     );
   }
   if ($reverse) {
@@ -300,8 +333,28 @@ function bueditor_path_tr($path, $reverse = FALSE) {
 }
 
 /**
- * load editor by id. used by menu system
+ * Load editor by id. used by menu system
  */
 function bueditor_editor_load($eid) {
   return bueditor_editors($eid);
 }
+
+/**
+ * Return sprites directory
+ */
+function bueditor_sprites_dir() {
+  return file_directory_path('public') . '/' . variable_get('bueditor_sprites_dir', 'bueditor-sprites');
+}
+
+/**
+ * Evaluate PHP code.
+ */
+function bueditor_eval($code) {
+  ob_start();
+  print eval('?><?php ' . $code . ' ?>');
+  $output = ob_get_contents();
+  ob_end_clean();
+  return $output;
+}
+
+

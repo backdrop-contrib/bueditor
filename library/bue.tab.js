@@ -2,7 +2,7 @@
 
 //Introduce indent(TAB), unindent(Shift+TAB), and auto indent(ENTER) in textareas.
 //Requires: none
-BUE.postprocess.push(function(E, $) {
+BUE.preprocess.tab = function(E, $) {
 
   E.tabs = {
     str: '  ', //character(s) to be inserted when TAB is pressed. Drupal way is to use double space.
@@ -57,7 +57,7 @@ BUE.postprocess.push(function(E, $) {
     }
   });
  
-});
+};
 
 
 //Change settings in your own postprocess.

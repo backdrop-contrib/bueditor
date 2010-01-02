@@ -9,16 +9,16 @@ BUE.history = function(E) {
   H.bue = E;
   H.max= 50; //maximum number of states in undo/redo history
   H.keys= {'13': 1, '32': 1}; //the key codes(not char codes) triggering state saving. (13:enter, 32:space)
-  H.period= 2000; //minimum time needed to pass before saving successively triggered states.
+  H.period= 1200; //minimum time needed to pass before saving successively triggered states.
   H.states= []; //stores the states
   H.current= -1; //index of the latest activated/stored state
   H.writable= true; //dynamic allowance of state saving.
-  
+
   //attach textarea events triggering history operations.
   $(E.textArea).one('focus', function(){H.save()}).keyup(function(e) {
     H.writable && H.keys[e.keyCode] && H.save();
   });
-  
+
   //save history on setContent.
   E.historySetContent = E.setContent;
   E.setContent = function(content) {
@@ -71,13 +71,13 @@ H.go = function(i) {
 };
   
 //undo/redo for the editor.
-E.undo = function() {this.history.go(-1)};
-E.redo = function() {this.history.go(1)};
+E.undo = function() {this.history.go(-1); return this;};
+E.redo = function() {this.history.go(1); return this;};
 
 //create history for each editor instance
-BUE.postprocess.push(function(E, $) {
+BUE.preprocess.history = function(E, $) {
   E.history = new BUE.history(E);
-});
+};
 
 })(BUE.instance.prototype, jQuery);
 

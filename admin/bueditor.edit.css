@@ -72,13 +72,13 @@
   border-color: #f00;
 }
 
-#icon-selector {
+.selector-table {
   position: absolute;
   margin: 0em;
   width: auto;
   z-index: 1;
 }
-#icon-selector td {
+.selector-table td {
   border: 0.1em solid #e1e1e1;
   background-color: #f1f1f1;
   cursor: pointer;
@@ -86,25 +86,35 @@
   vertical-align: middle;
   padding: 0.4em 0.6em;
 }
-#icon-selector td:hover {
+.selector-table td:hover {
   background-color: #fff;
 }
-#icon-selector img {
+.selector-table img {
   vertical-align: middle;
   max-width: 40px;
   max-height: 40px;
 }
-#icon-selector input {
+.selector-table input {
   width: 1em;
   cursor: pointer;
+}
+#key-selector td {
+  padding: 0.3em 0.7em;
+  color: #000;
+}
+#key-selector td.used {
+  color: #f99;
+  cursor: default;
 }
 
 #sel-action-wrapper {
   float: right;
   margin: 0.5em;
 }
-#sel-action-wrapper div {
-  display: inline;
+#sel-action-wrapper .form-item {
+  float: left;
+  margin: 0 0.2em;
+  padding: 0 0.2em;
 }
 #sel-action-wrapper select, #sel-action-wrapper input {
   margin: 0em;
@@ -115,7 +125,4 @@
 
 #edit-submit {
   margin: 0.5em;
-}
-#editor-demo {
-  width: 94%;
 }

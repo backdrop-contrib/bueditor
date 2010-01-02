@@ -2,7 +2,7 @@
 
 //Automatically insert a new list item when enter-key is pressed at the end of a list item.
 //Requires: none
-BUE.postprocess.push(function(E, $) {
+BUE.preprocess.li = function(E, $) {
 
   $(E.textArea).keyup(function(e) {
     if (!e.ctrlKey && !e.shiftKey && !e.originalEvent.altKey && e.keyCode == 13) {
@@ -13,4 +13,4 @@ BUE.postprocess.push(function(E, $) {
     }
   });
  
-});
+};
