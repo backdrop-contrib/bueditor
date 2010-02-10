@@ -1,6 +1,6 @@
 // $Id$
 //Introdue find & replace forms
-//Requires: bue.popup, bue.html.js
+//Requires: bue.popup.js, bue.markup.js
 (function(E, $) {
 
 //find a string inside editor content.

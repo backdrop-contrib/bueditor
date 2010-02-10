@@ -44,12 +44,12 @@ It's the most flexible text editor of the web because it allows you to;
  - new optional library files:
    - bue.autocomplete.js: enables AC inside textareas for a set of predefined text pairs.
    - bue.ctrl.js: converts access keys into CTRL shortcuts.
-   - bue.find.js: enables search and replace inside textareas.(Depends on: popup, html)
+   - bue.find.js: enables search and replace inside textareas.(Depends on: popup, markup)
    - bue.history.js: cross-browser undo-redo functionality for textareas.
-   - bue.html.js: introduces HTML creating and parsing methods.
+   - bue.markup.js: introduces HTML creating and parsing methods.
    - bue.imce.js: integrates IMCE file browser in a popup.(Depends on: popup)
    - bue.li.js: auto inserts list items.
-   - bue.misc.js: miscellaneous methods used in default editor.(Depends on: popup, html)
+   - bue.misc.js: miscellaneous methods used in default editor.(Depends on: popup, markup)
    - bue.popup.js: introduces editor popups: E.dialog & E.quickPop
    - bue.popup.css: experimental CSS3 styling of editor popups
    - bue.preview.js: introduces preview methods E.prv(), E.prvAjax()
@@ -66,7 +66,7 @@ It's the most flexible text editor of the web because it allows you to;
 - HOW TO INSTALL:
 1) Copy editor directory to your modules directory.
 2) Enable the module at module administration page.
-3) Add/edit editors and buttons at: admin/config/content/bueditor.
+3) Add/edit editors and buttons at: admin/settings/bueditor.
 4) There is the default editor you can use as a starting point.
 5) You may install IMCE module to use it as a file/image browser in editor's image & link dialogs.
 6) Make sure your input format does not filter the tags the editor inserts.
@@ -414,9 +414,9 @@ tag -> tag name
 fields -> an array of attributes that are eiter strings or objects.
 options -> object containing optional parameters:
   title: dialog title. if not specified, "Tag editor - (tag)" is used.
-  stitle: laber for submit button. if not specified, "OK" is used.
-  submit: custom submit handler. called with two parameters (tag, form, options, E)
-  validate: custom validator. called with two parameters (tag, form, options, E)
+  stitle: label for submit button. if not specified, "OK" is used.
+  submit: custom submit handler. called with four parameters (tag, form, options, E)
+  validate: custom validator. called with four parameters (tag, form, options, E)
   effect: jQuery effect ('slideDown' or 'fadeIn')
 
 The simplest form, for example:
@@ -562,10 +562,10 @@ E.toggleTag('tag'): converts the selection "<tag>foo</tag>" to "foo"
 
 - BACKWARD COMPATIBILITY
 
-In 6x.-2.x the default library was removed and all functions starting with eDef are deprecated and new equivalents were implemented as either bueditor methods or editor instance methods in corresponding libraries.
+In 6.x-2.x the default library was removed and all functions starting with eDef are deprecated and new equivalents were implemented as either bueditor methods or editor instance methods in corresponding libraries.
 Below is the list of equivalents:
 
-bue.html.js
+bue.markup.js
   eDefHTML = BUE.html;
   eDefInput = BUE.input;
   eDefSelectBox = BUE.selectbox;

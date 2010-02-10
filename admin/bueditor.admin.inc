@@ -393,12 +393,12 @@ function bueditor_editor_theme($variables) {
   ));
   $selaction = $eid ? '<div id="sel-action-wrapper">' . drupal_render($form['selaction']) . drupal_render($form['copyto']) . drupal_render($form['go']) . '</div>' : '';
 
-  timer_start('bue-demo');
+  $timer = timer_read('page');
   $demo = '';
-  if ($eid && bueditor_settle($eid)) {
+  if ($eid && !isset($_GET['nodemo']) && bueditor_settle($eid)) {
     $set['BUE']['preset']['editor-demo'] = "e$eid";
     $demo = drupal_render($form['demo']);
-    $set['BUE']['demotime'] = round(timer_read('bue-demo'));
+    $set['BUE']['demotime'] = round(timer_read('page') - $timer);
   }
 
   $set['BUE']['iconpath'] = bueditor_path_tr($form['editor']['iconpath']['#value']);
@@ -478,6 +478,9 @@ function bueditor_selaction_submit($form, &$form_state) {
       $form_state['redirect'] = 'admin/config/content/bueditor/' . $form_state['values']['copyto'];
       break;
   }
+  //don't forget to save editor specific changes.
+  $editor = (object) $form_state['values']['editor'];
+  $editor->eid && bueditor_write_editor($editor);
 }
 
 /**
@@ -693,24 +696,29 @@ function bueditor_save_import($editor) {
   }
 
   //library files
-  if (isset($editor->library) && !empty($editor->library)) {
-    $files = array();
-    foreach ($editor->library as $tokenpath => $content) {
-      if (strpos($tokenpath, '://')) {//external
-        $files[] = $tokenpath;
-        continue;
-      }
-      $filepath = bueditor_path_tr($tokenpath);
-      if (file_exists($filepath)) {
-        $files[] = $tokenpath;
-      }
-      elseif (isset($cpath) && $content) {
-        $filename = basename($filepath);
-        file_put_contents($cpath['library'] . '/' . $filename, $content);
-        $files[] = $cpath['tokened'] . '/' . $filename;
-      }
+  if (isset($editor->library)) {
+    if (empty($editor->library)) {
+      $editor->librarypath = '';
     }
-    $editor->librarypath = implode("\n", $files);
+    else {
+      $files = array();
+      foreach ($editor->library as $tokenpath => $content) {
+        if (strpos($tokenpath, '://')) {//external
+          $files[] = $tokenpath;
+          continue;
+        }
+        $filepath = bueditor_path_tr($tokenpath);
+        if (file_exists($filepath)) {
+          $files[] = $tokenpath;
+        }
+        elseif (isset($cpath) && $content) {
+          $filename = basename($filepath);
+          file_put_contents($cpath['library'] . '/' . $filename, $content);
+          $files[] = $cpath['tokened'] . '/' . $filename;
+        }
+      }
+      $editor->librarypath = implode("\n", $files);
+    }
   }
 
   //set defaults for unset properties

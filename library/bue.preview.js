@@ -53,7 +53,7 @@ E.prvHide = function() {
 };
 
 //Ajax preview. Requires ajax_markup module.
- E.prvAjax = function() {
+ E.prvAjax = function(callback) {
   var E = this, $xM;
   if (E.prvOn) {
     return E.prvHide();
@@ -61,9 +61,9 @@ E.prvHide = function() {
   if (!($xM = $.ajaxMarkup)) {
     return E.prvShow(Drupal.t('Preview requires <a href="http://drupal.org/project/ajax_markup">Ajax markup</a> module with proper permissions set.'));
   }
-  E.prvShow(Drupal.t('Loading...'));
+  E.prvShow('<div class="bue-prv-loading">' + Drupal.t('Loading...') + '</div>');
   $xM(E.getContent(), $xM.getFormat(E.textArea), function(output, status, request) {
-    E.prvOn && E.prvShow(status ? output : output.replace(/\n/g, '<br />'));
+    E.prvOn && E.prvShow(status ? output : output.replace(/\n/g, '<br />')) && (callback || Drupal.attachBehaviors)(E.preview);
   });
   return E;
 };

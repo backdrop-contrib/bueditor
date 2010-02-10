@@ -2,8 +2,7 @@
 (function($) {
 
 //Faster alternative to resizable textareas.
-//Make textareas full expand/shrink on dblclick to grippie
-//runs async to cause no lag
+//Make textareas full expand/shrink on focus/blur
 Drupal.behaviors.textarea = {attach: function(context, settings) {
   setTimeout(function() {$('textarea.resizable', context).once('textarea', textArea)});
 }};
@@ -25,12 +24,11 @@ Drupal.behaviors.tableHeader = {attach: function(context, settings) {
 //process resizable textareas
 var textArea = function(i, T) {
   var spn = El('span'), $wrp = $(El('div')).addClass('resizable-textarea').append(spn);
-  var grp = $(El('div')).addClass('grippie').mousedown(TDrag).dblclick(TExpand).appendTo(spn)[0];
+  var grp = $(El('div')).addClass('grippie').mousedown(TDrag).appendTo(spn)[0];
   $wrp.insertBefore(T);
   $.browser.msie && $(T).is('.input-content') && $(T).width(bue.iewrp || (bue.iewrp = $wrp[0].offsetWidth));
-  $(T).prependTo(spn).addClass('textarea-processed');
+  $(T).prependTo(spn).addClass('textarea-processed').focus(TExpand).blur(TShrink);
   grp.bueT = T;
-  grp.title = Drupal.t('Double click to fully expand the text area');
   //grp.style.marginRight = (grp.offsetWidth - T.offsetWidth) +'px';//slow
 };
 
@@ -46,18 +44,16 @@ var TDrag = function(e) {
 
 //resize the textarea to its scroll height
 var TExpand = function(e) {
-  $(this).unbind('dblclick', TExpand).dblclick(TShrink);
-  var T = this.bueT, sH = T.scrollHeight, $T = $(T), tH = $T.height();
-  if (tH >= sH) return;
-  this.bueH = tH;
-  $T.height(sH).focus();
+  var T = this, sH = T.scrollHeight, $T = $(T), tH = $T.height();
+  T.bueH = tH;
+  tH < sH && $T.height(sH);
 };
 
 //resize the textarea to its original height
 var TShrink = function(e) {
-  $(this).unbind('dblclick', TShrink).dblclick(TExpand);
-  if (!this.bueH) return;
-  var T = this.bueT, $T = $(T), oriH = this.bueH, $w = $(window), sTop = $w.scrollTop();
+  var T = this, $T = $(T), oriH = T.bueH, tH = $T.height();
+  if (tH <= oriH) return;
+  var $w = $(window), sTop = $w.scrollTop();
   var diffH = $T.offset().top < sTop  ? $T.height() - oriH : 0;
   $T.height(oriH);
   $w.scrollTop(sTop - diffH);
@@ -125,7 +121,6 @@ var iconProc = function(i, inp) {
 var sopClick = function(e) {
   var pos = $(activeSop = this).offset();
   $(bue.IS).css({left: pos.left-parseInt($(bue.IS).width()/2)+10, top: pos.top+20}).show();
-  $('#edit-selaction').addClass('ie6');//fix ie6's selectbox z-index bug.
   setTimeout(function(){$(document).click(doClick)});
   return false;
 };
@@ -134,7 +129,6 @@ var sopClick = function(e) {
 var doClick = function(e) {
   $(document).unbind('click', doClick);
   $(bue.IS).hide();
-  $('#edit-selaction').removeClass('ie6');
 };
 
 //select text option
@@ -241,11 +235,9 @@ var keyProc = function(i, inp) {
     var pos = $(activeSop = this).offset();
     keyUsed(this.value, false);
     $(bue.KS).css({left: pos.left-parseInt($(bue.KS).width()/2)+10, top: pos.top+20}).show();
-    $('#edit-selaction').addClass('ie6');//fix ie6's selectbox z-index bug.
   }).blur(function() {
     $(bue.KS).hide();
     keyUsed(this.value, true, this);
-    $('#edit-selaction').removeClass('ie6');
   });
 };
 
@@ -302,6 +294,8 @@ var init = function() {
     bue.IS = iconSelector(); //create icon selector
     bue.KS = keySelector(); //create key selector
     $('input').filter('.input-icon').each(iconProc).end().filter('.input-key').each(keyProc);//process icons and keys
+    //disable A, C, V, X key selection when ctrl shortcuts are on.
+    window.BUE && window.BUE.preprocess.ctrl && $.each(['A', 'C', 'X', 'V'], function(i, key) {keyUsed(key, true)});
     selAction();//selected buttons actions
     tableDrag();//alter table drag
   });

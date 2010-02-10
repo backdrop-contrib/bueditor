@@ -187,7 +187,7 @@ return \'<img src="\'+ Drupal.settings.basePath +\'misc/druplicon.png" width="16
   array (
     '%BUEDITOR/library/bue.popup.js' => '',
     '%BUEDITOR/library/bue.popup.css' => '',
-    '%BUEDITOR/library/bue.html.js' => '',
+    '%BUEDITOR/library/bue.markup.js' => '',
     '%BUEDITOR/library/bue.preview.js' => '',
     '%BUEDITOR/library/bue.imce.js' => '',
     '%BUEDITOR/library/bue.misc.js' => '',

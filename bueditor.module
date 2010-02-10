@@ -107,11 +107,8 @@ function bueditor_query_buttons($sql, $var = array()) {
 function bueditor_processed_buttons($eid) {
   $buttons = array();
   foreach (bueditor_buttons($eid) as $bid => $button) {
-    if (substr($button->content, 0, 4) == 'php:') {
-      if ($content = bueditor_eval(substr($button->content, 4))) {
-        $button->content = $content;
-      }
-      else {
+    if (($content = $button->content) && substr($content, 0, 4) == 'php:') {
+      if (!$content = bueditor_eval(substr($content, 4))) {
         //php returned false or nothing. include empty button in order not to break sprite index.
         if (substr($button->title, 0, 4) != 'tpl:' && preg_match('/\.(png|gif|jpg)$/', $button->icon)) {
           $buttons[] = array();
@@ -119,8 +116,8 @@ function bueditor_processed_buttons($eid) {
         continue;
       }
     }
-    $button->title = substr($button->title, 0, 2) == 't:' ? t(trim(substr($button->title, 2))) : $button->title;
-    $buttons[] = array($button->title, $button->content, $button->icon, $button->accesskey);
+    $title = substr($button->title, 0, 2) == 't:' ? call_user_func('t', trim(substr($button->title, 2))) : $button->title;
+    $buttons[] = array($title, $content, $button->icon, $button->accesskey);
   }
   return $buttons;
 }

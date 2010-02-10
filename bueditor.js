@@ -18,7 +18,7 @@ BUE.behavior = function(context, settings) {
     BUE.processTextarea($('#'+ tid, context).get(0), tplid);
   });
   //fix enter key on textfields triggering button click.
-  $('input:text', context).keydown(function(e) {e.keyCode == 13 && (BUE.clickTime = new Date())});
+  $('input:text', context).keydown(function(e) {e.keyCode == 13 && (BUE.enterKeyTime = new Date())});
 };
 
 //integrate editor template into textarea T
@@ -48,7 +48,7 @@ BUE.instance = function (T, tplid) {
   E.buttons = $('.bue-button', E.UI).each(function(i, B) {
     var arr = B.id.split('-');
     $($.extend(B, {eindex: arr[1], bid: arr[3], bindex: i})).click(function() {
-      return !(BUE.clickTime && new Date() - BUE.clickTime < 100) && BUE.buttonClick(B.eindex, B.bindex);
+      return !(BUE.enterKeyTime && new Date() - BUE.enterKeyTime < 500) && BUE.buttonClick(B.eindex, B.bindex);
     });
   }).get();
   $(T).focus(function() {!T.bue.dialog.esp && T.bue.activate()});

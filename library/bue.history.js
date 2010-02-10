@@ -8,15 +8,16 @@ BUE.history = function(E) {
   var H = this;
   H.bue = E;
   H.max= 50; //maximum number of states in undo/redo history
-  H.keys= {'13': 1, '32': 1}; //the key codes(not char codes) triggering state saving. (13:enter, 32:space)
-  H.period= 1200; //minimum time needed to pass before saving successively triggered states.
+  //the key codes(not char codes) triggering state saving. (enter, space, del, C, V, X)
+  H.keys= {'13': 1, '32': 1, '46': 1, '67': 1, '86': 1, '88': 1};
+  H.period= 1000; //minimum time needed to pass before saving successively triggered states.
   H.states= []; //stores the states
   H.current= -1; //index of the latest activated/stored state
   H.writable= true; //dynamic allowance of state saving.
 
   //attach textarea events triggering history operations.
   $(E.textArea).one('focus', function(){H.save()}).keyup(function(e) {
-    H.writable && H.keys[e.keyCode] && H.save();
+    H.writable && (!H.keys || H.keys[e.keyCode]) && H.save();
   });
 
   //save history on setContent.
@@ -84,6 +85,7 @@ BUE.preprocess.history = function(E, $) {
 //Change settings in your own postprocess.
 //E.history.max = YOUR_MAXIMUM_NUMBER_OF_UNDO_STATES;
 //E.history.keys['YOUR_KEYCODE_TRIGGERING_STATE_SAVE'] = 1;
+//E.history.keys = false;//allows any key to trigger state saving.
 //E.history.period = YOUR_MIN_TIME_IN_MILISECONDS_TO_PASS_BEFORE_SAVING_THE_NEXT_STATE;
 
 //Create custom buttons for your editor

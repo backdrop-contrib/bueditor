@@ -1,7 +1,7 @@
 // $Id$
 
 //Miscellaneous methods used in default editor: E.wrapLines(), E.toggleTag(), E.help(), E.tagChooser(), E.tagDialog()
-//Requires: bue.popup.js, bue.html.js
+//Requires: bue.popup.js, bue.markup.js
 (function(E, $) {
 
 //Wraps selected lines with b1 & b2 and then wrap the result with a1 & a2. Also restores a wrapped selection.

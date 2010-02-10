@@ -10,8 +10,6 @@
 
 .button-table .th-title {
   width: 12em;
-  #width: 13.5em;/*<=ie7*/
-  _width: 14.5em;/*<=ie6*/
 }
 .button-table .input-title {
   width: 8.8em;
@@ -55,6 +53,9 @@
 }
 .button-table div.resizable-textarea {
   width: 98%;
+}
+.js .button-table div.resizable-textarea textarea {
+  height: 1.6em;
 }
 .button-table div.grippie {
   height: 0.4em;
@@ -118,9 +119,6 @@
 }
 #sel-action-wrapper select, #sel-action-wrapper input {
   margin: 0em;
-}
-#sel-action-wrapper select.ie6 {/*fix icon-selector and selectbox overlap in ie6*/
-  _visibility: hidden;
 }
 
 #edit-submit {

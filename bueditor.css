@@ -6,7 +6,6 @@
 .bue-button {
   margin: 1px;
   border: 1px solid #ccc;
-  vertical-align: bottom;
   cursor: pointer;
   padding: 0;
 }
@@ -28,14 +27,10 @@
   border-color: #f00;
 }
 .bue-ui span.separator {
-  line-height: 24px;
-  font-size: 11px;
-  vertical-align: middle;
-  padding: 0px 1px;
+  margin: 0px 1px;
 }
-.bue-ui span.separator img {
+.bue-ui img, .bue-button {
   vertical-align: middle;
-  margin: 2px 0px;
 }
 /*Popup dialogs*/
 .bue-popup {
@@ -90,6 +85,7 @@
   margin: 0em;
   padding: 0em;
   border: none;
+  background: none;
 }
 /*tag chooser*/
 .bue-popup-content ul.tag-chooser {
