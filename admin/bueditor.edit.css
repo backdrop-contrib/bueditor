@@ -50,6 +50,7 @@
   display: inline;
   margin: 0em;
   padding: 0em;
+  white-space: normal;/*override system.css*/
 }
 .button-table div.resizable-textarea {
   width: 98%;
