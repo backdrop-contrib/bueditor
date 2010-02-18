@@ -123,7 +123,7 @@ function bueditor_processed_buttons($eid) {
 }
 
 /**
- * Implement hook_elements().
+ * Implement hook_element_info().
  */
 function bueditor_element_info() {
   return array(
