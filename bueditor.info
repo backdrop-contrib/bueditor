@@ -1,6 +1,7 @@
 ; $Id$
 name = "BUEditor"
 description = "A plain textarea editor aiming to facilitate code writing."
+package = "Content authoring"
 
 files[] = "bueditor.install"
 files[] = "bueditor.module"
