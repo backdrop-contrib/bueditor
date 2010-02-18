@@ -10,6 +10,7 @@
  * Implement hook_install()
  */
 function bueditor_install() {
+  drupal_set_message(t('!module has been installed.', array('!module' => l('BUEditor', 'admin/config/content/bueditor'))));
   //workaround for #620298
   $GLOBALS['bueditor_just_installed'] = TRUE;
 }
@@ -22,7 +23,7 @@ function bueditor_enable() {
   if (isset($GLOBALS['bueditor_just_installed'])) {
     unset($GLOBALS['bueditor_just_installed']);
     module_load_include('inc', 'bueditor', 'admin/bueditor.admin');
-    bueditor_add_default_editor();
+    bueditor_import_all();
   }
 }
 

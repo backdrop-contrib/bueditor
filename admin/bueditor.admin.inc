@@ -788,21 +788,11 @@ function bueditor_eop() {
 /**
  * Editor add_default operation.
  */
-function bueditor_eop_add_default($name) {
-  if ($editor = bueditor_add_default_editor($name)) {
+function bueditor_eop_add_default($ename) {
+  if ($editor = bueditor_import_by_name('default', $ename)) {
     bueditor_message_added($editor->name);
   }
   return $editor;
-}
-
-/**
- * Create the default editor.
- */
-function bueditor_add_default_editor($name = 'default editor') {
-  $editor = bueditor_editor_defaults($name ? $name : 'default editor');
-  $code = file_get_contents(drupal_get_path('module', 'bueditor') . '/import/default.bueditor.txt');
-  $buttons = bueditor_grab_imported_buttons(bueditor_exec_editor_code($code));
-  return bueditor_write_editor($editor, $buttons);
 }
 
 /**
@@ -1017,9 +1007,41 @@ function bueditor_message_added($name) {
 function bueditor_set_quick_import() {
   $path = drupal_get_path('module', 'bueditor');
   $setting['BUE']['imp'] = array(
-    'editors' => array('default', 'bbcode', 'commenter', 'lab'),
+    'editors' => bueditor_importable_names(),
     'dir' => $path . '/import/',
   );
   drupal_add_js($path . '/admin/bueditor.import.js', array('preprocess' => FALSE));
   drupal_add_js($setting, 'setting');
+}
+
+/**
+ * Return the list of importable editor names.
+ */
+function bueditor_importable_names() {
+  return array('default', 'bbcode', 'commenter', 'lab');
+}
+
+/**
+ * Import an editor from 'bueditor/import' directory.
+ */
+function bueditor_import_by_name($name, $ename = '') {
+  $file = drupal_get_path('module', 'bueditor') . '/import/' . $name . '.bueditor.txt';
+  if ($code = file_get_contents($file)) {
+    if ($editor = bueditor_exec_editor_code($code)) {
+      if ($ename) {
+        $editor->name = $ename;
+      }
+      return bueditor_save_import($editor);
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Import all from 'bueditor/import' directory.
+ */
+function bueditor_import_all() {
+  foreach (bueditor_importable_names() as $name) {
+    bueditor_import_by_name($name);
+  }
 }
