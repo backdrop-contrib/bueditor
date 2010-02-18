@@ -66,7 +66,7 @@ It's the most flexible text editor of the web because it allows you to;
 - HOW TO INSTALL:
 1) Copy editor directory to your modules directory.
 2) Enable the module at module administration page.
-3) Add/edit editors and buttons at: admin/settings/bueditor.
+3) Add/edit editors and buttons at: admin/config/content/bueditor.
 4) There is the default editor you can use as a starting point.
 5) You may install IMCE module to use it as a file/image browser in editor's image & link dialogs.
 6) Make sure your input format does not filter the tags the editor inserts.
