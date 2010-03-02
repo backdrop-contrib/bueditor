@@ -232,7 +232,7 @@ E.tagSelection = function (left, right, cursor) {
 //make a new selection
 E.makeSelection = function (start, end) {
   var E = this;
-  if (end < start) end = start;
+  if (end === undefined || end < start) end = start;
   BUE.selMake(E.textArea, start, end);
   E.dialog.esp && (E.dialog.esp = {start: start, end: end}) || E.focus();
   return E;
