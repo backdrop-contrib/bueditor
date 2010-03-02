@@ -22,7 +22,7 @@ E.prv = function(safecheck) {
 E.prvShow = function(html, wrap) {
   var E = this;
   var $T = $(E.textArea);
-  var $P = $(E.preview = E.preview || BUE.$html('<div class="preview" style="display:none; overflow:auto"></div>').insertBefore($T)[0]);
+  var $P = $(E.preview = E.preview || BUE.$html('<div class="preview bue-preview" style="display:none; overflow:auto"></div>').insertBefore($T)[0]);
   if (wrap === undefined || wrap) {
     html = '<div class="'+ (E.textArea.name == 'comment' ? 'comment' : 'node') +'"><div class="content">' + html + '</div></div>';
   }
