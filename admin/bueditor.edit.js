@@ -27,7 +27,7 @@ var textArea = function(i, T) {
   var grp = $(El('div')).addClass('grippie').mousedown(TDrag).appendTo(spn)[0];
   $wrp.insertBefore(T);
   $.browser.msie && $(T).is('.input-content') && $(T).width(bue.iewrp || (bue.iewrp = $wrp[0].offsetWidth));
-  $(T).prependTo(spn).addClass('textarea-processed').focus(TExpand).blur(TShrink);
+  $(T).prependTo(spn).addClass('textarea-processed').focus(TExpand).blur(TShrink).keydown(TKeyResize);
   grp.bueT = T;
   //grp.style.marginRight = (grp.offsetWidth - T.offsetWidth) +'px';//slow
 };
@@ -35,18 +35,30 @@ var textArea = function(i, T) {
 //start resizing textarea
 var TDrag = function(e) {
   var $T = $(this.bueT), $doc = $(document);
-  var doDrag = function(e) {$T.height(Math.max(18, bue.Y + e.pageY));return false;}
+  var doDrag = function(e) {$T.height($T[0].bueH = Math.max(18, bue.Y + e.pageY));return false;}
   var noDrag = function(e) {$doc.unbind('mousemove', doDrag).unbind('mouseup', noDrag);$T.css('opacity', 1);}
   bue.Y = $T.css('opacity', 0.25).height() - e.pageY;
   $doc.mousemove(doDrag).mouseup(noDrag);
   return false;
 };
 
+//auto-resize the textarea to its scroll height while typing. triggers are: backspace, enter, space, del, V, X
+var resizeKeys = {'8': 1, '13': 1, '32': 1, '46': 1, '86': 1, '88': 1};
+var TKeyResize = function(e) {
+  var T = this;
+  setTimeout(function() {
+    if (resizeKeys[e.keyCode]) {
+      var sH = T.scrollHeight, $T = $(T), tH = $T.height();
+      tH < sH && $T.height(sH + 5);
+    }
+  });
+};
+
 //resize the textarea to its scroll height
 var TExpand = function(e) {
   var T = this, sH = T.scrollHeight, $T = $(T), tH = $T.height();
   T.bueH = tH;
-  tH < sH && $T.height(sH);
+  tH < sH && $T.height(sH + 5);
 };
 
 //resize the textarea to its original height
@@ -298,6 +310,8 @@ var init = function() {
     window.BUE && window.BUE.preprocess.ctrl && $.each(['A', 'C', 'X', 'V'], function(i, key) {keyUsed(key, true)});
     selAction();//selected buttons actions
     tableDrag();//alter table drag
+    //disable auto expand/shrink for demo
+    $('#editor-demo').unbind('focus', TExpand).unbind('blur', TShrink).unbind('keydown', TKeyResize);
   });
 };
 
