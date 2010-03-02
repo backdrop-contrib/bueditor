@@ -19,14 +19,9 @@ It's the most flexible text editor of the web because it allows you to;
  - changed key variable from "editor" to "BUE". (ex: editor.active is now BUE.active)
  - another popup dialog(BUE.quickPop) that has no title or close button.
  - jquery effects. (ex: effects in popup openings)
- In default buttons' library:
- - new eDefTagChooser function that uses BUE.quickPop to allow users choose among predefined tags.
- - new eDefTagger function that toggles(inserts or removes) a predefined tag in the selection.
- - eDefTagDialog accepts a special attribute name, "html", that represents the inner html of the tag.
- - eDefTagDialog accepts "textarea" as a field type.
 
 6.x-2.x
- - CSS sprites support.
+ - CSS sprites for icons(switchable under editor path settings).
  - bueditor.js got smaller.
  - new buttons for the default editor: Underline, Strike-through, Quote, Code 
  - ability to extend editor instances via post process functions.
@@ -42,13 +37,13 @@ It's the most flexible text editor of the web because it allows you to;
  - No need for php buttons to get IMCE URL which is now stored in Drupal.settings.BUE.imceURL(or BUE.imce.url when the bue.imce library is used)
  - new E.prvAjax() method for live previewing html or non-html markup with the help of Ajax Markup module.
  - new optional library files:
-   - bue.autocomplete.js: enables AC inside textareas for a set of predefined text pairs.
+   - bue.autocomplete.js: enables AC inside textareas. Completes html/bbcode tags by default.
    - bue.ctrl.js: converts access keys into CTRL shortcuts.
    - bue.find.js: enables search and replace inside textareas.(Depends on: popup, markup)
-   - bue.history.js: cross-browser undo-redo functionality for textareas.
+   - bue.history.js: cross-browser undo-redo for textareas.
    - bue.markup.js: introduces HTML creating and parsing methods.
    - bue.imce.js: integrates IMCE file browser in a popup.(Depends on: popup)
-   - bue.li.js: auto inserts list items.
+   - bue.li.js: auto inserts a list item when enter key is pressed at the end of a list item.
    - bue.misc.js: miscellaneous methods used in default editor.(Depends on: popup, markup)
    - bue.popup.js: introduces editor popups: E.dialog & E.quickPop
    - bue.popup.css: experimental CSS3 styling of editor popups
@@ -64,9 +59,9 @@ It's the most flexible text editor of the web because it allows you to;
 
 
 - HOW TO INSTALL:
-1) Copy editor directory to your modules directory.
+1) Copy editor directory to your modules(sites/all/modules) directory.
 2) Enable the module at module administration page.
-3) Add/edit editors and buttons at: admin/config/content/bueditor.
+3) Add/edit editors at admin/config/content/bueditor.
 4) There is the default editor you can use as a starting point.
 5) You may install IMCE module to use it as a file/image browser in editor's image & link dialogs.
 6) Make sure your input format does not filter the tags the editor inserts.
@@ -108,6 +103,7 @@ There are three types of buttons regarding the CONTENT property;
 1- HTML BUTTONS 
 2- JAVASCRIPT BUTTONS 
 3- PHP BUTTONS
+and a special type determined by the title prefix;
 4- THEME BUTTONS
 
 
@@ -128,7 +124,7 @@ Note: if you want to insert some text containing the phrase %TEXT%, use a javasc
 These type of buttons are used for special cases where it is insufficient to just replace the selected text.
 The content of a javascript button must begin with a 3 character text "js:" to be differentiated from a
 html button. The remaining code is treated as a javascript code and executed in a function when the
-button is clicked. The function is called with the parameter E which represents the active editor. 
+button is clicked. The function is called with the parameters E(active editor) and $(jQuery). 
 Editor has many ready-to-use methods and variables making it easy to create javascript buttons.
 See EDITOR VARIABLES AND METHODS and especially EDITOR INSTANCE variables and methods.
 
@@ -152,7 +148,7 @@ it is disabled and doesn't show up.
 - THEME BUTTONS
 A theme button is a special type of button that just inserts html into editor interface for theming purposes. It can be
 used to insert separators, line breaks or any html code in order to achieve the themed editor interface. For a button to
-be considered as a theme button it should have a title starting with "tpl:". Having this title, the button is processed to
+be considered a theme button it should have a title starting with "tpl:". Having this title, the button is processed to
 insert a piece of html code that is included in button content and button icon(or caption). A theme button, regarding its 
 content, can also be a js or php button at the same time.
 
@@ -301,7 +297,7 @@ if cursor='end', it is placed at the end of the selected text.
 if cursor is not defined, the selection is preserved.
 
 E.makeSelection(start, end):
-Create a selection by selecting the characters between the indexes "start" and "end".
+Create a selection by selecting the characters between the indexes "start" and "end" where "end" is optional.
 
 E.posSelection():
 Returns the index values of selection start and selection end.
@@ -316,9 +312,8 @@ Ex: to disable all buttons except the pressed button;
 js: E.buttonsDisabled(true, E.bindex);
 
 E.stayClicked(state, bindex):
-Add/remove "stay-clicked" class to/from a user defined button.
+Add/remove "stay-clicked" class to/from a user defined button having the "bindex".
 This method is usually used to toggle a stay-clicked effect on the active button without supplying the second argument.
-
 
 
 - EDITOR ICONS
@@ -349,7 +344,7 @@ unexpected behaviour of the editor in some platform-browser combos regarding the
 insertion/replacement. Specify new line characters as "\n", if you have to use any in your scripts.
 
 POST variable limit:
-Although it's a rare case, you may have to increase your server post variable limit if you have problems while adding too many buttons.
+Although it's a rare case, you may have to increase your server post variable limit if you have problems while adding too many buttons in admin interface.
 
 
 - DEFAULT BUTTONS
@@ -466,21 +461,9 @@ That's it. We now have an image dialog which can also get/set the "align" attrib
 
 How to create a button that gets user input and adds it to the textarea?
 
-Button content could be like this:
-js:
-//form html. we define an input field named as "user_input".
-var form = '<form>';
-form += 'Input : <input type="text" name="user_input" />';
-form += '<input type="submit" value="Submit" />';
-form += '</form>';
-form = BUE.$html(form).submit(function() {//set submit event
-  E.replaceSelection('User input is: '+ this.elements["user_input"].value);
-  return false;
-});
-//open editor dialog with a title and the form.
-E.dialog.open('User Input', form);
-
-The above example uses a form which is more suitable for complex user input. If you want to get just a single input you may consider using javascript prompt(). Here is an example that gets image URL as a user input
+If you want to use a complete form for user input, then use the E.tagDialog method with a custom submit handler.
+If you want to get just a single input you may consider using javascript prompt().
+Here is an example that gets image URL as a user input
 js:
 var url = prompt('URL', '');//prompt for URL
 var code = '<img src="'+ url +'" />';//put the url into the code.
@@ -505,7 +488,7 @@ Red (inserting <span style="color: red"></span>)
 Blue (inserting <span class="blue-text"></span>)
 
 Parameter "options": an object containing the optional parameters.
-It defaults to {wrapEach: 'li', wrapAll: 'ul', applyTag: true, effect: 'fadeIn'}
+It defaults to {wrapEach: 'li', wrapAll: 'ul', applyTag: true, effect: 'slideDown'}
 
 wrapEach: the html tag that will enclose each option.
 wrapAll: the html tag that will enclose the whole block of options.
@@ -537,13 +520,13 @@ js: E.tagChooser([
  ['img', '<br />', {'src': '/path-to-images/img8.png'}],//br after 8th
  ['img', '', {'src': '/path-to-images/img9.png'}],
  ['img', '', {'src': '/path-to-images/img10.png'}]
-], true, '', '', 'slideDown');
+], {wrapEach: '', wrapAll: 'div'});
 
 
 While inserting a single tag should we use the classic <tag>%TEXT%</tag> pattern or the E.toggleTag('tag') ?
 What is the difference between <tag>%TEXT%</tag> and js:E.toggleTag('tag') ?
 
-First of all, the classic tag insertion method does not require the default buttons library, whereas E.toggleTag is a part of the default buttons library.
+First of all, the classic tag insertion method does not require any additional library, whereas E.toggleTag is a part of the bue.misc.js library.
 
 - Classic method preserves the selected text after tag insertion, whereas E.toggleTag selects the whole insertion.
 Classic method: converts the selection "foo" to "<tag>foo</tag>", ("foo" still being selected)
