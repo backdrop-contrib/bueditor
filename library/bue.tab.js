@@ -48,9 +48,11 @@ BUE.preprocess.tab = function(E, $) {
         E.replaceSelection('\n' + m[1], 'end');
         if ($.browser.opera) {//unable to suppress opera's default action.
           setTimeout(function() {
-            var pos = E.posSelection();
-            E.makeSelection(pos.start - 1, pos.end).replaceSelection('', 'end');
-          }, 0);
+            var pos = E.posSelection(), content = E.getContent();
+            var lpos = content.substr(0, pos.start).lastIndexOf('\n');
+            E.setContent(content.substr(0, lpos) + content.substr(lpos+1));
+            E.makeSelection(pos.start - 1, pos.end - 1);
+          });
         }
         return false;
       }
