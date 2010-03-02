@@ -8,8 +8,8 @@ BUE.history = function(E) {
   var H = this;
   H.bue = E;
   H.max= 50; //maximum number of states in undo/redo history
-  //the key codes(not char codes) triggering state saving. (backspace, enter, space, del, C, V, X, comma, dot)
-  H.keys= {'8': 1, '13': 1, '32': 1, '46': 1, '67': 1, '86': 1, '88': 1, '188': 1, '190': 0};
+  //the key codes(not char codes) triggering state saving. (backspace, enter, space, del, V, X, comma, dot)
+  H.keys= {'8': 1, '13': 1, '32': 1, '46': 1, '86': 1, '88': 1, '188': 1, '190': 0};
   H.period= 500; //minimum time needed to pass before saving successively triggered states.
   H.states= []; //stores the states
   H.current= -1; //index of the latest activated/stored state
@@ -22,9 +22,9 @@ BUE.history = function(E) {
 
   //save history on setContent.
   E.historySetContent = E.setContent;
-  E.setContent = function(content) {
-    H.save();
-    return E.historySetContent(content);
+  E.setContent = function() {
+    this.history.save();
+    return this.historySetContent.apply(this, arguments);
   };
 };
 
@@ -65,7 +65,9 @@ H.go = function(i) {
   i < 0 && H.current == H.states.length - 1 && H.save(true);
   var state, index = H.current + i;
   if (state = H.states[index]) {
-    E.textArea.value = state.value;//not using setContent() since it triggers state saving.
+    H.disallow();//prevent setContent save state.
+    E.setContent(state.value);
+    H.allow();
     E.makeSelection(state.cursor.start, state.cursor.end);
     E.textArea.scrollTop = state.scrollTop;
     H.current = index;
