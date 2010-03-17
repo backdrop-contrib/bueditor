@@ -2,6 +2,11 @@
 // $Id$
 
 /**
+ * @file
+ * Generates CSS sprites for editor buttons.
+ */
+
+/**
  * Create and return editor sprite depending on editor settings or buttons.
  */
 function bueditor_sprite($editor, $buttons = array()) {

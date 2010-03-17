@@ -11,7 +11,7 @@ $(function() {I.url = Drupal.settings.BUE.imceURL || ''});
 
 //IMCE button html to be used in forms. Target field's name is required.
 I.button = function(fname, text) {
-  return I.url ? '<input type="button" id="bue-imce-button" name="bue_imce_button" class="form-button" value="'+ (text || Drupal.t('Browse')) +'" onclick="BUE.imce.open(this.form.elements[\''+ fname +'\'])">' : '';
+  return I.url ? '<input type="button" id="bue-imce-button" name="bue_imce_button" class="form-submit" value="'+ (text || Drupal.t('Browse')) +'" onclick="BUE.imce.open(this.form.elements[\''+ fname +'\'])">' : '';
 };
 
 //open IMCE with user specified options.

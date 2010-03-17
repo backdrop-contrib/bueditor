@@ -246,8 +246,9 @@ or it can be a set of options:
 {
   effect: jQuery effect (default: 'show'),
   speed: either milliseconds or one of the 'slow', 'normal', 'fast' (default: 'normal'),
-  callback: function to be run after opening (default: internal function to focus on the popup),
-  offset: position of the popup(default: {top: top offset of the active button, left: left offset of the active button})
+  offset: position of the popup(default: {top: top offset of the active button, left: left offset of the active button}),
+  onopen(or callback): function to be run after opening (default: internal function to focus on the popup),
+  onclose: function to be after closing the popup(default: none)
 }
 
 BUE.createPopup(id, title, content):

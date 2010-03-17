@@ -2,6 +2,11 @@
 // $Id$
 
 /**
+ * @file
+ * Serves administration pages of BUEditor.
+ */
+
+/**
  * Admin main page.
  */
 function bueditor_admin() {
@@ -403,14 +408,15 @@ function bueditor_editor_theme($variables) {
 
   $set['BUE']['iconpath'] = bueditor_path_tr($form['editor']['iconpath']['#value']);
   $set['BUE']['iconlist'] = bueditor_icons($set['BUE']['iconpath']);
-  drupal_add_js('misc/form.js');
-  drupal_add_css($path . '/admin/bueditor.edit.css', array('preprocess' => FALSE));
-  drupal_add_js($path . '/admin/bueditor.edit.js', array('preprocess' => FALSE));
-  drupal_add_js($set, 'setting');
-  drupal_add_tabledrag('button-table', 'order', 'sibling', 'input-weight');
   $output = theme('vertical_tabs', array('element' => array('#children' => $name . $visibility . $paths . $import)));
   $output .= '<h2 class="title">' . t('Buttons') . '</h2>' . $buttons . $selaction . drupal_render($form['submit']);
   $output .= drupal_render_children($form) . $demo;
+
+  drupal_add_js('misc/form.js');
+  drupal_add_css($path . '/admin/bueditor.edit.css');
+  drupal_add_js($path . '/admin/bueditor.edit.js');
+  drupal_add_js($set, 'setting');
+  drupal_add_tabledrag('button-table', 'order', 'sibling', 'input-weight');
   return $output;
 }
 
@@ -991,7 +997,7 @@ function bueditor_export_text($text, $filename) {
   header('Content-type: text/plain; charset=utf-8');
   header('Content-Disposition: attachment; filename=' . $filename);
   print $text;
-  exit ();
+  exit();
 }
 
 /**

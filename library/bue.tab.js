@@ -35,9 +35,8 @@ BUE.preprocess.tab = function(E, $) {
             E.replaceSelection(tab, 'end');
           }
         }
-        if ($.browser.opera) {//unable to suppress opera's default action.
-          $(E.textArea).one('blur', function() {this.focus()});
-        }
+        //Opera needs suppression of keypress
+        $.browser.opera && $(this).one('keypress', function() {return false});
         return false;
       }
     }
@@ -46,14 +45,8 @@ BUE.preprocess.tab = function(E, $) {
       var m, text = E.getContent().substr(0, E.posSelection().start);
       if (m = text.substr(text.lastIndexOf('\n') + 1).match(/^(\s+)/)) {
         E.replaceSelection('\n' + m[1], 'end');
-        if ($.browser.opera) {//unable to suppress opera's default action.
-          setTimeout(function() {
-            var pos = E.posSelection(), content = E.getContent();
-            var lpos = content.substr(0, pos.start).lastIndexOf('\n');
-            E.setContent(content.substr(0, lpos) + content.substr(lpos+1));
-            E.makeSelection(pos.start - 1, pos.end - 1);
-          });
-        }
+        //Opera needs suppression of keypress
+        $.browser.opera && $(this).one('keypress', function() {return false});
         return false;
       }
     }

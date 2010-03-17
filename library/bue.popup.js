@@ -32,11 +32,10 @@ BUE.createPopup = function (id, title, content) {
       $content.html(content);
     }
     var E = P.bue = BUE.active, B = E.buttons[E.bindex||0];
-    var opt = $.extend({
-      effect: 'show',
-      speed: 'normal',
-      callback: P.onopen
-    }, typeof opt == 'string' ? {effect: opt} : opt);
+    opt = typeof opt == 'string' ? {effect: opt} : opt;
+    opt = $.extend({effect: 'show', speed: 'normal', callback: P.onopen}, opt);
+    opt.onopen = opt.onopen || opt.callback;
+    //calculate popup offset
     if (!opt.offset && B) {
       var pos = $(B).offset(), w = $P.width(), left = Math.max(15, pos.left - w/2 + 15);
       opt.offset = {
@@ -46,12 +45,21 @@ BUE.createPopup = function (id, title, content) {
       B.pops = true;
     }
     $P.css(opt.offset);
-    opt.effect == 'show' ? $P.show() && opt.callback && opt.callback.call(P) : $P[opt.effect](opt.speed, opt.callback);
+    //display popup
+    if (opt.effect == 'show') {
+      $P.show();
+      opt.onopen && opt.onopen.call(P);
+    }
+    else {
+      $P[opt.effect](opt.speed, opt.onopen);
+    }
+    P.onclose = opt.onclose || false;
     return P;
   };
   //close
   P.close = function(effect) {
     $P.stop(true, true)[effect || 'hide']();
+    P.onclose && P.onclose.call(P);
     return P;
   };
   //close the pop, focus on the editor
@@ -89,6 +97,7 @@ BUE.createPopup = function (id, title, content) {
     var drag =  function(e) {$P.css({left: pos.X + e.pageX, top: pos.Y + e.pageY});return false;};
     var undrag = function(e) {$(document).unbind('mousemove', drag).unbind('mouseup', undrag)};
     $(document).mousemove(drag).mouseup(undrag);
+    return false;
   });
   return P;
 };

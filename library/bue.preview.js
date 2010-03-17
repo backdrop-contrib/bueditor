@@ -70,7 +70,7 @@ E.prvHide = function() {
 
 //Convert new line characters to html breaks or paragraphs. Ported from http://photomatt.net/scripts/autop
 BUE.autop = function (s) {
-  if (s == '' || s.search(/\n|\r/) == -1) {
+  if (s == '' || !(/\n|\r/).test(s)) {
     return s;
   }
   var  X = function(x, a, b) {return x.replace(new RegExp(a, 'g'), b)};

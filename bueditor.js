@@ -97,7 +97,7 @@ BUE.theme = function (tplid) {
     if (content.substr(0, 3) == 'js:') {
       func = B[4] = new Function('E', '$', content.substr(3));
     }
-    isimg = icon.search(/\.(png|gif|jpg)$/i) > -1;
+    isimg = (/\.(png|gif|jpg)$/i).test(icon);
     //theme button.
     if (title.substr(0, 4) == 'tpl:') {
       html += func ? (func(null, $) || '') : content;

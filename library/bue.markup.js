@@ -55,7 +55,7 @@ BUE.regesc = function (s) {
 
 //Check if a string is a non closing html tag.
 BUE.nctag = function (s) {
-  return !s || s.search(/^(img|input|hr|br|embed)$/) > -1;
+  return !s || /^(img|input|hr|br|embed)$/.test(s);
 };
 
 //Parse the string as html. If match an html element return properties, otherwise return null.

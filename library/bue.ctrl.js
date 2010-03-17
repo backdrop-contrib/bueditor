@@ -8,7 +8,7 @@ BUE.preprocess.ctrl = function(E, $) {
   E.ctrlKeys = {};
 
   //get button keys
-  !$.browser.opera && $.each(E.buttons, function(i, B) {
+  $.each(E.buttons, function(i, B) {
     var pos, key;
     if (key = E.tpl.buttons[B.bid][3]) {//B.accessKey is not reliable since it is dynamically set on/off
       E.ctrlKeys[key.toUpperCase().charCodeAt(0)] = B;
@@ -18,9 +18,11 @@ BUE.preprocess.ctrl = function(E, $) {
   });
 
   //register ctrl shortcuts for the editor.
-  !$.browser.opera && $(E.textArea).keydown(function(e) {
+  $(E.textArea).keydown(function(e) {
     if (e.ctrlKey && !e.shiftKey && !e.originalEvent.altKey && E.ctrlKeys[e.keyCode]) {
       E.ctrlKeys[e.keyCode].click();
+      //Opera needs supression of keypress.
+      $.browser.opera && $(this).one('keypress', function() {return false});
       return false;
     }
   });
@@ -30,5 +32,4 @@ BUE.preprocess.ctrl = function(E, $) {
 
 //Extend or alter shortcuts in your own postprocess:
 //E.ctrlKeys['YOUR_KEY_CODE'] = {click: YOUR_CALLBACK};
-//Shortcuts are disabled in Opera since it does not suppress the default Ctrl shortcuts.
 //Do not use F, O, and P as shortcut keys in IE and Safari as they will always fire their default action.

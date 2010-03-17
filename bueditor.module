@@ -2,7 +2,12 @@
 // $Id$
 
 /**
- * Implement hook_menu().
+ * @file
+ * Implements the necessary hooks for the editor to work properly.
+ */
+
+/**
+ * Implements hook_menu().
  */
 function bueditor_menu() {
   $items = array();
@@ -40,7 +45,7 @@ function bueditor_menu() {
 }
 
 /**
- * Implement hook_permission().
+ * Implements hook_permission().
  */
 function bueditor_permission() {
   return array(
@@ -52,7 +57,7 @@ function bueditor_permission() {
 }
 
 /**
- * Implement hook_theme().
+ * Implements hook_theme().
  */
 function bueditor_theme() {
   $theme['bueditor_admin'] = array('function' => 'bueditor_admin_theme', 'render element' => 'form');
@@ -123,7 +128,7 @@ function bueditor_processed_buttons($eid) {
 }
 
 /**
- * Implement hook_element_info().
+ * Implements hook_element_info().
  */
 function bueditor_element_info() {
   return array(
@@ -202,7 +207,7 @@ function bueditor_settle($editor) {
     );
     if ($editor->spriteon && $editor->spritename) {
       $sprite_path = bueditor_sprites_dir() . '/' . $editor->spritename;
-      if ($info = getimagesize($sprite_path)) {
+      if (file_exists($sprite_path) && ($info = getimagesize($sprite_path))) {
         $settings['BUE']['templates']['e' . $editor->eid]['sprite'] = array(
           'url' => file_create_url($sprite_path),
           'unit' => $info[1],
@@ -283,7 +288,7 @@ function bueditor_check_page($page, $editor) {
     }
     if (arg(0) == 'node' && arg(2) == 'edit') {
       $node = node_load(arg(1));
-      if ($node && drupal_match_path('node/add/' .  $node->type, $editor->pages)) {
+      if ($node && drupal_match_path('node/add/' . $node->type, $editor->pages)) {
         return $editor;
       }
     }

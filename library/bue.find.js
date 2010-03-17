@@ -59,12 +59,13 @@ E.scrollTo = function(index) {
 };
 
 //open Find & Replace form.
-E.frForm = function(replacetext, matchcase, regexp, title) {
-  var F = theForm(), el = F.elements;
-  BUE.frPop.open(title || (replacetext ? Drupal.t('Find & Replace') : Drupal.t('Search')));
-  $(el.matchcase.parentNode)[matchcase ? 'show' : 'hide']();
-  $(el.regexp.parentNode)[regexp ? 'show' : 'hide']();
-  $(el.replacetext).parents('div.bue-fr-row').add([el.replacebutton, el.replaceallbutton])[replacetext ? 'show' : 'hide']();
+E.frForm = function() {
+  var arg = arguments, F = theForm(), el = F.elements;
+  var opt = typeof arg[0] == 'object' ? opt : {isrep: arg[0], iscase: arg[1], isreg: arg[2], title: arg[3]};
+  BUE.frPop.open(opt.title || (opt.isrep ? Drupal.t('Find & Replace') : Drupal.t('Search')));
+  $(el.matchcase.parentNode)[opt.iscase ? 'show' : 'hide']();
+  $(el.regexp.parentNode)[opt.isreg ? 'show' : 'hide']();
+  $(el.replacetext).parents('div.bue-fr-row').add([el.replacebutton, el.replaceallbutton])[opt.isrep ? 'show' : 'hide']();
   return this;
 };
 
@@ -129,10 +130,14 @@ var theForm = function () {
 })(BUE.instance.prototype, jQuery);
 
 /*
- * Use js:E.frForm(include_replace, match_case, reg_exp) in your button content
- * match_case - boolean that shows/hides a checkbox allowing case sensitive search.
- * reg_exp - boolean that shows/hides a checkbox allowing regular expression search.
- * E.frForm() - Pops up the simplest search form
- * E.frForm(true, true, true) - Pops up a replace form with match-case and regular-expression options.
- */
+Example button content to display just the find form:
+js: E.frForm();
+Example button content to display the whole find and replace form:
+js: E.frForm({
+  isrep: true, //enable replace
+  iscase: true, //enable case sensitive switch
+  isreg: true, //enable regular expression switch
+  title: 'Replace some text' //custom title. defaults to 'Find & Replace'
+});
+*/
 
