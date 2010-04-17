@@ -61,7 +61,7 @@ E.scrollTo = function(index) {
 //open Find & Replace form.
 E.frForm = function() {
   var arg = arguments, F = theForm(), el = F.elements;
-  var opt = typeof arg[0] == 'object' ? opt : {isrep: arg[0], iscase: arg[1], isreg: arg[2], title: arg[3]};
+  var opt = typeof arg[0] == 'object' ? arg[0] : {isrep: arg[0], iscase: arg[1], isreg: arg[2], title: arg[3]};
   BUE.frPop.open(opt.title || (opt.isrep ? Drupal.t('Find & Replace') : Drupal.t('Search')));
   $(el.matchcase.parentNode)[opt.iscase ? 'show' : 'hide']();
   $(el.regexp.parentNode)[opt.isreg ? 'show' : 'hide']();
