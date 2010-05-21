@@ -994,8 +994,8 @@ function bueditor_buttons_by_id($bids = array()) {
  * Sends the text to the client.
  */
 function bueditor_export_text($text, $filename) {
-  header('Content-type: text/plain; charset=utf-8');
-  header('Content-Disposition: attachment; filename=' . $filename);
+  drupal_add_http_header('Content-Type', 'text/plain; charset=utf-8');
+  drupal_add_http_header('Content-Disposition', 'attachment; filename=' . $filename);
   print $text;
   exit();
 }
