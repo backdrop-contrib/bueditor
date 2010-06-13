@@ -4,7 +4,7 @@
 //Faster alternative to resizable textareas.
 //Make textareas full expand/shrink on focus/blur
 Drupal.behaviors.textarea = {attach: function(context, settings) {
-  setTimeout(function() {$('textarea.resizable', context).once('textarea', textArea)});
+  setTimeout(function() {$('.form-textarea-wrapper.resizable', context).once('textarea', textArea)});
 }};
 
 //Faster alternative to sticky headers.
@@ -22,14 +22,11 @@ Drupal.behaviors.tableHeader = {attach: function(context, settings) {
 }};
 
 //process resizable textareas
-var textArea = function(i, T) {
-  var spn = El('span'), $wrp = $(El('div')).addClass('resizable-textarea').append(spn);
-  var grp = $(El('div')).addClass('grippie').mousedown(TDrag).appendTo(spn)[0];
-  $wrp.insertBefore(T);
-  $.browser.msie && $(T).is('.input-content') && $(T).width(bue.iewrp || (bue.iewrp = $wrp[0].offsetWidth));
-  $(T).prependTo(spn).addClass('textarea-processed').focus(TExpand).blur(TShrink).keydown(TKeyResize);
+var textArea = function(i, W) {
+  var T = $(W).addClass('resizable-textarea').find('textarea');
+  var grp = $(El('div')).addClass('grippie').mousedown(TDrag).insertAfter(T)[0];
+  $(T).focus(TExpand).blur(TShrink).keydown(TKeyResize);
   grp.bueT = T;
-  //grp.style.marginRight = (grp.offsetWidth - T.offsetWidth) +'px';//slow
 };
 
 //start resizing textarea

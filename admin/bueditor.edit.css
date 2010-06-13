@@ -57,6 +57,9 @@
 }
 .js .button-table div.resizable-textarea textarea {
   height: 1.6em;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
 }
 .button-table div.grippie {
   height: 0.4em;

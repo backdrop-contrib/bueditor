@@ -307,12 +307,12 @@ function bueditor_editor_form($form, &$form_state, $editor = NULL) {
     $form += bueditor_button_import_form();
     //demo
     $form += array('demo' => array(
-      '#type' => 'textarea',
+      '#type' => 'text_format',
+      '#base_type' => 'textarea',
       '#title' => t('Demo'),
       '#rows' => 10,
       '#value' => 'DEMO',
-      '#id' => 'editor-demo',
-      '#text_format' => filter_default_format(),
+      '#format' => NULL,//filter_default_format()
     ));
   }
   //configuration submit
@@ -332,21 +332,24 @@ function bueditor_editor_theme($variables) {
   $path = drupal_get_path('module', 'bueditor');
   $eid = $form['editor']['eid']['#value'];
   $header = array(array(
-      'data' => t('Title'),
-      'class' => array('th-title'),
-    ), array(
-      'data' => t('Content'),
-      'class' => array('th-content'),
-    ), array(
-      'data' => t('Icon'),
-      'class' => array('th-icon'),
-    ), array(
-      'data' => t('Key'),
-      'class' => array('th-key'),
-    ), array(
-      'data' => t('Weight'),
-      'class' => array('th-weight'),
-    ), theme('table_select_header_cell'));
+    'data' => t('Title'),
+    'class' => array('th-title'),
+  ), array(
+    'data' => t('Content'),
+    'class' => array('th-content'),
+  ), array(
+    'data' => t('Icon'),
+    'class' => array('th-icon'),
+  ), array(
+    'data' => t('Key'),
+    'class' => array('th-key'),
+  ), array(
+    'data' => t('Weight'),
+    'class' => array('th-weight'),
+  ), array(
+    'data' => '',
+    'class' => 'select-all',
+  ));
   $rows = array();
   foreach (element_children($form['buttons']) as $bid) {
     $new = !is_numeric($bid);
@@ -401,7 +404,7 @@ function bueditor_editor_theme($variables) {
   $timer = timer_read('page');
   $demo = '';
   if ($eid && !isset($_GET['nodemo']) && bueditor_settle($eid)) {
-    $set['BUE']['preset']['editor-demo'] = "e$eid";
+    $set['BUE']['preset']['edit-demo-value'] = "e$eid";
     $demo = drupal_render($form['demo']);
     $set['BUE']['demotime'] = round(timer_read('page') - $timer);
   }
@@ -413,6 +416,7 @@ function bueditor_editor_theme($variables) {
   $output .= drupal_render_children($form) . $demo;
 
   drupal_add_js('misc/form.js');
+  drupal_add_js('misc/tableselect.js');
   drupal_add_css($path . '/admin/bueditor.edit.css');
   drupal_add_js($path . '/admin/bueditor.edit.js');
   drupal_add_js($set, 'setting');
