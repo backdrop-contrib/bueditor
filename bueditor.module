@@ -320,7 +320,7 @@ function bueditor_path_tr($path, $reverse = FALSE) {
     $tokens = array(
       '%BUEDITOR' => drupal_get_path('module', 'bueditor'),
       '%FILES' => file_directory_path('public'),
-      '%THEME' => path_to_theme(),
+      '%THEME' => isset($GLOBALS['theme']) ? drupal_get_path('theme', $GLOBALS['theme']) : path_to_theme(),
     );
   }
   if ($reverse) {
