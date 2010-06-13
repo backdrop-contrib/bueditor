@@ -335,7 +335,6 @@ If there are multiple editors in the page, accesskeys(Shift+Alt+KEY) will work o
 This is because FF does not allow dynamic adjustment of accesskeys.
 
 CTRL shortcuts:
-Ctrl shortcuts are disabled in Opera since it does not suppress the default ones.
 Do not use A(select all), C(copy), V(paste), X(cut) keys as they are text operation keys by default.
 Do not use F(find), O(open), P(print) keys in IE and Safari as they will always fire their default actions.
 
