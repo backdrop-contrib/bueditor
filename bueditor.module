@@ -51,7 +51,7 @@ function bueditor_permission() {
   return array(
     'administer bueditor' => array(
       'title' => t('Administer BUEditor'),
-      'description' => t('Warning: Give to trusted roles only; this permission has security implications.'),
+      'restrict access' => TRUE,
     ),
   );
 }
