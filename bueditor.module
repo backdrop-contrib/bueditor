@@ -271,6 +271,7 @@ function bueditor_user_eids($user) {
       return array($role['editor'], $role['alt']);
     }
   }
+  return array('', '');
 }
 
 /**
