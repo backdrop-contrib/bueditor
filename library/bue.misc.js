@@ -69,12 +69,12 @@ E.tagDialog = function(tag, fields, opt) {
       rows[n][1] += fhtml(fproc(field, obj, sel));
     }
   }
-  var opt = $.extend({title: Drupal.t('Tag editor - @tag', {'@tag': tag.toUpperCase()}), stitle: Drupal.t('OK'), validate: false, submit: function(a, b) {return E.tgdSubmit(a, b)}, effect: 'show'}, opt);
+  var dopt = $.extend({title: Drupal.t('Tag editor - @tag', {'@tag': tag.toUpperCase()}), stitle: Drupal.t('OK'), validate: false, submit: function(a, b) {return E.tgdSubmit(a, b)}, effect: 'show'}, opt);
   var table = BUE.table(rows, {'class': 'bue-tgd-table'});
-  var sbm = BUE.html('div', BUE.input('submit', 'bue_tgd_submit', opt.stitle, {'class': 'form-submit'}));
+  var sbm = BUE.html('div', BUE.input('submit', 'bue_tgd_submit', dopt.stitle, {'class': 'form-submit'}));
   var $form = $html(BUE.html('form', table + sbm + hidden, {name: 'bue_tgd_form', id: 'bue-tgd-form'}));
-  E.dialog.open(opt.title, $form, opt.effect);
-  $form.submit(function(){return fsubmit(tag, this, opt, E)});
+  E.dialog.open(opt.title, $form, opt);
+  $form.submit(function(){return fsubmit(tag, this, dopt, E)});
   return E;
 };
 
