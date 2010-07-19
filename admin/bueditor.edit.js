@@ -93,6 +93,7 @@ var winResize = function(e) {
 };
 
 //handle sticky head on scroll (table header)
+var tbarOffset = false;
 var tableScroll = function(table, sX, sY) {
   var $table = $(table), pos = $table.offset();
   var minY = pos.top, maxY = minY + $table.height() - $(table.tHead).height() * 2, minX = pos.left;
@@ -102,7 +103,11 @@ var tableScroll = function(table, sX, sY) {
   $fixed = $fixed || createHeader(table);//create when necessary
   var $repo = table.$repo;
   if (action) {
-    $fixed.css({visibility: 'visible', top: 0, left: minX-sX});
+    if (tbarOffset === false) {//calculate toolbar offset
+      var tbar = Drupal.toolbar || parent.Drupal.toolbar;
+      tbarOffset = tbar ? tbar.height() : 0;
+    }
+    $fixed.css({visibility: 'visible', top: tbarOffset, left: minX-sX});
     if (!$fixed[0].tHead) {//run once in action
       var head = table.tHead;
       $table.prepend($repo[0].tHead);
