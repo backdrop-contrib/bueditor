@@ -12,7 +12,7 @@ $(document).ready(function() {
     $.ajax({
       url: file,
       dataType: 'text',
-      error: function(request) {alert(Drupal.ahahError(request, file))},
+      error: function(request) {alert(Drupal.ajaxError(request, file))},
       success: function(code) {code.substr(0, 5) == 'array' && $('#edit-code').val(code).focus()},
       complete: function() {$a.html(name)}
     });
