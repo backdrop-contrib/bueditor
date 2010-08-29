@@ -73,7 +73,7 @@ E.tagDialog = function(tag, fields, opt) {
   var table = BUE.table(rows, {'class': 'bue-tgd-table'});
   var sbm = BUE.html('div', BUE.input('submit', 'bue_tgd_submit', dopt.stitle, {'class': 'form-submit'}));
   var $form = $html(BUE.html('form', table + sbm + hidden, {name: 'bue_tgd_form', id: 'bue-tgd-form'}));
-  E.dialog.open(opt.title, $form, opt);
+  E.dialog.open(dopt.title, $form, opt);
   $form.submit(function(){return fsubmit(tag, this, dopt, E)});
   return E;
 };
@@ -128,16 +128,12 @@ var fsubmit = function(tag, form, opt, E) {
   }
   //custom validate
   var V = opt.validate;
-  if (V && $.isFunction(V)) {
-    try {if (!V(tag, form, opt, E)) return false} catch(e) {alert(e.name +': '+ e.message)};
-  }
+  if (V) try {if (!V(tag, form, opt, E)) return false} catch(e) {alert(e.name +': '+ e.message)};
   E.dialog.close();
   //custom submit
   var S = opt.submit;
   S = typeof S == 'string' ? window[S] : S;
-  if (S && $.isFunction(S)) {
-    try {S(tag, form, opt, E)} catch(e) {alert(e.name +': '+ e.message)};
-  }
+  if (S) try {S(tag, form, opt, E)} catch(e) {alert(e.name +': '+ e.message)};
   return false;
 };
 
