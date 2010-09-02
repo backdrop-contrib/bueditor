@@ -177,7 +177,7 @@ BUE.postprocess._lab1 = function(E, $) {
     array (
       'title' => 'tpl:Druplicon',
       'content' => 'js:
-setTimeout(function(){$(\'#editor-demo\').val(\'This is the guinea pig editor including all libraries(minified version is %BUEDITOR/library/bue.min.all.js) that come with bueditor. \\nThis text was inserted here by a template button running javascript code.\\n\\nHere you can experience:\\n- CTRL shortcuts(try Ctrl+J when the cursor is in the textarea)\\n- TAB-indent, Shift+TAB-unindent, ENTER-auto indent\\n- Autocomplete (type "BUE" or an html/bbcode tag, e.g. "<em>")\\n- Cross-browser undo/redo\\n- CSS3 popups, shortcuts in popups\\n- Find & Replace inside the textarea\\n- Ajax preview\');});
+setTimeout(function(){$(\'#edit-demo-value\').val(\'This is the guinea pig editor including all libraries(minified version is %BUEDITOR/library/bue.min.all.js) that come with bueditor. \\nThis text was inserted here by a template button running javascript code.\\n\\nHere you can experience:\\n- CTRL shortcuts(try Ctrl+J when the cursor is in the textarea)\\n- TAB-indent, Shift+TAB-unindent, ENTER-auto indent\\n- Autocomplete (type "BUE" or an html/bbcode tag, e.g. "<em>")\\n- Cross-browser undo/redo\\n- CSS3 popups, shortcuts in popups\\n- Find & Replace inside the textarea\\n- Ajax preview\');});
 
 return \'<img src="\'+ Drupal.settings.basePath +\'misc/druplicon.png" width="16" height="16" title="Me inserted the initial text" alt="druplicon" />\';',
       'icon' => '',

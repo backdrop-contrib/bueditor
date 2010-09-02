@@ -288,7 +288,7 @@ var eTime = function() {
   var oldProc = BUE.processTextarea;
   BUE.processTextarea = function (T, tplid) {
     var t = new Date(), E = oldProc(T,  tplid), jstime = '' + (new Date() - t);
-    E && T.id == 'editor-demo' && setTimeout(function() {
+    E && T.id == 'edit-demo-value' && setTimeout(function() {
       var phptime = '' + Drupal.settings.BUE.demotime, pad = ['000', '00', '0'];
       T.value += '\n\nEditor load times (milliseconds): \n  -Server side (PHP)\t: '+ (pad[phptime.length] || '') + phptime +'\n  -Client side (JS)\t: '+ (pad[jstime.length] || '') + jstime;
     });
@@ -313,7 +313,7 @@ var init = function() {
     selAction();//selected buttons actions
     tableDrag();//alter table drag
     //disable auto expand/shrink for demo
-    $('#editor-demo').unbind('focus', TExpand).unbind('blur', TShrink).unbind('keydown', TKeyResize);
+    $('#edit-demo-value').unbind('focus', TExpand).unbind('blur', TShrink).unbind('keydown', TKeyResize);
   });
 };
 
