@@ -626,7 +626,7 @@ function bueditor_editor_import_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Directory of editor files'),
     '#maxlength' => 255,
-    '#field_prefix' => file_directory_path('public') . '/',
+    '#field_prefix' => bueditor_public_dir() . '/',
     '#description' => t('Define a directory to store the library files imported from the editor code. Icons will be stored in a directory named "icons" under this directory. If you do not want to import the files or if the editor uses existing ones you can leave this field blank.'),
   );
   $form['code'] = array(
@@ -654,7 +654,7 @@ function bueditor_editor_import_validate($form, &$form_state) {
   }
   $dirname = $form_state['values']['dirname'];
   if ($dirname) {
-    $editor->custom_path = file_directory_path('public') . '/' . $dirname;
+    $editor->custom_path = bueditor_public_dir() . '/' . $dirname;
     if (!file_prepare_directory($editor->custom_path, 1, 'dirname')) {
       return FALSE;
     }
