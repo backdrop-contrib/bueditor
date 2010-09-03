@@ -6,6 +6,8 @@
  * Serves administration pages of BUEditor.
  */
 
+include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'bueditor') . '/bueditor.inc';
+
 /**
  * Admin main page.
  */
@@ -898,7 +900,7 @@ function bueditor_exec_editor_code($code) {
  */
 function bueditor_write_editor($editor, $buttons = array()) {
   if (isset($editor->spriteon) && $editor->spriteon) {
-    include_once(DRUPAL_ROOT . '/' . drupal_get_path('module', 'bueditor') . '/admin/bueditor.sprite.inc');
+    include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'bueditor') . '/admin/bueditor.sprite.inc';
     $editor->spritename = bueditor_sprite($editor, $buttons);
   }
   if (drupal_write_record('bueditor_editors', $editor, bueditor_isupdate($editor, 'eid'))) {
@@ -965,7 +967,7 @@ function bueditor_editor_defaults($name = '') {
   return (object) array(
     'name' => $name,
     'pages' => "node/*\ncomment/*",
-    'excludes' => 'edit-log',
+    'excludes' => "edit-log\nedit-menu-description",
     'iconpath' => '%BUEDITOR/icons',
     'librarypath' => '%BUEDITOR/library/bue.min.default.js',
     'spriteon' => 0,
