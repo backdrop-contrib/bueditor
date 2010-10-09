@@ -147,11 +147,13 @@ function bueditor_role_form($role, $weight = TRUE, $core = TRUE) {
     '#type' => 'select',
     '#options' => bueditor_editor_options(),
     '#default_value' => $role['editor'],
+    '#empty_value' => 0,
   );
   $form['alt'] = array(
     '#type' => 'select',
     '#options' => bueditor_editor_options(),
     '#default_value' => $role['alt'],
+    '#empty_value' => 0,
   );
   return $form;
 }
@@ -162,9 +164,7 @@ function bueditor_role_form($role, $weight = TRUE, $core = TRUE) {
 function bueditor_editor_options() {
   static $options;
   if (!isset($options)) {
-    $options = array(
-      0 => t('none'),
-    );
+    $options = array();
     foreach (bueditor_editors('all') as $eid => $editor) {
       $options[$eid] = $editor->name;
     }
@@ -459,11 +459,9 @@ function bueditor_selaction_form() {
       'copyto' => t('Copy to editor'),
     ),
   );
-  $eoptions = array('new' => t('Add new editor')) + bueditor_editor_options();
-  unset($eoptions[0]);
   $form['copyto'] = array(
     '#type' => 'select',
-    '#options' => $eoptions,
+    '#options' => array('new' => t('Add new editor')) + bueditor_editor_options(),
   );
   $form['go'] = array(
     '#type' => 'submit',
@@ -534,7 +532,7 @@ function bueditor_button_import_form() {
     '#type' => 'textarea',
     '#title' => t('Editor code'),
     '#rows' => 10,
-    '#description' => t('Enter previously exported editor code.') . ' ' . t('The code will be scanned for only buttons and all other data will be ignored.') . '<div class="warning">' . t('This code will be evaluated as PHP, therefore you must be sure that it is harmless and produces proper editor data.') . '</div>',
+    '#description' => t('Enter previously exported editor code.') . ' ' . t('The code will be scanned for only buttons and all other data will be ignored.') . '<div class="messages warning">' . t('This code will be evaluated as PHP, therefore you must be sure that it is harmless and produces proper editor data.') . '</div>',
   );
   $form['import'] = array(
     '#type' => 'submit',
@@ -636,7 +634,7 @@ function bueditor_editor_import_form($form, &$form_state) {
     '#title' => t('Editor code (PHP)'),
     '#rows' => 20,
     '#required' => TRUE,
-    '#description' => t('Enter previously exported editor code.') . '<div class="warning">' . t('This code will be evaluated as PHP, therefore you must be sure that it is harmless and produces proper editor data.') . '</div>',
+    '#description' => t('Enter previously exported editor code.') . '<div class="messages warning">' . t('This code will be evaluated as PHP, therefore you must be sure that it is harmless and produces proper editor data.') . '</div>',
   );
   $form['submit'] = array(
     '#type' => 'submit',
