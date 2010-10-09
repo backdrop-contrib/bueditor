@@ -18,7 +18,7 @@ function bueditor_menu() {
   );
   $form = array(
     'page callback' => 'drupal_get_form',
-    'type' => MENU_CALLBACK,
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
   ) + $common;
   $items[$path] = $common + array(
     'title' => 'BUEditor',
