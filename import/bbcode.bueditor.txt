@@ -2,7 +2,8 @@ array (
   'name' => 'BBCode',
   'pages' => 'node/*
 comment/*',
-  'excludes' => 'edit-log',
+  'excludes' => 'edit-log
+edit-menu-description',
   'iconpath' => '%BUEDITOR/icons',
   'spriteon' => '1',
   'buttons' => 
