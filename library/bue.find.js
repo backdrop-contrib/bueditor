@@ -107,7 +107,7 @@ var K = function (name, value) {
 var theForm = function () {
   if (BUE.frForm) return BUE.frForm;
   var Dv = function(s, c) {return H('div', s, {style: 'margin-bottom: 4px', 'class': c||'bue-fr-row'})};
-  var Ta = function(n) {return H('span', H('textarea', K('bfr_'+ n), {name: n, cols: 36, rows: 1, 'class': 'resizable form-textarea'}))};
+  var Ta = function(n) {return Dv(H('textarea', K('bfr_'+ n), {name: n, cols: 36, rows: 1, 'class': 'form-textarea'}), 'form-textarea-wrapper resizable')};
   var Cb = function(n, v) {return H('span', I('checkbox', n, '', {checked: K('bfr_'+ n) || null, 'class': 'form-checkbox'}) + v)};
   var Bt = function(n, v) {return I('button', n, v, {onclick: 'BUE.active.frSubmit(this)', 'class': 'form-submit'})};
   var F = Dv(Ta('findtext')) + Dv(Ta('replacetext'));
