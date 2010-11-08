@@ -11,7 +11,7 @@ BUE.preprocess.tab = function(E, $) {
     blocks: true //indent/unindent selected text blocks without overwriting.
   };
 
-  $(E.textArea).keydown(function(e) {
+  $(E.textArea).bind('keydown.bue', function(e) {
     if (e.keyCode == 9) {
       if (e.ctrlKey && e.originalEvent.altKey) {//enable-disable
         E.tabs.on = !E.tabs.on;

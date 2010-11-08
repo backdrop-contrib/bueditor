@@ -16,7 +16,7 @@ BUE.history = function(E) {
   H.writable= true; //dynamic allowance of state saving.
 
   //attach textarea events triggering history operations.
-  $(E.textArea).one('focus', function(){H.save()}).keyup(function(e) {
+  $(E.textArea).one('focus.bue', function(){H.save()}).bind('keyup.bue', function(e) {
     H.writable && (!H.keys || H.keys[e.keyCode]) && H.save();
   });
 

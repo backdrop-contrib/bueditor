@@ -17,8 +17,8 @@ BUE.behavior = function(context, settings) {
   $.each(pset, function (tid, tplid) {
     BUE.processTextarea($('#'+ tid, context).get(0), tplid);
   });
-  //fix enter key on textfields triggering button click.
-  $('input:text', context).keydown(function(e) {e.keyCode == 13 && (BUE.enterKeyTime = new Date())});
+  // Fix enter key on textfields triggering button click.
+  $('input:text', context).bind('keydown.bue', BUE.eFixEnter);
 };
 
 //integrate editor template into textarea T
@@ -47,11 +47,9 @@ BUE.instance = function (T, tplid) {
   E.UI = BUE.$html(BUE.theme(tplid).replace(/\%n/g, i)).insertBefore(T);
   E.buttons = $('.bue-button', E.UI).each(function(i, B) {
     var arr = B.id.split('-');
-    $($.extend(B, {eindex: arr[1], bid: arr[3], bindex: i})).click(function() {
-      return !(BUE.enterKeyTime && new Date() - BUE.enterKeyTime < 500) && BUE.buttonClick(B.eindex, B.bindex);
-    });
+    $($.extend(B, {eindex: arr[1], bid: arr[3], bindex: i})).bind('click.bue', BUE.eButtonClick);
   }).get();
-  $(T).focus(function() {!T.bue.dialog.esp && T.bue.activate()});
+  $(T).bind('focus.bue', BUE.eTextareaFocus);
 };
 
 //execute button's click event
@@ -172,9 +170,27 @@ function (T) {
   return {start: T.selectionStart || 0, end: T.selectionEnd || 0}
 };
 
-//html 2 jquery. way faster than $(html)
-BUE.$html = function(s){return $(document.createElement('div')).html(s).children()};
-//not to break old button scripts.
+// Enter key fixer for text fields
+BUE.eFixEnter = function(e) {
+  e.keyCode == 13 && (BUE.enterKeyTime = new Date());
+};
+
+// Button click handler
+BUE.eButtonClick = function(e) {
+  return !(BUE.enterKeyTime && new Date() - BUE.enterKeyTime < 500) && BUE.buttonClick(this.eindex, this.bindex);
+}
+
+// Textarea focus handler
+BUE.eTextareaFocus = function(e) {
+  this.bue && !this.bue.dialog.esp && this.bue.activate();
+}
+
+// Html 2 jquery. Faster than $(html)
+BUE.$html = function(s){
+  return $(document.createElement('div')).html(s).children();
+};
+
+// Backward compatibility.
 window.editor = window.editor || BUE;
 //initiate bueditor
 $(document).ready(function () {

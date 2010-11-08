@@ -18,7 +18,7 @@ BUE.preprocess.ctrl = function(E, $) {
   });
 
   //register ctrl shortcuts for the editor.
-  $(E.textArea).keydown(function(e) {
+  $(E.textArea).bind('keydown.bue', function(e) {
     if (e.ctrlKey && !e.shiftKey && !e.originalEvent.altKey && E.ctrlKeys[e.keyCode]) {
       E.ctrlKeys[e.keyCode].click();
       //Opera needs supression of keypress.

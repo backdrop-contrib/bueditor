@@ -116,14 +116,14 @@ BUE.preprocess = $.extend({popup: function(Ed, $) {
     var E = BUE.active;
     E.buttonsDisabled(true).stayClicked(true);
     D.esp = E.posSelection();
-    $(E.textArea).focus(foc);
+    $(E.textArea).bind('focus.bue', foc);
     return Do(title, content, opt);
   };
   //close
   D.close = function(effect) {
     if (!D.esp) return D;
     var E = D.bue;
-    $(E.textArea).unbind('focus', foc);
+    $(E.textArea).unbind('focus.bue', foc);
     E.buttonsDisabled(false).stayClicked(false);
     E == BUE.active && E.makeSelection(D.esp.start, D.esp.end);
     D.esp = null;
