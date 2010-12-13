@@ -417,7 +417,6 @@ function bueditor_editor_theme($variables) {
   $output .= '<h2 class="title">' . t('Buttons') . '</h2>' . $buttons . $selaction . drupal_render($form['submit']);
   $output .= drupal_render_children($form) . $demo;
 
-  drupal_add_js('misc/form.js');
   drupal_add_js('misc/tableselect.js');
   drupal_add_css($path . '/admin/bueditor.edit.css');
   drupal_add_js($path . '/admin/bueditor.edit.js');
