@@ -10,8 +10,11 @@
  * Load and return editors by id.
  */
 function bueditor_editors($eid = 0) {
+  if (empty($eid)) {
+    return FALSE;
+  }
   static $editors = array(), $gotall = FALSE;
-  if ($eid == 'all') {
+  if ($eid === 'all') {
     if (!$gotall) {
       $gotall = TRUE;
       $result = db_query("SELECT * FROM {bueditor_editors} ORDER BY name");

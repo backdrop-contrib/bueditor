@@ -147,13 +147,13 @@ function bueditor_role_form($role, $weight = TRUE, $core = TRUE) {
     '#type' => 'select',
     '#options' => bueditor_editor_options(),
     '#default_value' => $role['editor'],
-    '#empty_value' => 0,
+    '#empty_value' => '0',
   );
   $form['alt'] = array(
     '#type' => 'select',
     '#options' => bueditor_editor_options(),
     '#default_value' => $role['alt'],
-    '#empty_value' => 0,
+    '#empty_value' => '0',
   );
   return $form;
 }
