@@ -195,8 +195,9 @@ function bueditor_user_eids($user) {
   }
   $roles = variable_get('bueditor_roles', array());
   // Anonymous user
-  if (!$user->uid) {
-    return array($roles[DRUPAL_ANONYMOUS_RID]['editor'], $roles[DRUPAL_ANONYMOUS_RID]['alt']);
+  if (empty($user->uid)) {
+    $rid = DRUPAL_ANONYMOUS_RID;
+    return isset($roles[$rid]) ? array($roles[$rid]['editor'], $roles[$rid]['alt']) : array('', '');
   }
   // Other users
   foreach ($roles as $rid => $role) {
