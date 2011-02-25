@@ -1,4 +1,3 @@
-// $Id$
 (function($) {
 
 //quick import predefined editors.

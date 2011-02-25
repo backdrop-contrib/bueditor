@@ -1,4 +1,3 @@
-//$Id$
 
 This directory contains custom library files(js or css) that extend bueditor functionality.
 In editor settings you can add these files into editor library in this format:

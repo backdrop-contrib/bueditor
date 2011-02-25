@@ -1,4 +1,3 @@
-// $Id$
 (function($) {
 
 var BUE = window.BUE = window.BUE || {preset: {}, templates: {}, instances: [], preprocess: {}, postprocess: {}};

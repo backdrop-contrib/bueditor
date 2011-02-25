@@ -1,4 +1,3 @@
-// $Id$
 //Introduces cross-browser editor history with two new methods. E.undo() & E.redo()
 //Requires: none
 (function(E, $) {

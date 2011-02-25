@@ -1,4 +1,3 @@
-// $Id$
 
 //Introduce indent(TAB), unindent(Shift+TAB), and auto indent(ENTER) in textareas.
 //Requires: none

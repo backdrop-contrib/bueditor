@@ -1,4 +1,3 @@
-// $Id$
 
 //Miscellaneous methods used in default editor: E.wrapLines(), E.toggleTag(), E.help(), E.tagChooser(), E.tagDialog()
 //Requires: bue.popup.js, bue.markup.js

@@ -1,4 +1,3 @@
-// $Id$
 
 //Introduces E.prv(), E.prvAjax()
 //Requires: none

@@ -1,4 +1,3 @@
-// $Id$
 
 //Automatically insert a new list item when enter-key is pressed at the end of a list item.
 //Requires: none

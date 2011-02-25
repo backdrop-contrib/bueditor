@@ -1,4 +1,3 @@
-// $Id$
 
 //Autocomplete user defined phrases as they are typed in the editor.
 //Requires: none

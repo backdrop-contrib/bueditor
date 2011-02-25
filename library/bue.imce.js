@@ -1,4 +1,3 @@
-// $Id$
 
 //IMCE integration. Introduces E.imce=BUE.imce
 //Requires: bue.popup.js

@@ -1,4 +1,3 @@
-// $Id$
 (function($) {
 
 //Faster alternative to resizable textareas.

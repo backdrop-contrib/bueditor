@@ -1,4 +1,3 @@
-// $Id$
 
 //Add editor name prompt for copy and add_default operations.
 //Confirm editor deletion without going to the confirmation page.

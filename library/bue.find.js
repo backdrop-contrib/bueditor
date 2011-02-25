@@ -1,4 +1,3 @@
-// $Id$
 //Introdue find & replace forms
 //Requires: bue.popup.js, bue.markup.js
 (function(E, $) {

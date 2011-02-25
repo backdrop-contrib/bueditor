@@ -1,4 +1,3 @@
-// $Id$
 
 //Introduces editor popups: E.dialog & E.quickPop
 //Requires: none

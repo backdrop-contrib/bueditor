@@ -1,4 +1,3 @@
-// $Id$
 
 //Html creating and parsing methods.
 //Requires: none

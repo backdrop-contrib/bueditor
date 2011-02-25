@@ -1,4 +1,3 @@
-// $Id$
 
 - BUEditor:
 A plain textarea editor aiming to facilitate code writing.

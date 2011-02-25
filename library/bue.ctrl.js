@@ -1,4 +1,3 @@
-// $Id$
 
 //Register button accesskeys as Ctrl shortcuts.
 //Requires: none
