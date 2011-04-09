@@ -117,3 +117,8 @@
 #bue-imce-button {
   margin: 0 0.2em;
 }
+
+/* Fix bartik : #995948 */
+.page-admin #content .bue-ui img {
+  margin: 0;
+}
