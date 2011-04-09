@@ -66,8 +66,7 @@
 }
 
 .button-table img.icon-selector-opener {
-  margin-right: 0.5em;
-  margin-top: 0.2em;
+  margin: 0.2em 0.5em 0 0 !important;
   cursor: pointer;
   border-bottom: 0.1em solid #000;
   vertical-align: top;
