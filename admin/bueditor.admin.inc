@@ -228,8 +228,8 @@ function bueditor_editor_form($form, &$form_state, $editor = NULL) {
   $editor = is_object($editor) ? $editor : bueditor_editor_defaults();
   $editor->eid = isset($editor->eid) ? $editor->eid : '';
 
+  $form_state['cache'] = TRUE;
   $form = array(
-    '#cache' => TRUE,
     '#tree' => TRUE,
     '#theme' => 'bueditor_editor',
     '#attributes' => array('enctype' => 'multipart/form-data'),
