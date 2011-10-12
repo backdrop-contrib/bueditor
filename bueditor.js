@@ -117,7 +117,8 @@ BUE.theme = function (tplid) {
         btype = 'image', attr += ' src="'+ tpl.iconpath +'/'+ icon +'"';
       }
     }
-    html += '<input type="'+ type +'" title="'+ title + (access && key ? ' ('+ access +' + '+ key +')' : '') +'" accesskey="'+ key +'" id="bue-%n-button-'+ i +'" class="bue-button bue-'+ btype +'-button editor-'+ btype +'-button" '+ attr +' tabindex="-1" />';
+    title += access && key ? ' ('+ access +' + '+ key +')' : '';
+    html += '<input type="'+ type +'" alt="'+ title +'" title="'+ title +'" accesskey="'+ key +'" id="bue-%n-button-'+ i +'" class="bue-button bue-'+ btype +'-button editor-'+ btype +'-button" '+ attr +' tabindex="-1" />';
   }
   return tpl.html = '<div class="bue-ui bue-'+ tplid +' editor-container clearfix" id="bue-ui-%n">'+ html +'</div>';
 };
