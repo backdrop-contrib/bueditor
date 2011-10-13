@@ -83,7 +83,7 @@ BUE.theme = function (tplid) {
   }
   var access = $.browser.mozilla && 'Shift + Alt' || $.browser.msie && 'Alt', title, content, icon, key, func;
   // Create html for buttons. B(0-title, 1-content, 2-icon or caption, 3-accesskey) and 4-function for js buttons
-  for (var B, isimg, src, type, btype, attr, i = 0, s = 0; B = tpl.buttons[i]; i++) {
+  for (var B, isimg, src, type, btype, attr, alt, i = 0, s = 0; B = tpl.buttons[i]; i++) {
     // Empty button.
     if (B.length == 0) {
       s++;
@@ -106,19 +106,20 @@ BUE.theme = function (tplid) {
       type = 'button', btype = 'text', attr = 'value="'+ icon +'"';
     }
     else {
-      type = 'image', attr = 'alt="'+ icon +'"';
+      type = 'image';
       // Sprite button
       if (sprite) {
-        btype = 'sprite', attr += ' src="'+ sx1 +'" style="background-position: -'+ (s * sunit) +'px 0;"';
+        btype = 'sprite', attr = 'src="'+ sx1 +'" style="background-position: -'+ (s * sunit) +'px 0;"';
         s++;
       }
       // Image button
       else {
-        btype = 'image', attr += ' src="'+ tpl.iconpath +'/'+ icon +'"';
+        btype = 'image', attr = 'src="'+ tpl.iconpath +'/'+ icon +'"';
       }
     }
+    alt = title + (key ? '('+ key +')' : '');
     title += access && key ? ' ('+ access +' + '+ key +')' : '';
-    html += '<input type="'+ type +'" alt="'+ title +'" title="'+ title +'" accesskey="'+ key +'" id="bue-%n-button-'+ i +'" class="bue-button bue-'+ btype +'-button editor-'+ btype +'-button" '+ attr +' tabindex="-1" />';
+    html += '<input type="'+ type +'" alt="'+ alt +'" title="'+ title +'" accesskey="'+ key +'" id="bue-%n-button-'+ i +'" class="bue-button bue-'+ btype +'-button editor-'+ btype +'-button" '+ attr +' tabindex="-1" />';
   }
   return tpl.html = '<div class="bue-ui bue-'+ tplid +' editor-container clearfix" id="bue-ui-%n">'+ html +'</div>';
 };
