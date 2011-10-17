@@ -43,7 +43,7 @@ BUE.instance = function (T, tplid) {
   E.tpl = BUE.templates[tplid];
   E.bindex = null;
   E.safeToPreview = T.value.indexOf('<') == -1;
-  E.UI = BUE.$html(BUE.theme(tplid).replace(/\%n/g, i)).insertBefore(T);
+  E.UI = BUE.$html(BUE.theme(tplid).replace(/\%n/g, i)).insertBefore(T).bind('keydown.bue', BUE.eUIKeydown);
   E.buttons = $('.bue-button', E.UI).each(function(i, B) {
     var arr = B.id.split('-');
     $($.extend(B, {eindex: arr[1], bid: arr[3], bindex: i})).bind('click.bue', BUE.eButtonClick);
@@ -121,7 +121,7 @@ BUE.theme = function (tplid) {
     title += access && key ? ' ('+ access +' + '+ key +')' : '';
     html += '<input type="'+ type +'" alt="'+ alt +'" title="'+ title +'" accesskey="'+ key +'" id="bue-%n-button-'+ i +'" class="bue-button bue-'+ btype +'-button editor-'+ btype +'-button" '+ attr +' tabindex="-1" />';
   }
-  return tpl.html = '<div class="bue-ui bue-'+ tplid +' editor-container clearfix" id="bue-ui-%n">'+ html +'</div>';
+  return tpl.html = '<div class="bue-ui bue-'+ tplid +' editor-container clearfix" id="bue-ui-%n" tabindex="0">'+ html +'</div>';
 };
 
 // Cross browser selection handling. 0-1=All, 2=IE, 3=Opera
@@ -182,12 +182,22 @@ BUE.eFixEnter = function(e) {
 // Button click handler
 BUE.eButtonClick = function(e) {
   return !(BUE.enterKeyTime && new Date() - BUE.enterKeyTime < 500) && BUE.buttonClick(this.eindex, this.bindex);
-}
+};
 
 // Textarea focus handler
 BUE.eTextareaFocus = function(e) {
   this.bue && !this.bue.dialog.esp && this.bue.activate();
-}
+};
+
+// UI keydown handler
+BUE.eUIKeydown = function(e) {
+  if (e.keyCode != 37 && e.keyCode != 39) return;
+  var len, E = BUE.instances[this.id.split('-').pop()];
+  if (E && (len = E.buttons.length)) {
+    var A = document.activeElement, i = Math.max(-1, (A && A.eindex == E.index ? A.bindex : -1) + e.keyCode - 38) + len;
+    E.buttons[i % len].focus();
+  }
+};
 
 // Html 2 jquery. Faster than $(html)
 BUE.$html = function(s){
