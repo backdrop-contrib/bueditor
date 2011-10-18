@@ -119,9 +119,9 @@ BUE.theme = function (tplid) {
     }
     alt = title + (key ? '('+ key +')' : '');
     title += access && key ? ' ('+ access +' + '+ key +')' : '';
-    html += '<input type="'+ type +'" alt="'+ alt +'" title="'+ title +'" accesskey="'+ key +'" id="bue-%n-button-'+ i +'" class="bue-button bue-'+ btype +'-button editor-'+ btype +'-button" '+ attr +' tabindex="-1" />';
+    html += '<input type="'+ type +'" alt="'+ alt +'" title="'+ title +'" accesskey="'+ key +'" id="bue-%n-button-'+ i +'" class="bue-button bue-'+ btype +'-button editor-'+ btype +'-button" '+ attr +' tabindex="'+ (i ? -1 : 0) +'" />';
   }
-  return tpl.html = '<div class="bue-ui bue-'+ tplid +' editor-container clearfix" id="bue-ui-%n" tabindex="0">'+ html +'</div>';
+  return tpl.html = '<div class="bue-ui bue-'+ tplid +' editor-container clearfix" id="bue-ui-%n" role="toolbar">'+ html +'</div>';
 };
 
 // Cross browser selection handling. 0-1=All, 2=IE, 3=Opera
