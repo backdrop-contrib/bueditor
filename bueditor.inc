@@ -200,7 +200,7 @@ function bueditor_user_eids($user) {
   }
   // Other users
   foreach ($roles as $rid => $role) {
-    if (isset($user->roles[$rid])) {
+    if (isset($user->roles[$rid]) && ($role['editor'] || $role['alt'])) {
       return array($role['editor'], $role['alt']);
     }
   }
