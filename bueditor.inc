@@ -222,7 +222,7 @@ function bueditor_check_page($page, $editor) {
     }
     if (arg(0) == 'node' && arg(2) == 'edit') {
       $node = node_load(arg(1));
-      if ($node && drupal_match_path('node/add/' . $node->type, $editor->pages)) {
+      if ($node && drupal_match_path('node/add/' . str_replace('_', '-', $node->type), $editor->pages)) {
         return $editor;
       }
     }
