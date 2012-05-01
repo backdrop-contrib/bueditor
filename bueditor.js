@@ -3,8 +3,8 @@
 var BUE = window.BUE = window.BUE || {preset: {}, templates: {}, instances: [], preprocess: {}, postprocess: {}};
 
 // Get editor settings from Drupal.settings and process preset textareas.
-BUE.behavior = function(context, settings) {
-  var set = settings.BUE || null, tpls = BUE.templates, pset = BUE.preset;
+Drupal.behaviors.BUE = {attach: function(context, settings) {
+  var set = settings.BUE, tpls = BUE.templates, pset = BUE.preset;
   if (set) {
     $.each(set.templates, function (id, tpl) {
       tpls[id] = tpls[id] || $.extend({}, tpl);
@@ -18,7 +18,7 @@ BUE.behavior = function(context, settings) {
   });
   // Fix enter key on textfields triggering button click.
   $('input:text', context).bind('keydown.bue', BUE.eFixEnter);
-};
+}};
 
 // Integrate editor template into textarea T
 BUE.processTextarea = function (T, tplid) {
@@ -208,12 +208,6 @@ BUE.$html = function(s){
 
 // Backward compatibility.
 window.editor = window.editor || BUE;
-
-// Initiate bueditor
-$(document).ready(function () {
-  var b = Drupal.behaviors.BUE = {};
-  (b.attach = BUE.behavior)(document, Drupal.settings);
-});
 
 })(jQuery);
 
