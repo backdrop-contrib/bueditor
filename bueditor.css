@@ -69,10 +69,10 @@
 .bue-popup-body {
   background-color: #f5f5fa;
   border: 1px solid #999;
-  overflow: hidden;
 }
 .bue-popup-content {
   margin: 0.5em;
+  overflow: hidden;
 }
 .bue-popup-content table {
   margin: 0em;
