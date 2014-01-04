@@ -81,7 +81,9 @@ BUE.theme = function (tplid) {
     var surl = (new Image()).src = sprite.url, sunit = sprite.unit, sx1 = sprite.x1;
     $(document.body).append('<style type="text/css" media="all">.bue-'+ tplid +' .bue-sprite-button {background-image: url('+ surl +'); width: '+ sunit +'px; height: '+ sunit +'px;}</style>');
   }
-  var access = $.browser.mozilla && 'Shift + Alt' || ($.browser.msie || window.chrome) && 'Alt', title, content, icon, key, func;
+  var title, content, icon, key, func,
+  style = document.documentElement.style,
+  access = ('MozAppearance' in style) && 'Shift + Alt' || (('ActiveXObject' in window) || ('WebkitAppearance' in style)) && 'Alt';
   // Create html for buttons. B(0-title, 1-content, 2-icon or caption, 3-accesskey) and 4-function for js buttons
   for (var B, isimg, src, type, btype, attr, alt, i = 0, s = 0; B = tpl.buttons[i]; i++) {
     // Empty button.
@@ -125,7 +127,7 @@ BUE.theme = function (tplid) {
 };
 
 // Cross browser selection handling. 0-1=All, 2=IE, 3=Opera
-BUE.mode = document.createElement('textarea').setSelectionRange ? ($.browser.opera ? 3 : 1) : (document.selection && document.selection.createRange ? 2 : 0);
+BUE.mode = document.createElement('textarea').setSelectionRange ? (window.opera ? 3 : 1) : (document.selection && document.selection.createRange ? 2 : 0);
 
 // New line standardization. At least make them represented by a single char.
 BUE.text = BUE.processText = BUE.mode < 2 ? function (s) {return s.toString()} : function (s) {return s.toString().replace(/\r\n/g, '\n')};

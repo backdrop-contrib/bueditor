@@ -115,7 +115,7 @@ var theForm = function () {
   BUE.frPop = BUE.createPopup('bue-fr-pop', null, F = BUE.frForm = $(H('form', F))[0]);
   Drupal.behaviors.textarea && Drupal.behaviors.textarea.attach(F);
   $('div.grippie', F).height(4);
-  $(window).unload(function() {
+  $(window).bind('unload', function() {
     if (!BUE.frForm) return;
     var el = BUE.frForm.elements;
     K('bfr_findtext', el.findtext.value);

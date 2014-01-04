@@ -264,10 +264,10 @@ var tableDrag = function() {
 //actions for selected buttons
 var selAction = function() {
   var $chks = $('#button-table').find('input:checkbox');
-  if ($chks.size()) {
+  if ($chks.length) {
     $('#edit-go').click(function() {
       var action = $('#edit-selaction').val();
-      if (action && $chks.filter(':checked').size()) {
+      if (action && $chks.filter(':checked').length) {
         return action != 'delete' || confirm(Drupal.t('Are you sure want to delete the selected buttons?'));
       }
       return false;
