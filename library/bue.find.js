@@ -97,9 +97,13 @@ var confirmEOT = function() {
 //cookie get & set
 var K = function (name, value) {
   if (value === undefined) {//get
-    return unescape((document.cookie.match(new RegExp('(^|;) *'+ name +'=([^;]*)(;|$)')) || ['', '', ''])[2]);
+    var ret = '', str = document.cookie;
+    if (str) try {
+      val = decodeURIComponent((str.match(new RegExp('(?:^|;) *' + name + '=([^;]*)(?:;|$)')) || ['', ''])[1].replace(/\+/g, '%20'));
+    } catch (e) {}
+    return ret;
   }
-  document.cookie = name +'='+ escape(value) +'; expires='+ (new Date(new Date()*1 + 30*86400000)).toGMTString() +'; path=/';//set
+  document.cookie = name +'='+ encodeURIComponent(value) +'; expires='+ (new Date(new Date()*1 + 30*86400000)).toUTCString() +'; path=/';//set
 };
 
 //return find&replace form
