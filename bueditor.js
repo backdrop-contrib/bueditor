@@ -1,10 +1,10 @@
 (function($) {
 
-var BUE = window.BUE = window.BUE || {preset: {}, templates: {}, instances: [], preprocess: {}, postprocess: {}};
+var BUE = window.BUE = window.BUE || {preset: {}, templates: {}, instances: [], preprocess: {}, postprocess: {}, nameSelectors: {}};
 
 // Get editor settings from Drupal.settings and process preset textareas.
 Drupal.behaviors.BUE = {attach: function(context, settings) {
-  var set = settings.BUE, tpls = BUE.templates, pset = BUE.preset;
+  var set = settings.BUE, tpls = BUE.templates, pset = BUE.preset, tid, E, T;
   if (set) {
     $.each(set.templates, function (id, tpl) {
       tpls[id] = tpls[id] || $.extend({}, tpl);
@@ -13,9 +13,21 @@ Drupal.behaviors.BUE = {attach: function(context, settings) {
     set.templates = {};
     set.preset = {};
   }
-  $.each(pset, function (tid, tplid) {
-    BUE.processTextarea($('#'+ tid, context).get(0), tplid);
-  });
+  // Process preset textareaID=>templateID pairs
+  for (tid in pset) {
+    if (E = BUE.processTextarea($('#'+ tid, context).get(0), pset[tid])) {
+      // Textareas IDs are not preserved in ajax forms. We store the selectors based on the field name.
+      T = E.textArea;
+      if (T.name && T.form && T.form.id) {
+        BUE.nameSelectors['#' + T.form.id + ' textarea[name="' + T.name + '"]'] = pset[tid];
+        delete pset[tid];
+      }
+    }
+  }
+  // Process nameSelector=>templateID pairs
+  if (context !== document) {
+    $.each(BUE.nameSelectors, BUE.processTextarea);
+  }
   // Fix enter key on textfields triggering button click.
   $('input:text', context).bind('keydown.bue', BUE.eFixEnter);
 }};
