@@ -105,7 +105,7 @@ function bueditor_preset_textarea($tid, $editor) {
   if ($editor && !bueditor_check_match($editor->excludes, $tid)) {
     bueditor_settle($editor);
     $settings['BUE']['preset'][$tid] = 'e' . $editor->eid;
-    drupal_add_js($settings, 'setting');
+    backdrop_add_js($settings, 'setting');
     return TRUE;
   }
   return FALSE;
@@ -121,11 +121,11 @@ function _bueditor_settle($editor) {
   }
   if ($editor && $editor->eid && !isset($settled[$editor->eid])) {
     $settings = array();
-    $path = drupal_get_path('module', 'bueditor');
+    $path = backdrop_get_path('module', 'bueditor');
     // Run once
     if (empty($settled)) {
-      drupal_add_css($path . '/bueditor.css');
-      drupal_add_js($path . '/bueditor.js');
+      backdrop_add_css($path . '/bueditor.css');
+      backdrop_add_js($path . '/bueditor.js');
       if (module_invoke('imce', 'access')) {
         $settings['BUE']['imceURL'] = url('imce');
       }
@@ -147,7 +147,7 @@ function _bueditor_settle($editor) {
         );
       }
     }
-    drupal_add_js($settings, 'setting');
+    backdrop_add_js($settings, 'setting');
     $settled[$editor->eid] = TRUE;
   }
   return $editor && isset($settled[$editor->eid]);
@@ -163,10 +163,10 @@ function bueditor_add_library($library) {
     $options = strpos($file, '://') ? $external : $internal;
     $ext = substr($file, -4);
     if ($ext == '.css') {
-      drupal_add_css($file, $options);
+      backdrop_add_css($file, $options);
     }
     elseif (substr($ext, 1) == '.js') {
-      drupal_add_js($file, $options);
+      backdrop_add_js($file, $options);
     }
   }
 }
@@ -188,14 +188,15 @@ function bueditor_get_library($library) {
  * Return the editor ids assigned to the user.
  */
 function bueditor_user_eids($user) {
+  $config = config('bueditor.settings');
   // User #1
   if ($user->uid == 1) {
-    return array(variable_get('bueditor_user1', 1), variable_get('bueditor_user1_alt', 0));
+    return array($config->get('bueditor_user1'), $config->get('bueditor_user1_alt'));
   }
-  $roles = variable_get('bueditor_roles', array());
+  $roles = $config->get('bueditor_roles');
   // Anonymous user
   if (empty($user->uid)) {
-    $rid = DRUPAL_ANONYMOUS_RID;
+    $rid = BACKDROP_ANONYMOUS_RID;
     return isset($roles[$rid]) ? array($roles[$rid]['editor'], $roles[$rid]['alt']) : array('', '');
   }
   // Other users
@@ -213,16 +214,16 @@ function bueditor_user_eids($user) {
 function bueditor_check_page($page, $editor) {
   $editor = is_numeric($editor) ? bueditor_editors($editor) : $editor;
   if ($editor) {
-    if (drupal_match_path($page, $editor->pages)) {
+    if (backdrop_match_path($page, $editor->pages)) {
       return $editor;
     }
-    $alias = drupal_get_path_alias($page);
-    if ($alias != $page && drupal_match_path($alias, $editor->pages)) {
+    $alias = backdrop_get_path_alias($page);
+    if ($alias != $page && backdrop_match_path($alias, $editor->pages)) {
       return $editor;
     }
     if (arg(0) == 'node' && arg(2) == 'edit') {
       $node = node_load(arg(1));
-      if ($node && drupal_match_path('node/add/' . str_replace('_', '-', $node->type), $editor->pages)) {
+      if ($node && backdrop_match_path('node/add/' . str_replace('_', '-', $node->type), $editor->pages)) {
         return $editor;
       }
     }
@@ -252,9 +253,9 @@ function bueditor_path_tr($path, $reverse = FALSE) {
   static $tokens;
   if (!isset($tokens)) {
     $tokens = array(
-      '%BUEDITOR' => drupal_get_path('module', 'bueditor'),
+      '%BUEDITOR' => backdrop_get_path('module', 'bueditor'),
       '%FILES' => bueditor_public_dir(),
-      '%THEME' => isset($GLOBALS['theme']) ? drupal_get_path('theme', $GLOBALS['theme']) : path_to_theme(),
+      '%THEME' => isset($GLOBALS['theme']) ? backdrop_get_path('theme', $GLOBALS['theme']) : path_to_theme(),
     );
   }
   if ($reverse) {
@@ -263,7 +264,7 @@ function bueditor_path_tr($path, $reverse = FALSE) {
   $trpath = strtr($path, $tokens);
   // For themes missing icon or library directory, switch to default theme.
   if (!file_exists($trpath) && substr($path, 0, 6) == '%THEME') {
-    $trpath = str_replace('%THEME', drupal_get_path('theme', variable_get('theme_default', 'bartik')), $path);
+    $trpath = str_replace('%THEME', backdrop_get_path('theme', config_get('system.core', 'theme_default')), $path);
   }
   return $trpath;
 }
@@ -280,15 +281,15 @@ function bueditor_eval($code) {
 }
 
 /**
- * Return Drupal's public directory path.
+ * Return Backdrop's public directory path.
  */
 function bueditor_public_dir() {
-  return variable_get('file_public_path', conf_path() . '/files');
+  return config_get('system.core', 'file_public_path');
 }
 
 /**
  * Return sprites directory
  */
 function bueditor_sprites_dir() {
-  return bueditor_public_dir() . '/' . variable_get('bueditor_sprites_dir', 'bueditor-sprites');
+  return bueditor_public_dir() . '/' . config_get('bueditor.settings', 'bueditor_sprites_dir');
 }

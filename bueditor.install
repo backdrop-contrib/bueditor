@@ -14,15 +14,22 @@ function bueditor_install() {
 }
 
 /**
- * Implements hook_uninstall().
+ * Implements hook_update_N()
  */
-function bueditor_uninstall() {
-  variable_del('bueditor_user1');
-  variable_del('bueditor_user1_alt');
-  variable_del('bueditor_roles');
-  variable_del('bueditor_sprites_dir');
-}
+function bueditor_update_1000() {
+  $config = config('bueditor.settings');
+  $config->set('bueditor_user1', update_variable_get('bueditor_user1', 1));
+  $config->set('bueditor_user1_alt', update_variable_get('bueditor_user1_alt', 0));
+  $config->set('bueditor_roles', update_variable_get('bueditor_roles', array()));
+  $config->set('bueditor_sprites_dir', update_variable_get('bueditor_sprites_dir', 'bueditor-sprites'));
+  $config->save();
 
+  update_variable_del('bueditor_user1');
+  update_variable_del('bueditor_user1_alt');
+  update_variable_del('bueditor_roles');
+  update_variable_del('bueditor_sprites_dir');
+
+}
 
 /**
  * Implements hook_schema().
@@ -47,7 +54,7 @@ function bueditor_schema() {
       'pages' => array(
         'type' => 'text',
         'not null' => TRUE,
-        'description' => 'Drupal paths on which the editor is visible.',
+        'description' => 'Backdrop paths on which the editor is visible.',
       ),
       'excludes' => array(
         'type' => 'text',

@@ -6,11 +6,11 @@
 //create IMCE object shared by all editor instances.
 var I = E.imce = BUE.imce = {};
 //set IMCE URL on document load
-$(function() {I.url = Drupal.settings.BUE.imceURL || ''});
+$(function() {I.url = Backdrop.settings.BUE.imceURL || ''});
 
 //IMCE button html to be used in forms. Target field's name is required.
 I.button = function(fname, text) {
-  return I.url ? '<input type="button" id="bue-imce-button" name="bue_imce_button" class="form-submit" value="'+ (text || Drupal.t('Browse')) +'" onclick="BUE.imce.open(this.form.elements[\''+ fname +'\'])">' : '';
+  return I.url ? '<input type="button" id="bue-imce-button" name="bue_imce_button" class="form-submit" value="'+ (text || Backdrop.t('Browse')) +'" onclick="BUE.imce.open(this.form.elements[\''+ fname +'\'])">' : '';
 };
 
 //open IMCE with user specified options.
@@ -31,7 +31,7 @@ I.open = function(opt) {
   //Load IMCE once and for all. Run window.bueImceLoad which then runs the ready method.
   else {
     var url = I.url + (I.url.indexOf('?') < 0 ? '?' : '&') + 'app=bue|imceload@bueImceLoad|';
-    I.pop = BUE.createPopup('bue-imce-pop', Drupal.t('File Browser'), '<iframe src="'+ url +'" frameborder="0"></iframe>');
+    I.pop = BUE.createPopup('bue-imce-pop', Backdrop.t('File Browser'), '<iframe src="'+ url +'" frameborder="0"></iframe>');
     I.setPos();
   }
 };
@@ -78,7 +78,7 @@ I.readyDefault = function(win, pop) {
 
 //IMCE onload function. Runs after first load of IMCE.
 window.bueImceLoad = function(win) {
-  (I.win = win).imce.setSendTo(Drupal.t('Send to editor'), I.finish);
+  (I.win = win).imce.setSendTo(Backdrop.t('Send to editor'), I.finish);
   I.ready(win, I.pop);
   // Fix opera and webkit focus scrolling.
   if ((window.opera || ('WebkitAppearance' in document.documentElement.style)) && $(I.pop).is(':visible')) {

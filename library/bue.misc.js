@@ -67,7 +67,7 @@ E.tagDialog = function(tag, fields, opt) {
       rows[n][1] += fhtml(fproc(field, obj, sel));
     }
   }
-  var dopt = $.extend({title: Drupal.t('Tag editor - @tag', {'@tag': tag.toUpperCase()}), stitle: Drupal.t('OK'), validate: false, submit: function(a, b) {return E.tgdSubmit(a, b)}, effect: 'show'}, opt);
+  var dopt = $.extend({title: Backdrop.t('Tag editor - @tag', {'@tag': tag.toUpperCase()}), stitle: Backdrop.t('OK'), validate: false, submit: function(a, b) {return E.tgdSubmit(a, b)}, effect: 'show'}, opt);
   var table = BUE.table(rows, {'class': 'bue-tgd-table'});
   var sbm = BUE.html('div', BUE.input('submit', 'bue_tgd_submit', dopt.stitle, {'class': 'form-submit'}));
   var $form = $html(BUE.html('form', table + sbm + hidden, {name: 'bue_tgd_form', id: 'bue-tgd-form'}));
@@ -109,7 +109,7 @@ var fproc = function(f, obj, sel) {
   if (f.name == 'html') {
     f.value =  typeof obj.html == 'string' ? obj.html : (sel || f.value || '');
   }
-  f.value = Drupal.checkPlain(typeof obj.attributes[f.name] == 'string' ? obj.attributes[f.name] : (f.value || ''));
+  f.value = Backdrop.checkPlain(typeof obj.attributes[f.name] == 'string' ? obj.attributes[f.name] : (f.value || ''));
   f.title  = typeof f.title == 'string' ? f.title : f.name.substr(0, 1).toUpperCase() + f.name.substr(1);
   f.fname = 'attr_' + f.name;
   f.type = f.value.indexOf('\n') > -1 ? 'textarea' : (f.type || 'text');
@@ -117,7 +117,7 @@ var fproc = function(f, obj, sel) {
   f.attributes['class'] += ' form-' + f.type;
   if (f.required) {
     f.attributes['class'] += ' required';
-    f.attributes['title'] = Drupal.t('This field is required.');
+    f.attributes['title'] = Backdrop.t('This field is required.');
   }
   return f;
 };

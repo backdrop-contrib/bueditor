@@ -2,8 +2,8 @@
 
 var BUE = window.BUE = window.BUE || {preset: {}, templates: {}, instances: [], preprocess: {}, postprocess: {}, nameSelectors: {}};
 
-// Get editor settings from Drupal.settings and process preset textareas.
-Drupal.behaviors.BUE = {attach: function(context, settings) {
+// Get editor settings from Backdrop.settings and process preset textareas.
+Backdrop.behaviors.BUE = {attach: function(context, settings) {
   var set = settings.BUE, tpls = BUE.templates, pset = BUE.preset, names = BUE.nameSelectors, i, E, T;
   if (set) {
     $.each(set.templates, function (id, tpl) {

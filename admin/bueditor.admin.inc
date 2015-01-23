@@ -5,7 +5,7 @@
  * Serves administration pages of BUEditor.
  */
 
-include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'bueditor') . '/bueditor.inc';
+include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'bueditor') . '/bueditor.inc';
 
 /**
  * Admin main page.
@@ -14,7 +14,7 @@ function bueditor_admin() {
   bueditor_eop();
   $path = 'admin/config/content/bueditor';
   $editors = bueditor_editors('all');
-  $token = drupal_get_token(date('ymd'));
+  $token = backdrop_get_token(date('ymd'));
   $header = array(t('Editor name'), t('Operations'));
   $rows = array();
   foreach ($editors as $eid => $editor) {
@@ -40,7 +40,7 @@ function bueditor_admin() {
     '#rows' => $rows,
     '#attributes' => array('id' => 'available-editors-list')
   );
-  $output['form'] = drupal_get_form('bueditor_admin_form');
+  $output['form'] = backdrop_get_form('bueditor_admin_form');
   return $output;
 }
 
@@ -48,6 +48,8 @@ function bueditor_admin() {
  * Admin form.
  */
 function bueditor_admin_form($form, &$form_state) {
+  $config = config('bueditor.settings');
+
   $form['roles'] = array(
     '#tree' => TRUE,
   );
@@ -58,14 +60,14 @@ function bueditor_admin_form($form, &$form_state) {
     $u1 = array(
       'name' => t('Site maintenance account'),
       'weight' => t('n/a'),
-      'editor' => variable_get('bueditor_user1', 1),
-      'alt' => variable_get('bueditor_user1_alt', 0),
+      'editor' => $config->get('bueditor_user1'),
+      'alt' => $config->get('bueditor_user1_alt'),
     );
     $form['roles']['u1'] = bueditor_role_form($u1, $form['#weighted'], 1);
   }
   //other roles
   foreach ($roles as $rid => $role) {
-    $core = $rid == DRUPAL_ANONYMOUS_RID || $rid == DRUPAL_AUTHENTICATED_RID;
+    $core = $rid == 'anonymous' || $rid == 'authenticated';
     $form['roles'][$rid] = bueditor_role_form($role, $form['#weighted'], $core);
   }
   $form['submit'] = array(
@@ -95,7 +97,7 @@ function bueditor_admin_theme($variables) {
   foreach (element_children($form['roles']) as $rid) {
     $cells = array();
     foreach ($keys as $key) {
-      $cells[] = drupal_render($form['roles'][$rid][$key]);
+      $cells[] = backdrop_render($form['roles'][$rid][$key]);
     }
     $rows[] = $cells;
   }
@@ -103,7 +105,7 @@ function bueditor_admin_theme($variables) {
   $output = '<h2 class="title">' . t('Role-editor assignments') . '</h2>';
   $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'roles-editors-list')));
   $output .= '<div class="form-item"><div class="description">' . t('Assign editors to user roles.') . '<br />' . t('Alternative editor makes it possible to use different editors for different textareas or different editors on diffrent pages. You just have to configure visibility settings for each editor.') . $info . '</div></div>';
-  $output .= drupal_render_children($form);
+  $output .= backdrop_render_children($form);
   return $output;
 }
 
@@ -111,19 +113,21 @@ function bueditor_admin_theme($variables) {
  * Admin form submission.
  */
 function bueditor_admin_submit($form, &$form_state) {
+  $config = config('bueditor.settings');
   $roles = $form_state['values']['roles'];
-  $roles[DRUPAL_ANONYMOUS_RID]['weight'] = 12;
-  $roles[DRUPAL_AUTHENTICATED_RID]['weight'] = 11;
+  $roles['anonymous']['weight'] = 12;
+  $roles['authenticated']['weight'] = 11;
   if ($GLOBALS['user']->uid == 1 && isset($roles['u1'])) {
-    variable_set('bueditor_user1', $roles['u1']['editor']);
-    variable_set('bueditor_user1_alt', $roles['u1']['alt']);
+    $config->set('bueditor_user1', $roles['u1']['editor']);
+    $config->set('bueditor_user1_alt', $roles['u1']['alt']);
     unset($roles['u1']);
   }
   if (count($roles) > 3) {
     uasort($roles, 'bueditor_rolesort');
   }
-  variable_set('bueditor_roles', $roles);
-  drupal_set_message(t('The changes have been saved.'));
+  $config->set('bueditor_roles', $roles);
+  $config->save();
+  backdrop_set_message(t('The changes have been saved.'));
 }
 
 /**
@@ -248,7 +252,7 @@ function bueditor_editor_form($form, &$form_state, $editor = NULL) {
     '#type' => 'textarea',
     '#title' => t('Show the editor on specific pages'),
     '#default_value' => $editor->pages,
-    '#description' => t('Enter one page per line as Drupal paths. The * character is a wildcard.'),
+    '#description' => t('Enter one page per line as Backdrop paths. The * character is a wildcard.'),
   );
   $form['editor']['excludes'] = array(
     '#type' => 'textarea',
@@ -261,13 +265,13 @@ function bueditor_editor_form($form, &$form_state, $editor = NULL) {
     '#title' => t('Directory of editor icons'),
     '#maxlength' => 255,
     '#default_value' => $editor->iconpath,
-    '#description' => t('Web accessible directory path where editor icons reside.') . ' ' . t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme\'s path).'),
+    '#description' => t('Web accessible directory path where editor icons reside.') . ' ' . t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (backdrop files path), and %THEME (current theme\'s path).'),
   );
   $form['editor']['librarypath'] = array(
     '#type' => 'textarea',
     '#title' => t('Editor specific library files'),
     '#default_value' => $editor->librarypath,
-    '#description' => t('Web accessible javascript(.js) or style sheet(.css) file paths to be included with the editor. Enter one file path per line.') . ' ' . t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (drupal files path), and %THEME (current theme\'s path).'),
+    '#description' => t('Web accessible javascript(.js) or style sheet(.css) file paths to be included with the editor. Enter one file path per line.') . ' ' . t('Placeholders that you can use are; %BUEDITOR (bueditor path), %FILES (backdrop files path), and %THEME (current theme\'s path).'),
   );
   $form['editor']['spriteon'] = array(
     '#type' => 'checkbox',
@@ -286,13 +290,13 @@ function bueditor_editor_form($form, &$form_state, $editor = NULL) {
   if (isset($_SESSION['bueimport']) && $import = $_SESSION['bueimport']) {
     $import = is_array($import) ? $import : bueditor_import_csv_buttons($import);
     if (empty($import)) {
-      drupal_set_message(t('There is no button to import.'), 'warning');
+      backdrop_set_message(t('There is no button to import.'), 'warning');
     }
     else {
       foreach ($import as $bid => $button) {
         $form['buttons']['new' . $bid] = bueditor_button_form($button);
       }
-      drupal_set_message(t('New buttons are ready to be saved.'));
+      backdrop_set_message(t('New buttons are ready to be saved.'));
     }
     unset($_SESSION['bueimport']);
   }
@@ -329,7 +333,7 @@ function bueditor_editor_form($form, &$form_state, $editor = NULL) {
  */
 function bueditor_editor_theme($variables) {
   $form = $variables['form'];
-  $path = drupal_get_path('module', 'bueditor');
+  $path = backdrop_get_path('module', 'bueditor');
   $eid = $form['editor']['eid']['#value'];
   $header = array(array(
     'data' => t('Title'),
@@ -354,12 +358,12 @@ function bueditor_editor_theme($variables) {
   foreach (element_children($form['buttons']) as $bid) {
     $new = !is_numeric($bid);
     $cells = array();
-    $cells[] = drupal_render($form['buttons'][$bid]['title']);
-    $cells[] = drupal_render($form['buttons'][$bid]['content']);
-    $cells[] = drupal_render($form['buttons'][$bid]['icon']);
-    $cells[] = drupal_render($form['buttons'][$bid]['accesskey']);
-    $cells[] = drupal_render($form['buttons'][$bid]['weight']);
-    $cells[] = $new ? '<a>new</a>' : drupal_render($form['checks'][$bid]);
+    $cells[] = backdrop_render($form['buttons'][$bid]['title']);
+    $cells[] = backdrop_render($form['buttons'][$bid]['content']);
+    $cells[] = backdrop_render($form['buttons'][$bid]['icon']);
+    $cells[] = backdrop_render($form['buttons'][$bid]['accesskey']);
+    $cells[] = backdrop_render($form['buttons'][$bid]['weight']);
+    $cells[] = $new ? '<a>new</a>' : backdrop_render($form['checks'][$bid]);
     $row = array(
       'data' => $cells,
       'class' => array('draggable'),
@@ -372,26 +376,26 @@ function bueditor_editor_theme($variables) {
 
   //set title
   if ($form['editor']['name']['#value']) {
-    drupal_set_title(t('Settings for the editor @name', array('@name' => $form['editor']['name']['#value'])));
+    backdrop_set_title(t('Settings for the editor @name', array('@name' => $form['editor']['name']['#value'])));
   }
   $name = theme('fieldset', array('element' => array(
     '#title' => t('Editor name'),
-    '#children' => drupal_render($form['editor']['name']),
+    '#children' => backdrop_render($form['editor']['name']),
     '#attributes' => array(),
   )));
   $visibility = theme('fieldset', array('element' => array(
     '#title' => t('Visibility settings'),
-    '#children' => drupal_render($form['editor']['pages']) . drupal_render($form['editor']['excludes']),
+    '#children' => backdrop_render($form['editor']['pages']) . backdrop_render($form['editor']['excludes']),
     '#attributes' => array(),
   )));
   $paths = theme('fieldset', array('element' => array(
     '#title' => t('Editor paths'),
-    '#children' => drupal_render($form['editor']['iconpath']) . drupal_render($form['editor']['spriteon']) . drupal_render($form['editor']['librarypath']),
+    '#children' => backdrop_render($form['editor']['iconpath']) . backdrop_render($form['editor']['spriteon']) . backdrop_render($form['editor']['librarypath']),
     '#attributes' => array(),
   )));
   $import = $eid ? theme('fieldset', array('element' => array(
     '#title' => t('Import Buttons'),
-    '#children' => t('<em>You can either upload a CSV file exported from BUEditor 6.x-1.x or earlier</em> !csvfield <em>OR paste the editor code containing the buttons</em> !codefield', array('!csvfield' => drupal_render($form['importcsv']), '!codefield' => drupal_render($form['importcode']))) . drupal_render($form['import']),
+    '#children' => t('<em>You can either upload a CSV file exported from BUEditor 6.x-1.x or earlier</em> !csvfield <em>OR paste the editor code containing the buttons</em> !codefield', array('!csvfield' => backdrop_render($form['importcsv']), '!codefield' => backdrop_render($form['importcode']))) . backdrop_render($form['import']),
     '#attributes' => array(),
   ))) : '';
   $buttons = theme('table', array(
@@ -399,27 +403,27 @@ function bueditor_editor_theme($variables) {
     'rows' => $rows,
     'attributes' => array('class' => array('button-table'), 'id' => 'button-table'),
   ));
-  $selaction = $eid ? '<div id="sel-action-wrapper">' . drupal_render($form['selaction']) . drupal_render($form['copyto']) . drupal_render($form['go']) . '</div>' : '';
+  $selaction = $eid ? '<div id="sel-action-wrapper">' . backdrop_render($form['selaction']) . backdrop_render($form['copyto']) . backdrop_render($form['go']) . '</div>' : '';
 
   $timer = timer_read('page');
   $demo = '';
   if ($eid && !isset($_GET['nodemo']) && bueditor_settle($eid)) {
     $set['BUE']['preset']['edit-demo-value'] = "e$eid";
-    $demo = drupal_render($form['demo']);
+    $demo = backdrop_render($form['demo']);
     $set['BUE']['demotime'] = round(timer_read('page') - $timer);
   }
 
   $set['BUE']['iconpath'] = bueditor_path_tr($form['editor']['iconpath']['#value']);
   $set['BUE']['iconlist'] = bueditor_icons($set['BUE']['iconpath']);
   $output = theme('vertical_tabs', array('element' => array('#children' => $name . $visibility . $paths . $import)));
-  $output .= '<h2 class="title">' . t('Buttons') . '</h2>' . $buttons . $selaction . drupal_render($form['submit']);
-  $output .= drupal_render_children($form) . $demo;
+  $output .= '<h2 class="title">' . t('Buttons') . '</h2>' . $buttons . $selaction . backdrop_render($form['submit']);
+  $output .= backdrop_render_children($form) . $demo;
 
-  drupal_add_js('misc/tableselect.js');
-  drupal_add_css($path . '/admin/bueditor.edit.css');
-  drupal_add_js($path . '/admin/bueditor.edit.js');
-  drupal_add_js($set, 'setting');
-  drupal_add_tabledrag('button-table', 'order', 'sibling', 'input-weight');
+  backdrop_add_js('core/misc/tableselect.js');
+  backdrop_add_css($path . '/admin/bueditor.edit.css');
+  backdrop_add_js($path . '/admin/bueditor.edit.js');
+  backdrop_add_js($set, 'setting');
+  backdrop_add_tabledrag('button-table', 'order', 'sibling', 'input-weight');
   return $output;
 }
 
@@ -439,7 +443,7 @@ function bueditor_editor_submit($form, &$form_state) {
   $old = $editor->eid;
   if ($editor = bueditor_write_editor($editor, $buttons)) {
     $form_state['redirect'] = 'admin/config/content/bueditor/' . $editor->eid;
-    $old ? drupal_set_message(t('The changes have been saved.')) : bueditor_message_added($editor->name);
+    $old ? backdrop_set_message(t('The changes have been saved.')) : bueditor_message_added($editor->name);
   }
 }
 
@@ -498,7 +502,7 @@ function bueditor_delete_buttons($bids = array()) {
     foreach ($bids as $bid) {
       bueditor_delete_button($bid);
     }
-    drupal_set_message(t('Selected buttons have been deleted.'));
+    backdrop_set_message(t('Selected buttons have been deleted.'));
   }
 }
 function bueditor_delete_button($bid) {
@@ -514,7 +518,7 @@ function bueditor_export_buttons($bids = array()) {
   if (!empty($editor['buttons'])) {
     bueditor_export_text(var_export($editor, TRUE), 'bueditor.buttons.txt');
   }
-  drupal_set_message(t('There is no button to export.'), 'warning');
+  backdrop_set_message(t('There is no button to export.'), 'warning');
 }
 
 /**
@@ -544,14 +548,14 @@ function bueditor_button_import_form() {
  */
 function bueditor_button_import_submit($form, &$form_state) {
   if ($file = file_save_upload('importcsv', array('file_validate_extensions' => array('csv')), 'temporary://')) {
-    $_SESSION['bueimport'] = drupal_realpath($file->uri);
+    $_SESSION['bueimport'] = backdrop_realpath($file->uri);
   }
   elseif ($code = $form_state['values']['importcode']) {
     if ($editor = bueditor_exec_editor_code($code)) {
       $_SESSION['bueimport'] = bueditor_grab_imported_buttons($editor);
     }
     else {
-      drupal_set_message(t('The editor code did not produce proper editor data.'), 'error');
+      backdrop_set_message(t('The editor code did not produce proper editor data.'), 'error');
     }
   }
 }
@@ -589,7 +593,7 @@ function bueditor_delete_form($form, &$form_state, $editor) {
 function bueditor_delete_form_submit($form, &$form_state) {
   $editor = $form_state['build_info']['args'][0];
   bueditor_delete_editor($editor->eid);
-  drupal_set_message(t('Editor %name has been deleted.', array('%name' => $editor->name)));
+  backdrop_set_message(t('Editor %name has been deleted.', array('%name' => $editor->name)));
   $form_state['redirect'] = 'admin/config/content/bueditor';
 }
 
@@ -600,12 +604,12 @@ function bueditor_delete_editor($eid) {
   db_delete('bueditor_buttons')->condition('eid', $eid)->execute();
   db_delete('bueditor_editors')->condition('eid', $eid)->execute();
   //update roles
-  $roles = variable_get('bueditor_roles', array());
+  $roles = config_get('bueditor.settings', 'bueditor_roles');
   foreach ($roles as $rid => $role) {
     $roles[$rid]['editor'] = $eid == $role['editor'] ? 0 : $role['editor'];
     $roles[$rid]['alt'] = $eid == $role['alt'] ? 0 : $role['alt'];
   }
-  variable_set('bueditor_roles', $roles);
+  config_set('bueditor.settings', 'bueditor_roles', $roles);
 }
 
 /**
@@ -779,9 +783,9 @@ function bueditor_eop() {
   if (!isset($_GET['eop']) || !isset($_GET['token'])) {
     //Add editor name prompt for copy and add_default operations.
     //Confirm editor deletion without going to the confirmation page.
-    return drupal_add_js(drupal_get_path('module', 'bueditor') . '/admin/bueditor.eop.js', array('preprocess' => FALSE));
+    return backdrop_add_js(backdrop_get_path('module', 'bueditor') . '/admin/bueditor.eop.js', array('preprocess' => FALSE));
   }
-  if (drupal_valid_token($_GET['token'], date('ymd'))) {
+  if (backdrop_valid_token($_GET['token'], date('ymd'))) {
     $editors = bueditor_editors('all');
     $eop = $_GET['eop'];
     $name = isset($_GET['name']) ? check_plain($_GET['name']) : '';
@@ -803,7 +807,7 @@ function bueditor_eop() {
       }
     }
   }
-  drupal_goto('admin/config/content/bueditor');
+  backdrop_goto('admin/config/content/bueditor');
 }
 
 /**
@@ -855,7 +859,7 @@ function bueditor_varexport_editor($editor) {
   $editor = (array) $editor;
   $library = $editor['librarypath'];
   $iconpath = bueditor_path_tr($editor['iconpath']);
-  $buepath = drupal_get_path('module', 'bueditor');
+  $buepath = backdrop_get_path('module', 'bueditor');
 
   //include buttons
   $editor['buttons'] = bueditor_exportable_buttons(bueditor_buttons($editor['eid']));
@@ -909,13 +913,13 @@ function bueditor_exec_editor_code($code) {
  */
 function bueditor_write_editor($editor, $buttons = array()) {
   if (isset($editor->spriteon) && $editor->spriteon) {
-    include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'bueditor') . '/admin/bueditor.sprite.inc';
+    include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'bueditor') . '/admin/bueditor.sprite.inc';
     $editor->spritename = bueditor_sprite($editor, $buttons);
   }
-  if (drupal_write_record('bueditor_editors', $editor, bueditor_isupdate($editor, 'eid'))) {
+  if (backdrop_write_record('bueditor_editors', $editor, bueditor_isupdate($editor, 'eid'))) {
     foreach ($buttons as $button) {
       $button->eid = $editor->eid;
-      drupal_write_record('bueditor_buttons', $button, bueditor_isupdate($button, 'bid'));
+      backdrop_write_record('bueditor_buttons', $button, bueditor_isupdate($button, 'bid'));
     }
     return $editor;
   }
@@ -939,9 +943,9 @@ function bueditor_sorted_roles() {
   if (!isset($sorted)) {
     $sorted = array();
     $roles = user_roles();
-    $broles = variable_get('bueditor_roles', array());
-    $broles[DRUPAL_ANONYMOUS_RID]['weight'] = 12;
-    $broles[DRUPAL_AUTHENTICATED_RID]['weight'] = 11;
+    $broles = config_get('bueditor.settings', 'bueditor_roles');
+    $broles['anonymous']['weight'] = 12;
+    $broles['authenticated']['weight'] = 11;
     foreach ($roles as $rid => $name) {
       $sorted[$rid] = array(
         'name' => $name,
@@ -963,7 +967,7 @@ function bueditor_rolesort($r1, $r2) {
 }
 
 /**
- * Return update state for an object to be used with drupal_write_record.
+ * Return update state for an object to be used with backdrop_write_record.
  */
 function bueditor_isupdate($obj, $key) {
   return isset($obj->$key) && is_numeric($obj->$key) && $obj->$key > 0 ? array($key) : array();
@@ -1009,8 +1013,8 @@ function bueditor_buttons_by_id($bids = array()) {
  * Sends the text to the client.
  */
 function bueditor_export_text($text, $filename) {
-  drupal_add_http_header('Content-Type', 'text/plain; charset=utf-8');
-  drupal_add_http_header('Content-Disposition', 'attachment; filename=' . $filename);
+  backdrop_add_http_header('Content-Type', 'text/plain; charset=utf-8');
+  backdrop_add_http_header('Content-Disposition', 'attachment; filename=' . $filename);
   print $text;
   exit();
 }
@@ -1019,20 +1023,20 @@ function bueditor_export_text($text, $filename) {
  * Set editor addition message.
  */
 function bueditor_message_added($name) {
-  drupal_set_message(t('Editor %name has been added.', array('%name' => $name)));
+  backdrop_set_message(t('Editor %name has been added.', array('%name' => $name)));
 }
 
 /**
  * Allow quick import of predefined editors by ajax.
  */
 function bueditor_set_quick_import() {
-  $path = drupal_get_path('module', 'bueditor');
+  $path = backdrop_get_path('module', 'bueditor');
   $setting['BUE']['imp'] = array(
     'editors' => bueditor_importable_names(),
     'dir' => $path . '/import/',
   );
-  drupal_add_js($path . '/admin/bueditor.import.js', array('preprocess' => FALSE));
-  drupal_add_js($setting, 'setting');
+  backdrop_add_js($path . '/admin/bueditor.import.js', array('preprocess' => FALSE));
+  backdrop_add_js($setting, 'setting');
 }
 
 /**
@@ -1046,7 +1050,7 @@ function bueditor_importable_names() {
  * Import an editor from 'bueditor/import' directory.
  */
 function bueditor_import_by_name($name, $ename = '') {
-  $file = drupal_get_path('module', 'bueditor') . '/import/' . $name . '.bueditor.txt';
+  $file = backdrop_get_path('module', 'bueditor') . '/import/' . $name . '.bueditor.txt';
   if ($code = file_get_contents($file)) {
     if ($editor = bueditor_exec_editor_code($code)) {
       if ($ename) {

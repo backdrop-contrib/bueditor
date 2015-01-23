@@ -4,7 +4,7 @@
 BUE.preprocess.tab = function(E, $) {
 
   E.tabs = {
-    str: '  ', //character(s) to be inserted when TAB is pressed. Drupal way is to use double space.
+    str: '  ', //character(s) to be inserted when TAB is pressed. Backdrop way is to use double space.
     on: true, //initial state of tabs. Switchable by Ctrl+Alt+TAB
     autoin: true, //auto indent on enter.
     blocks: true //indent/unindent selected text blocks without overwriting.

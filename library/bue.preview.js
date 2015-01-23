@@ -11,7 +11,7 @@ E.prv = function(safecheck) {
   var safecheck = safecheck === undefined ? true : safecheck;
   var content = E.getContent();
   if (safecheck && !(E.safeToPreview = E.safeToPreview || content.indexOf('<') == -1)) {
-    content = '<div class="warning">' + Drupal.t('The preview is disabled due to previously inserted HTML code in the content. This aims to protect you from any potentially harmful code inserted by other editors or users. If you own the content, just preview an empty text to re-enable the preview.') + '</div>';
+    content = '<div class="warning">' + Backdrop.t('The preview is disabled due to previously inserted HTML code in the content. This aims to protect you from any potentially harmful code inserted by other editors or users. If you own the content, just preview an empty text to re-enable the preview.') + '</div>';
   }
   return E.prvShow(BUE.autop(content));
 };
@@ -57,15 +57,15 @@ E.prvHide = function() {
     return E.prvHide();
   }
   if (!($xM = $.ajaxMarkup)) {
-    return E.prvShow(Drupal.t('Preview requires <a href="http://drupal.org/project/ajax_markup">Ajax markup</a> module with proper permissions set.'));
+    return E.prvShow(Backdrop.t('Preview requires <a href="http://backdrop.org/project/ajax_markup">Ajax markup</a> module with proper permissions set.'));
   }
   if (format && format.call) {
     callback = format;
     format = 0;
   } 
-  E.prvShow('<div class="bue-prv-loading">' + Drupal.t('Loading...') + '</div>');
+  E.prvShow('<div class="bue-prv-loading">' + Backdrop.t('Loading...') + '</div>');
   $xM(E.getContent(), format || $xM.getFormat(E.textArea), function(output, status, request) {
-    E.prvOn && E.prvShow(status ? output : output.replace(/\n/g, '<br />')) && (callback || Drupal.attachBehaviors)(E.preview);
+    E.prvOn && E.prvShow(status ? output : output.replace(/\n/g, '<br />')) && (callback || Backdrop.attachBehaviors)(E.preview);
   });
   return E;
 };

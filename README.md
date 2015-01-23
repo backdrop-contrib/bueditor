@@ -1,5 +1,7 @@
 
-- BUEditor:
+BUEditor
+========
+
 A plain textarea editor aiming to facilitate code writing.
 It's the most flexible text editor of the web because it allows you to;
  - build the editor from scratch.
@@ -7,57 +9,8 @@ It's the most flexible text editor of the web because it allows you to;
  - determine the design and layout by defining theme buttons that insert html to the layout.
 
 
-- WHAT'S NEW
-
-6.x-1.x:
- - custom icon and library paths for each editor.
- - support using different editor templates for different textareas in a page.
- - alternative editor assignment for user roles.
- - theme buttons that provide unlimited theming options.
- - headings (h1, h2, h3, h4) and separators in default editor.
- - changed key variable from "editor" to "BUE". (ex: editor.active is now BUE.active)
- - another popup dialog(BUE.quickPop) that has no title or close button.
- - jquery effects. (ex: effects in popup openings)
-
-6.x-2.x
- - CSS sprites for icons(switchable under editor path settings).
- - bueditor.js got smaller.
- - new buttons for the default editor: Underline, Strike-through, Quote, Code 
- - ability to extend editor instances via post process functions.
- - proper support for selection handling in Opera
- - open() method of popups and dialogs now accepts DOM or jQuery objects as content.
- - new popup markup for better theming.
- - popup shortcuts: ENTER(link click), ESC(close), UP & DOWN (link navigation)
- - improved admin interface: drag & drop, visual icon and key selector.
- - ability to include library files from different directories.
- - ability to include custom css files.
- - import/export complete editor settings, icons, and libraries.
- - IMCE now opens in an editor pop up.
- - No need for php buttons to get IMCE URL which is now stored in Drupal.settings.BUE.imceURL(or BUE.imce.url when the bue.imce library is used)
- - new E.prvAjax() method for live previewing html or non-html markup with the help of Ajax Markup module.
- - new optional library files:
-   - bue.autocomplete.js: enables AC inside textareas. Completes html/bbcode tags by default.
-   - bue.ctrl.js: converts access keys into CTRL shortcuts.
-   - bue.find.js: enables search and replace inside textareas.(Depends on: popup, markup)
-   - bue.history.js: cross-browser undo-redo for textareas.
-   - bue.markup.js: introduces HTML creating and parsing methods.
-   - bue.imce.js: integrates IMCE file browser in a popup.(Depends on: popup)
-   - bue.li.js: auto inserts a list item when enter key is pressed at the end of a list item.
-   - bue.misc.js: miscellaneous methods used in default editor.(Depends on: popup, markup)
-   - bue.popup.js: introduces editor popups: E.dialog & E.quickPop
-   - bue.popup.css: experimental CSS3 styling of editor popups
-   - bue.preview.js: introduces preview methods E.prv(), E.prvAjax()
-   - bue.tab.js: enables indent(TAB), unindent(Shift+TAB) and auto-indent(ENTER) inside textareas
-   - bue.min.default.js: minified sum of popup, html, preview, imce, and misc libraries
-   - bue.min.all.js: minified sum of all libraries
- - new quick-import templates:
-   - bbcode.bueditor.txt: BBCode editor having equivalent buttons of the default editor.
-   - commenter.bueditor.txt: Simple editor having no library dependency.
-   - default.bueditor.txt: The default editor having various buttons inserting HTML.
-   - lab.bueditor.txt: BUEditor lab for experimental code.
-
-
-- HOW TO INSTALL:
+HOW TO INSTALL:
+---------------
 1) Copy editor directory to your modules(sites/all/modules) directory.
 2) Enable the module at module administration page.
 3) Add/edit editors at admin/config/content/bueditor.
@@ -66,19 +19,22 @@ It's the most flexible text editor of the web because it allows you to;
 6) Make sure your input format does not filter the tags the editor inserts.
 
 
-- ADDING BUTTONS:
+ADDING BUTTONS:
+---------------
 You can add buttons to an editor by three methods;
-1- Manually entering the values for new button fields located at the bottom of the button list.
-3- Importing editor code(PHP) that contains buttons.
-2- Importing a CSV file that contains previously exported buttons.(deprecated)
+1. Manually entering the values for new button fields located at the bottom of the button list.
+3. Importing editor code(PHP) that contains buttons.
+2. Importing a CSV file that contains previously exported buttons.(deprecated)
 
 
-- EXPORTING AND DELETING BUTTONS:
+EXPORTING AND DELETING BUTTONS:
+---------------
 You should first select the buttons you want to export or delete, using checkboxes next to them.
 Then select the action you want to take in the selectbox below the list and press GO.
 
 
-- BUTTON PROPERTIES
+BUTTON PROPERTIES
+---------------
 
 TITLE:(required) Title or name of the button. Displayed as a hint on mouse over.
 A title can be translated by prefixing it with "t:". Ex: t:Bold turns into t('Bold').
@@ -97,16 +53,18 @@ WEIGHT: Required for sorting the buttons. Line-up is from the lightest to the he
 This is handled by dragging and dropping the button rows in the list.
 
 
-- BUTTON TYPES
+BUTTON TYPES
+---------------
 There are three types of buttons regarding the CONTENT property;
-1- HTML BUTTONS 
-2- JAVASCRIPT BUTTONS 
-3- PHP BUTTONS
+1. HTML BUTTONS 
+2. JAVASCRIPT BUTTONS 
+3. PHP BUTTONS
 and a special type determined by the title prefix;
-4- THEME BUTTONS
+4. THEME BUTTONS
 
 
-- HTML BUTTONS
+HTML BUTTONS
+---------------
 These are used for directly inserting plain text or html into the textarea.
 It is possible to use the selected text in the textarea by using the place holder %TEXT%
 For example, assume that the button content is:
@@ -119,7 +77,8 @@ These type of buttons are useful for simple html tags or other tag systems like 
 Note: if you want to insert some text containing the phrase %TEXT%, use a javascript button.
 
 
-- JAVASCRIPT BUTTONS
+JAVASCRIPT BUTTONS
+---------------
 These type of buttons are used for special cases where it is insufficient to just replace the selected text.
 The content of a javascript button must begin with a 3 character text "js:" to be differentiated from a
 html button. The remaining code is treated as a javascript code and executed in a function when the
@@ -128,7 +87,8 @@ Editor has many ready-to-use methods and variables making it easy to create java
 See EDITOR VARIABLES AND METHODS and especially EDITOR INSTANCE variables and methods.
 
 
-- PHP BUTTONS
+PHP BUTTONS
+---------------
 The content of a php button must begin with "php:". The remaining code is pre evaluated at the server 
 side and expected to return some code. According to the return value of the php code the real type of 
 the button is determined. If the php code returns nothing or false, the button is disabled and does not
@@ -144,7 +104,8 @@ turns into a javascript button having the returned content for users having "acc
 it is disabled and doesn't show up.
 
 
-- THEME BUTTONS
+THEME BUTTONS
+---------------
 A theme button is a special type of button that just inserts html into editor interface for theming purposes. It can be
 used to insert separators, line breaks or any html code in order to achieve the themed editor interface. For a button to
 be considered a theme button it should have a title starting with "tpl:". Having this title, the button is processed to
@@ -178,12 +139,13 @@ You can also create groups of buttons by creating wrappers around them;
 [title: "tpl:", content: "</div>"] (End wrapping by closing the div)
 
 
-- EDITOR PROPERTIES AND METHODS
+EDITOR PROPERTIES AND METHODS
+---------------
 BUE:
 the top most container variable having other variables and methods in it.
 
 BUE.mode
-Integer representing the selection handling mode. 0- None, 1- Gecko and Webkit, 2- IE, 3- Opera
+Integer representing the selection handling mode. 0. None, 1. Gecko and Webkit, 2. IE, 3. Opera
 
 BUE.templates
 container for editor templates(configurations, buttons and interface)
@@ -253,7 +215,8 @@ or it can be a set of options:
 BUE.createPopup(id, title, content):
 This method is used by openPopup method. Creates and returns the pop-up object for further use.(does not open it)
 
-- EDITOR INSTANCE
+EDITOR INSTANCE
+---------------
 Each editor running on a textarea is called an instance. Editor instances have their own variables 
 and methods that make it easy to edit textarea content. Active instance on the page can be accessed by the 
 variable "BUE.active".
@@ -316,16 +279,19 @@ Add/remove "stay-clicked" class to/from a user defined button having the "bindex
 This method is usually used to toggle a stay-clicked effect on the active button without supplying the second argument.
 
 
-- EDITOR ICONS
+EDITOR ICONS
+---------------
 All images with jpg, gif or png extensions in the editor's icon path (which is bueditor_path/icons by default) are accessible by the editor and they are listed in the icon list in the editor editing page.
 
 
-- EDITOR LIBRARY
+EDITOR LIBRARY
+---------------
 While creating a javascript button you may want to use functions or variables from an external javascript library 
 in order to shorten the content text and make it clean, or you may want to include some editor specific css files for theming purposes. For all these, you can use the library settings of the editor.
 
 
-- KNOWN ISSUES
+KNOWN ISSUES
+---------------
 Accesskeys in Internet Explorer:
 Pressing an accesskey(Alt+KEY) when there is a selection, deselects it preserving the caret position.
 
@@ -346,7 +312,8 @@ POST variable limit:
 Although it's a rare case, you may have to increase your server post variable limit if you have problems while adding too many buttons in admin interface.
 
 
-- DEFAULT BUTTONS
+DEFAULT BUTTONS
+---------------
 BUEditor comes with a few default buttons that may help you extend the editor:
 
 Insert/edit image:
@@ -388,7 +355,7 @@ Converts the lines in the selected text to a bullet list. It is also possible to
 If the selection is an unordered list which was previously created by this button, the lines in the text are restored.
 
 Teaser break:
-Inserts Drupal teaser break which is <!--break-->
+Inserts Backdrop teaser break which is <!--break-->
 
 Preview:
 Previews the textarea content. By default, lines and paragraphs break automatically.
@@ -397,7 +364,8 @@ Help:
 Displays the title(hint) for each button in the editor.
 
 
-- TIPS AND TRICKS
+TIPS AND TRICKS
+---------------
 
 How to extend image or link dialogs to get values for other attributes of "img" and "a" tags from the user?
 How to create a dialog for any tag just like image or link dialogs?
@@ -421,18 +389,20 @@ After submission, it will enclose/replace the selection in the textarea.
 
 You might have noticed that fields in image/link dialogs are declared as objects not as strings. That's a
 customized form of declaring attributes. It is ideal to use an object if you want
-- a field type other than textfield (type: 'select', options: {'left': 'Left', 'right': 'Right'})
+a field type other than textfield (type: 'select', options: {'left': 'Left', 'right': 'Right'})
   the default type is text and other supported types are select, textarea, hidden
-- a custom label (title: 'Image URL')
-- a default value (value: ' ')
-- some prefix or suffix text or html (prefix: '[ ', suffix: ' ]')
-- to join two fields in a single line like in image width & height fields (getnext: true)
-- to set custom attributes for the field (attributes: {size: 10, style: 'width: 200px'})
-- to force value entry (required: true)
+a custom label (title: 'Image URL')
+a default value (value: ' ')
+some prefix or suffix text or html (prefix: '[ ', suffix: ' ]')
+to join two fields in a single line like in image width & height fields (getnext: true)
+to set custom attributes for the field (attributes: {size: 10, style: 'width: 200px'})
+to force value entry (required: true)
 
 Note:
-- The field object must have a name property that specifies the attribute name. ex:{name: 'href'}
-- If a field value has new a line character(\n) in it, then the field type automatically becomes "textarea"
+The field object must have a name property that specifies the attribute name. ex:{name: 'href'}
+---------------
+If a field value has new a line character(\n) in it, then the field type automatically becomes "textarea"
+---------------
 
 So lets add an "align" attribute field to the image dialog(note that it's not XHTML compliant):
 
@@ -527,22 +497,23 @@ What is the difference between <tag>%TEXT%</tag> and js:E.toggleTag('tag') ?
 
 First of all, the classic tag insertion method does not require any additional library, whereas E.toggleTag is a part of the bue.misc.js library.
 
-- Classic method preserves the selected text after tag insertion, whereas E.toggleTag selects the whole insertion.
+Classic method preserves the selected text after tag insertion, whereas E.toggleTag selects the whole insertion.
 Classic method: converts the selection "foo" to "<tag>foo</tag>", ("foo" still being selected)
 E.toggleTag('tag'): converts the selection "foo" to "<tag>foo</tag>" (<tag>foo</tag> is selected)
 
-- Classic method doesn't parse the selection to check if it is an instance of the tag, whereas E.toggleTag does and toggles it.
+Classic method doesn't parse the selection to check if it is an instance of the tag, whereas E.toggleTag does and toggles it.
 Classic method: converts the selection "<tag>foo</tag>" to "<tag><tag>foo</tag></tag>"
 E.toggleTag('tag'): converts the selection "<tag>foo</tag>" to "foo"
 
-- In classic method you define the attributes of the tag in the usual way, whereas in E.toggleTag you pass them as an object
+In classic method you define the attributes of the tag in the usual way, whereas in E.toggleTag you pass them as an object
 <tag class="foo" id="bar">%TEXT%</tag> <=> E.toggleTag('tag', {'class': 'foo', 'id': 'bar'})
 
-- In classic method It's possible to use the selected text for any purpose, whereas in E.toggleTag the only goal is to html.
+In classic method It's possible to use the selected text for any purpose, whereas in E.toggleTag the only goal is to html.
  Classic method can use the selection multiple times and do anything with it: [bbcode]%TEXT%[/bbcode]: (%TEXT%)
 
 
-- BACKWARD COMPATIBILITY
+BACKWARD COMPATIBILITY
+---------------
 
 In 6.x-2.x the default library was removed and all functions starting with eDef are deprecated and new equivalents were implemented as either bueditor methods or editor instance methods in corresponding libraries.
 Below is the list of equivalents:

@@ -81,7 +81,7 @@ BUE.createPopup = function (id, title, content) {
   //add tabindex. make focusable
   $P.attr('tabindex', 0);
   //close-button
-  $P.find('.bue-popup-close').click(P.closenfocus)[0].title = Drupal.t('Close');
+  $P.find('.bue-popup-close').click(P.closenfocus)[0].title = Backdrop.t('Close');
   //close on ESC
   $P.keydown(function(e) {
     if (e.keyCode == 27) {

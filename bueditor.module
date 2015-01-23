@@ -5,6 +5,17 @@
  * Implements the necessary hooks for the editor to work properly.
  */
 
+ /**
+ * Implements hook_config_info().
+ */
+function bueditor_config_info() {
+  $prefixes['bueditor.settings'] = array(
+    'label' => t('BUEditor settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
 /**
  * Implements hook_menu().
  */
@@ -16,7 +27,7 @@ function bueditor_menu() {
     'file' => 'admin/bueditor.admin.inc',
   );
   $form = array(
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'type' => MENU_VISIBLE_IN_BREADCRUMB,
   ) + $common;
   $items[$path] = $common + array(
@@ -101,7 +112,7 @@ function bueditor_editor_load($eid) {
 function bueditor_inc() {
   static $loaded;
   if (!isset($loaded)) {
-    include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'bueditor') . '/bueditor.inc';
+    include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'bueditor') . '/bueditor.inc';
     $loaded = TRUE;
   }
 }

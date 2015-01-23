@@ -11,7 +11,7 @@ E.find = function (str, matchcase, regexp) {
   var index = content.search(rgx);
   if (index == -1) {
     if (from == 0) {
-      alert(Drupal.t('No matching phrase found!'));
+      alert(Backdrop.t('No matching phrase found!'));
     }
     else if (confirmEOT()) {
       E.makeSelection(0, 0);
@@ -30,7 +30,7 @@ E.find = function (str, matchcase, regexp) {
 E.replace = function(str1, str2, matchcase, regexp) {
   var E = this, s = E.getSelection(), rgx = new RegExp('^'+ (regexp ? str1 : BUE.regesc(str1)) +'$', matchcase ? '' : 'i');
   var found = s && s.search(rgx) == 0 || (s = E.find(str1, matchcase, regexp).getSelection()) && s.search(rgx) == 0;
-  if (found && confirm(Drupal.t('Replace this occurance of "!text"?', {'!text': s}))) {
+  if (found && confirm(Backdrop.t('Replace this occurance of "!text"?', {'!text': s}))) {
     str2 = regexp ? s.replace(new RegExp(str1, 'g' + (matchcase ? '' : 'i')), str2) : str2;
     E.replaceSelection(str2);
   }
@@ -44,7 +44,7 @@ E.replaceAll = function(str1, str2, matchcase, regexp) {
   var F = regexp ?  (function(s) {n++; return s.replace(R, str2)}) : (function() {n++; return str2;});
   var start = P.start == 0 || confirmEOT() ? 0 : P.start;
   E.setContent(C.substr(0, start) + C.substr(start).replace(R, F));
-  alert(Drupal.t('Total replacements: !count', {'!count': n}));
+  alert(Backdrop.t('Total replacements: !count', {'!count': n}));
   return E;
 };
 
@@ -61,7 +61,7 @@ E.scrollTo = function(index) {
 E.frForm = function() {
   var arg = arguments, F = theForm(), el = F.elements;
   var opt = typeof arg[0] == 'object' ? arg[0] : {isrep: arg[0], iscase: arg[1], isreg: arg[2], title: arg[3]};
-  BUE.frPop.open(opt.title || (opt.isrep ? Drupal.t('Find & Replace') : Drupal.t('Search')));
+  BUE.frPop.open(opt.title || (opt.isrep ? Backdrop.t('Find & Replace') : Backdrop.t('Search')));
   $(el.matchcase.parentNode)[opt.iscase ? 'show' : 'hide']();
   $(el.regexp.parentNode)[opt.isreg ? 'show' : 'hide']();
   $(el.replacetext).parents('div.bue-fr-row').add([el.replacebutton, el.replaceallbutton])[opt.isrep ? 'show' : 'hide']();
@@ -91,7 +91,7 @@ var H = BUE.html, I = BUE.input;
 
 //confirmation message that will be used multiple times.
 var confirmEOT = function() {
-  return confirm(Drupal.t('End of textarea reached. Continue search at the beginning of textarea?'));
+  return confirm(Backdrop.t('End of textarea reached. Continue search at the beginning of textarea?'));
 };
 
 //cookie get & set
@@ -114,10 +114,10 @@ var theForm = function () {
   var Cb = function(n, v) {return H('span', I('checkbox', n, '', {checked: K('bfr_'+ n) || null, 'class': 'form-checkbox'}) + v)};
   var Bt = function(n, v) {return I('button', n, v, {onclick: 'BUE.active.frSubmit(this)', 'class': 'form-submit'})};
   var F = Dv(Ta('findtext')) + Dv(Ta('replacetext'));
-  F += Dv(Cb('matchcase', Drupal.t('Match case')) +' '+ Cb('regexp', Drupal.t('Regular expressions')));
-  F += Dv(Bt('findbutton', Drupal.t('Find next')) +' '+ Bt('replacebutton', Drupal.t('Replace')) +' '+ Bt('replaceallbutton', Drupal.t('Replace all')));
+  F += Dv(Cb('matchcase', Backdrop.t('Match case')) +' '+ Cb('regexp', Backdrop.t('Regular expressions')));
+  F += Dv(Bt('findbutton', Backdrop.t('Find next')) +' '+ Bt('replacebutton', Backdrop.t('Replace')) +' '+ Bt('replaceallbutton', Backdrop.t('Replace all')));
   BUE.frPop = BUE.createPopup('bue-fr-pop', null, F = BUE.frForm = $(H('form', F))[0]);
-  Drupal.behaviors.textarea && Drupal.behaviors.textarea.attach(F);
+  Backdrop.behaviors.textarea && Backdrop.behaviors.textarea.attach(F);
   $('div.grippie', F).height(4);
   $(window).bind('unload', function() {
     if (!BUE.frForm) return;

@@ -2,14 +2,14 @@
 
 //Faster alternative to resizable textareas.
 //Make textareas full expand/shrink on focus/blur
-Drupal.behaviors.textarea = {attach: function(context, settings) {
+Backdrop.behaviors.textarea = {attach: function(context, settings) {
   setTimeout(function() {$('.form-textarea-wrapper.resizable', context).once('textarea', textArea)});
 }};
 
 //Faster alternative to sticky headers.
 //Header creation is skipped on load and done once the user scrolls on a table.
 //Fixes tableselect bug where the state of checkbox in the cloned header is not updated.
-Drupal.behaviors.tableHeader = {attach: function(context, settings) {
+Backdrop.behaviors.tableHeader = {attach: function(context, settings) {
   var tables =$('table.sticky-enabled:not(.sticky-table)', context).addClass('sticky-table').get();
   if (tables.length) {
     if (!bue.tables) {
@@ -103,7 +103,7 @@ var tableScroll = function(table, sX, sY) {
   var $repo = table.$repo;
   if (action) {
     if (tHeadOffset === false) {//calculate toolbar offset
-      tHeadOffset = Drupal.settings.tableHeaderOffset ? eval(Drupal.settings.tableHeaderOffset + '()') : 0;
+      tHeadOffset = Backdrop.settings.tableHeaderOffset ? eval(Backdrop.settings.tableHeaderOffset + '()') : 0;
     }
     $fixed.css({visibility: 'visible', top: tHeadOffset, left: minX-sX});
     if (!$fixed[0].tHead) {//run once in action
@@ -187,7 +187,7 @@ var iconCreate = function(name) {
 
 //create icon selector table
 var iconSelector = function() {
-  var table = $html('<table id="icon-selector" class="selector-table" style="display: none"><tbody><tr><td title="'+ Drupal.t('Text button') +'"><input type="text" size="1" class="form-text" /></td></tr></tbody></table>')[0];
+  var table = $html('<table id="icon-selector" class="selector-table" style="display: none"><tbody><tr><td title="'+ Backdrop.t('Text button') +'"><input type="text" size="1" class="form-text" /></td></tr></tbody></table>')[0];
   var tbody = table.tBodies[0];
   var row = tbody.rows[0];
   row.cells[0].onclick = textClick;
@@ -255,7 +255,7 @@ var keyProc = function(i, inp) {
 
 //table drag adjustment. make value updating simpler and start from 0.
 var tableDrag = function() {
-  var tdrag = Drupal.tableDrag && Drupal.tableDrag['button-table'];
+  var tdrag = Backdrop.tableDrag && Backdrop.tableDrag['button-table'];
   tdrag && (tdrag.updateFields = function() {
     $('#button-table input.input-weight').each(function(i, field) {field.value = i});
   })();//sort initially to make new buttons sink.
@@ -268,7 +268,7 @@ var selAction = function() {
     $('#edit-go').click(function() {
       var action = $('#edit-selaction').val();
       if (action && $chks.filter(':checked').length) {
-        return action != 'delete' || confirm(Drupal.t('Are you sure want to delete the selected buttons?'));
+        return action != 'delete' || confirm(Backdrop.t('Are you sure want to delete the selected buttons?'));
       }
       return false;
     });
@@ -287,7 +287,7 @@ var eTime = function() {
   BUE.processTextarea = function (T, tplid) {
     var t = new Date(), E = oldProc(T,  tplid), jstime = '' + (new Date() - t);
     E && T.id == 'edit-demo-value' && setTimeout(function() {
-      var phptime = '' + Drupal.settings.BUE.demotime, pad = ['000', '00', '0'];
+      var phptime = '' + Backdrop.settings.BUE.demotime, pad = ['000', '00', '0'];
       T.value += '\n\nEditor load times (milliseconds): \n  -Server side (PHP)\t: '+ (pad[phptime.length] || '') + phptime +'\n  -Client side (JS)\t: '+ (pad[jstime.length] || '') + jstime;
     });
     return E;
@@ -296,11 +296,11 @@ var eTime = function() {
 
 //initiate variables and process page elements
 var init = function() {
-  bue.IL = Drupal.settings.BUE.iconlist;
-  bue.BP = Drupal.settings.basePath;
-  bue.IP = bue.BP + Drupal.settings.BUE.iconpath +'/';
+  bue.IL = Backdrop.settings.BUE.iconlist;
+  bue.BP = Backdrop.settings.basePath;
+  bue.IP = bue.BP + Backdrop.settings.BUE.iconpath +'/';
   bue.$div = $(El('div'));
-  bue.sop = $html('<img class="icon-selector-opener" src="'+ bue.BP +'misc/menu-expanded.png" title="'+ Drupal.t('Select an icon') +'" />')[0];
+  bue.sop = $html('<img class="icon-selector-opener" src="'+ bue.BP +'core/misc/menu-expanded.png" title="'+ Backdrop.t('Select an icon') +'" />')[0];
   //sync safe modifications
   setTimeout(function() {
     bue.IS = iconSelector(); //create icon selector
