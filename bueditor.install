@@ -14,7 +14,7 @@ function bueditor_install() {
 }
 
 /**
- * Implements hook_update_N()
+ * Converts BUEditor settings to config.
  */
 function bueditor_update_1000() {
   $config = config('bueditor.settings');
