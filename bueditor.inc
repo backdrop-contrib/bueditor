@@ -196,12 +196,12 @@ function bueditor_user_eids($user) {
   $roles = $config->get('bueditor_roles');
   // Anonymous user
   if (empty($user->uid)) {
-    $rid = BACKDROP_ANONYMOUS_RID;
+    $rid = BACKDROP_ANONYMOUS_ROLE;
     return isset($roles[$rid]) ? array($roles[$rid]['editor'], $roles[$rid]['alt']) : array('', '');
   }
   // Other users
   foreach ($roles as $rid => $role) {
-    if (isset($user->roles[$rid]) && ($role['editor'] || $role['alt'])) {
+    if (in_array($rid, $user->roles) && ($role['editor'] || $role['alt'])) {
       return array($role['editor'], $role['alt']);
     }
   }
