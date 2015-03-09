@@ -103,7 +103,14 @@ function bueditor_settle($editor) {
  * Load an editor by id. (Used by menu system)
  */
 function bueditor_editor_load($eid) {
-  return db_query("SELECT * FROM {bueditor_editors} WHERE eid = :eid", array(':eid' => $eid))->fetchObject();
+  $config = config('bueditor.editor' . $eid);
+  $nueditor = $config->get();
+  $nue = (object) $nueditor; // It expects an object
+  $editors[$nue->eid] = $nue;
+
+  return $editors;
+
+  //return db_query("SELECT * FROM {bueditor_editors} WHERE eid = :eid", array(':eid' => $eid))->fetchObject();
 }
 
 /**

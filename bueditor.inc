@@ -9,23 +9,45 @@
  * Load and return editors by id.
  */
 function bueditor_editors($eid = 0) {
+
   if (empty($eid)) {
     return FALSE;
   }
+
   static $editors = array(), $gotall = FALSE;
+
   if ($eid === 'all') {
     if (!$gotall) {
       $gotall = TRUE;
-      $result = db_query("SELECT * FROM {bueditor_editors} ORDER BY name");
-      foreach ($result as $editor) {
-        $editors[$editor->eid] = $editor;
+
+      $prefix = 'bueditor.editor.';
+      $config_names = config_get_names_with_prefix($prefix);
+      foreach ($config_names as $config_name) {
+        $config = config($config_name);
+        $nueditor = $config->get();
+        $nue = (object) $nueditor; // It expects an object
+        $editors[$nue->eid] = $nue;
       }
+      //dpm($nueditors,'nueditors');
+
+      //$result = db_query("SELECT * FROM {bueditor_editors} ORDER BY name");
+      //foreach ($result as $editor) {
+      //  $editors[$editor->eid] = $editor;
+      //}
+
     }
+//dpm($editors,'editors');
     return $editors;
   }
   elseif (!isset($editors[$eid]) && !$gotall && is_numeric($eid) && $eid > 0) {
-    $editors[$eid] = db_query("SELECT * FROM {bueditor_editors} WHERE eid = :eid", array(':eid' => $eid))->fetchObject();
+    $config = config('bueditor.editor' . $eid);
+    $nueditor = $config->get();
+    $nue = (object) $nueditor; // It expects an object
+    $editors[$nue->eid] = $nue;
+    //$editors[$eid] = db_query("SELECT * FROM {bueditor_editors} WHERE eid = :eid", array(':eid' => $eid))->fetchObject();
   }
+//dpm($editors,'editors');
+
   return isset($editors[$eid]) ? $editors[$eid] : FALSE;
 }
 
@@ -45,8 +67,16 @@ function bueditor_query_buttons($sql, $var = array()) {
  * All buttons of an editor.
  */
 function bueditor_buttons($eid) {
-  $sql = 'SELECT * FROM {bueditor_buttons} WHERE eid = :eid ORDER BY weight, title';
-  return $eid ? bueditor_query_buttons($sql, array(':eid' => $eid)) : array();
+//  $sql = 'SELECT * FROM {bueditor_buttons} WHERE eid = :eid ORDER BY weight, title';
+
+  $nubuttons = config_get('bueditor.editor.' . $var[':eid'], 'buttons');
+  $buttons = array();
+  foreach ($nubuttons as $button) {
+    $but = (object) $button; // It expects an object
+    $buttons[$but->eid] = $but;
+  }
+  return $eid ? $buttons : array();
+//  return $eid ? bueditor_query_buttons($sql, array(':eid' => $eid)) : array();
 }
 
 /**

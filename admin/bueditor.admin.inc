@@ -26,7 +26,7 @@ function bueditor_admin() {
       l(t('Export'), $path, array('attributes' => array('class' => array('eop-export')), 'query' => array('eop' => 'export', 'eid' => $eid, 'token' => $token)))
     );
   }
-  $rows[] = array(array('data' => 
+  $rows[] = array(array('data' =>
     l(t('Add new editor'), $path . '/new') . ' | ' .
     l(t('Import editor'), $path . '/import') . ' | ' .
     l(t('Add the default editor'), $path, array('attributes' => array('class' => array('eop-add-default'), 'name' => 'default editor'), 'query' => array('eop' => 'add_default', 'token' => $token)))
@@ -507,6 +507,9 @@ function bueditor_delete_buttons($bids = array()) {
 }
 function bueditor_delete_button($bid) {
   db_delete('bueditor_buttons')->condition('bid', $bid)->execute();
+  //$config = config('bueditor.buttons');
+  // Maybe need to also pass the editor id? eid
+  //$config->clear($bid);
 }
 
 /**
@@ -602,7 +605,12 @@ function bueditor_delete_form_submit($form, &$form_state) {
  */
 function bueditor_delete_editor($eid) {
   db_delete('bueditor_buttons')->condition('eid', $eid)->execute();
+  //$config = config('bueditor.buttons');
+  //$config->clear($eid);
   db_delete('bueditor_editors')->condition('eid', $eid)->execute();
+  //$config = config('bueditor.editors');
+  //$config->clear($eid);
+
   //update roles
   $roles = config_get('bueditor.settings', 'bueditor_roles');
   foreach ($roles as $rid => $role) {
@@ -754,6 +762,8 @@ function bueditor_save_import($editor) {
   // New buttons shall replace the old ones.
   elseif (!empty($editor->eid)) {
     db_delete('bueditor_buttons')->condition('eid', $editor->eid)->execute();
+    //$config = config('bueditor.buttons');
+    //$config->clear($editor->eid);
   }
 
   //save and return the editor
@@ -916,14 +926,32 @@ function bueditor_write_editor($editor, $buttons = array()) {
     include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'bueditor') . '/admin/bueditor.sprite.inc';
     $editor->spritename = bueditor_sprite($editor, $buttons);
   }
-  if (backdrop_write_record('bueditor_editors', $editor, bueditor_isupdate($editor, 'eid'))) {
-    foreach ($buttons as $button) {
-      $button->eid = $editor->eid;
-      backdrop_write_record('bueditor_buttons', $button, bueditor_isupdate($button, 'bid'));
-    }
+  //if (backdrop_write_record('bueditor_editors', $editor, bueditor_isupdate($editor, 'eid'))) {
+
+  // IF EID DOESN'T EXIST NEED TO GET THE NEXT HIGHEST
+
+    $config = config('bueditor.editor.' . $editor->eid);
+    //dpm($editor);
+    $config->set('eid',$editor->eid);
+    $config->set('name',$editor->name);
+    $config->set('pages',$editor->pages);
+    $config->set('excludes',$editor->excludes);
+    $config->set('iconpath',$editor->iconpath);
+    $config->set('librarypath',$editor->librarypath);
+    $config->set('spriteon',$editor->spriteon);
+    $config->set('spritename',$editor->spritename);
+
+    //foreach ($buttons as $button) {
+    //  $button->eid = $editor->eid;
+    //  backdrop_write_record('bueditor_buttons', $button, bueditor_isupdate($button, 'bid'));
+    //}
+
+    $config->set('buttons',$buttons);
+    $config->save();
+
     return $editor;
-  }
-  return FALSE;
+  //}
+  //return FALSE;
 }
 
 /**
@@ -1005,8 +1033,25 @@ function bueditor_button_defaults($title = '') {
  * Load buttons by ids.
  */
 function bueditor_buttons_by_id($bids = array()) {
-  $sql = 'SELECT * FROM {bueditor_buttons} WHERE bid IN (:bids) ORDER BY weight, title';
-  return empty($bids) ? array() : bueditor_query_buttons($sql, array(':bids' => $bids));
+  //$sql = 'SELECT * FROM {bueditor_buttons} WHERE bid IN (:bids) ORDER BY weight, title';
+
+  $nubuttons = config_get('bueditor.editor.' . $eid, 'buttons');
+  $buttons = array();
+  foreach ($nubuttons as $button) {
+    $but = (object) $button; // It expects an object
+    $buttons[$but->eid] = $but;
+  }
+
+  // Sort by weight then title.
+  backdrop_sort($nubuttons, array(
+    'weight' => SORT_NUMERIC,
+    'title' => SORT_STRING,
+  ));
+
+
+  return empty($bids) ? array() : $buttons;
+
+//  return empty($bids) ? array() : bueditor_query_buttons($sql, array(':bids' => $bids));
 }
 
 /**
