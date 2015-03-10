@@ -40,7 +40,7 @@ function bueditor_editors($eid = 0) {
     return $editors;
   }
   elseif (!isset($editors[$eid]) && !$gotall && is_numeric($eid) && $eid > 0) {
-    $config = config('bueditor.editor' . $eid);
+    $config = config('bueditor.editor.' . $eid);
     $nueditor = $config->get();
     $nue = (object) $nueditor; // It expects an object
     $editors[$nue->eid] = $nue;
@@ -67,14 +67,23 @@ function bueditor_query_buttons($sql, $var = array()) {
  * All buttons of an editor.
  */
 function bueditor_buttons($eid) {
-//  $sql = 'SELECT * FROM {bueditor_buttons} WHERE eid = :eid ORDER BY weight, title';
+  //$sql = 'SELECT * FROM {bueditor_buttons} WHERE eid = :eid ORDER BY weight, title';
 
-  $nubuttons = config_get('bueditor.editor.' . $var[':eid'], 'buttons');
+  $nubuttons = config_get('bueditor.editor.' . $eid, 'buttons');
+
+  // Sort by weight then title.
+  backdrop_sort($nubuttons, array(
+    'weight' => SORT_NUMERIC,
+    'title' => SORT_STRING,
+  ));
+
   $buttons = array();
   foreach ($nubuttons as $button) {
     $but = (object) $button; // It expects an object
-    $buttons[$but->eid] = $but;
+    $buttons[$but->bid] = $but;
   }
+dpm($buttons,'buttons');
+//dpm(bueditor_query_buttons($sql, array(':eid' => $eid)),'query_buttons');
   return $eid ? $buttons : array();
 //  return $eid ? bueditor_query_buttons($sql, array(':eid' => $eid)) : array();
 }
