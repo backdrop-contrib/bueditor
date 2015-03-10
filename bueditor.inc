@@ -25,9 +25,8 @@ function bueditor_editors($eid = 0) {
 
       foreach ($config_names as $config_name) {
         $config = config($config_name);
-        $nueditor = $config->get();
-        $nue = (object) $nueditor; // It expects an object
-        $editors[$nue->eid] = $nue;
+        $get_editor = $config->get();
+        $editors[$get_editor['eid']] = (object) $get_editor;
       }
 
       // Sort by weight then title.
@@ -40,9 +39,8 @@ function bueditor_editors($eid = 0) {
   }
   elseif (!isset($editors[$eid]) && !$gotall && is_numeric($eid) && $eid > 0) {
     $config = config('bueditor.editor.' . $eid);
-    $nueditor = $config->get();
-    $nue = (object) $nueditor; // It expects an object
-    $editors[$nue->eid] = $nue;
+    $get_editor = $config->get();
+    $editors[$get_editor['eid']] = (object) $get_editor;
   }
   return isset($editors[$eid]) ? $editors[$eid] : FALSE;
 }
@@ -63,20 +61,19 @@ function bueditor_query_buttons($sql, $var = array()) {
  * All buttons of an editor.
  */
 function bueditor_buttons($eid) {
-  $nubuttons = config_get('bueditor.editor.' . $eid, 'buttons');
-  if (!$nubuttons) {
+  $get_buttons = config_get('bueditor.editor.' . $eid, 'buttons');
+  if (!$get_buttons) {
     return array();
   }
   // Sort by weight then title.
-  backdrop_sort($nubuttons, array(
+  backdrop_sort($get_buttons, array(
     'weight' => SORT_NUMERIC,
     'title' => SORT_STRING,
   ));
 
   $buttons = array();
-  foreach ($nubuttons as $button) {
-    $but = (object) $button; // It expects an object
-    $buttons[$but->bid] = $but;
+  foreach ($get_buttons as $button) {
+    $buttons[$button['bid']] = (object) $button;
   }
   return $buttons;
 }

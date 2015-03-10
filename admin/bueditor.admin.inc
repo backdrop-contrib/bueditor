@@ -288,6 +288,7 @@ function bueditor_editor_form($form, &$form_state, $editor = NULL) {
 
   //imported/copied buttons are previewed. not saved yet.
   if (isset($_SESSION['bueimport']) && $import = $_SESSION['bueimport']) {
+debug($import,'import');
     $import = is_array($import) ? $import : bueditor_import_csv_buttons($import);
     if (empty($import)) {
       backdrop_set_message(t('There is no button to import.'), 'warning');
@@ -477,6 +478,7 @@ function bueditor_selaction_form() {
  */
 function bueditor_selaction_submit($form, &$form_state) {
   $bids = array_keys(array_filter($form_state['values']['checks']));
+debug($bids,'bids');
   $editor = (object) $form_state['values']['editor'];
   switch ($form_state['values']['selaction']) {
     case 'delete':
@@ -923,14 +925,16 @@ function bueditor_write_editor($editor, $buttons = array()) {
     $editor->spritename = bueditor_sprite($editor, $buttons);
   }
 
-  // If eid doesn't exist create next highest
+  if (!isset($editor->eid)) {
+    $editor->eid = NULL;
+  }
   if (!is_numeric($editor->eid)) {
     $prefix = 'bueditor.editor.';
     $config_names = config_get_names_with_prefix($prefix);
     foreach ($config_names as $k => $config_name) {
       $config_names[$k] = substr($config_name, -1);
     }
-    $eid = max($config_names) + 1; // Next highest
+    $eid = max($config_names) + 1;
   } else {
     $eid = $editor->eid;
   }
@@ -1037,17 +1041,16 @@ function bueditor_button_defaults($title = '') {
  */
 function bueditor_buttons_by_id($bids = array(), $eid) {
 
-  $nubuttons = config_get('bueditor.editor.' . $eid, 'buttons');
+  $get_buttons = config_get('bueditor.editor.' . $eid, 'buttons');
   // Sort by weight then title.
-  backdrop_sort($nubuttons, array(
+  backdrop_sort($get_buttons, array(
     'weight' => SORT_NUMERIC,
     'title' => SORT_STRING,
   ));
 
   $buttons = array();
-  foreach ($nubuttons as $button) {
-    $but = (object) $button; // It expects an object
-    $buttons[$but->eid] = $but;
+  foreach ($get_buttons as $button) {
+    $buttons[$button['bid']] = (object) $button;
   }
   return empty($bids) ? array() : $buttons;
 }
