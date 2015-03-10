@@ -32,6 +32,38 @@ function bueditor_update_1000() {
 }
 
 /**
+ * Converts BUEditor settings to config.
+ */
+function bueditor_update_1001() {
+
+  $result = db_query("SELECT * FROM {bueditor_editors} ORDER BY name");
+  foreach ($result as $editor) {
+    $r = db_query('SELECT * FROM {bueditor_buttons} WHERE eid = :eid ORDER BY bid', array(':eid' => $editor->eid));
+    $i = 0;
+    foreach ($r as $button) {
+      $button->bid = $i;
+      $buttons[$i] = $button;
+      $i++;
+    }
+
+    $config = config('bueditor.editor.' . $editor->eid);
+    $config->set('eid',$eid);
+    $config->set('name',$editor->name);
+    $config->set('pages',$editor->pages);
+    $config->set('excludes',$editor->excludes);
+    $config->set('iconpath',$editor->iconpath);
+    $config->set('librarypath',$editor->librarypath);
+    $config->set('spriteon',$editor->spriteon);
+    $config->set('spritename',$editor->spritename);
+    $config->set('buttons',$buttons);
+    $config->save();
+  }
+
+  backdrop_uninstall_schema('bueditor_editors');
+  backdrop_uninstall_schema('bueditor_buttons');
+}
+
+/**
  * Implements hook_schema().
  */
 function bueditor_schema() {

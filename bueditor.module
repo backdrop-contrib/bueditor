@@ -11,7 +11,11 @@
 function bueditor_config_info() {
   $prefixes['bueditor.settings'] = array(
     'label' => t('BUEditor settings'),
-    'group' => t('Configuration'),
+    'group' => t('BUEditor'),
+  );
+  $prefixes['bueditor.editor.'] = array(
+    'label' => t('BUEditor editors'),
+    'group' => t('BUEditor'),
   );
   return $prefixes;
 }
