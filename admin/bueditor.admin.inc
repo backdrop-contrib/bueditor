@@ -491,24 +491,27 @@ function bueditor_selaction_submit($form, &$form_state) {
       break;
   }
   //don't forget to save editor specific changes.
-  $editor->eid && bueditor_write_editor($editor);
+  //$buttons = array();
+  //foreach ($form_state['values']['buttons'] as $k => $button) {
+  //  $buttons[$k] = (object) $button;
+  //}
+  //$editor->eid && bueditor_write_editor($editor, $buttons);
 }
 
 /**
  * Delete buttons.
  */
 function bueditor_delete_buttons($bids = array(), $eid) {
+  $config = config('bueditor.editor.' . $eid);
+  $buttons = $config->get('buttons');
   if (!empty($bids)) {
     foreach ($bids as $bid) {
-      bueditor_delete_button($bid, $eid);
+      unset($buttons[$bid]);
     }
+    $config->set('buttons',$buttons);
+    $config->save();
     backdrop_set_message(t('Selected buttons have been deleted.'));
   }
-}
-function bueditor_delete_button($bid, $eid) {
-  //db_delete('bueditor_buttons')->condition('bid', $bid)->execute();
-  $config = config('bueditor.editor.' . $eid);
-  $config->clear($bid);
 }
 
 /**
@@ -603,10 +606,7 @@ function bueditor_delete_form_submit($form, &$form_state) {
  * Delete an editor.
  */
 function bueditor_delete_editor($eid) {
-  //db_delete('bueditor_buttons')->condition('eid', $eid)->execute();
-  config_uninstall_config('bueditor', 'bueditor.editor.' . $eid);
-
-  //db_delete('bueditor_editors')->condition('eid', $eid)->execute();
+  config('bueditor.editor.' . $eid)->delete();
 
   //update roles
   $roles = config_get('bueditor.settings', 'bueditor_roles');
@@ -758,7 +758,6 @@ function bueditor_save_import($editor) {
   }
   // New buttons shall replace the old ones.
   elseif (!empty($editor->eid)) {
-    //db_delete('bueditor_buttons')->condition('eid', $editor->eid)->execute();
     $config = config('bueditor.editor.' . $editor->eid);
     $config->clear('buttons');
   }
@@ -923,62 +922,39 @@ function bueditor_write_editor($editor, $buttons = array()) {
     include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'bueditor') . '/admin/bueditor.sprite.inc';
     $editor->spritename = bueditor_sprite($editor, $buttons);
   }
-  //if (backdrop_write_record('bueditor_editors', $editor, bueditor_isupdate($editor, 'eid'))) {
 
   // If eid doesn't exist create next highest
-  if (!isset($editor->eid)) {
+  if (!is_numeric($editor->eid)) {
     $prefix = 'bueditor.editor.';
     $config_names = config_get_names_with_prefix($prefix);
-    $i = 0;
-    foreach ($config_names as $config_name) {
-      $config = config($config_name);
-      $existing_eid = $config->get('eid');
-      if ($i < $existing_eid) {
-        $i = $existing_eid;
-      }
+    foreach ($config_names as $k => $config_name) {
+      $config_names[$k] = substr($config_name, -1);
     }
-    $eid = $i + 1; // Next highest
+    $eid = max($config_names) + 1; // Next highest
   } else {
     $eid = $editor->eid;
   }
-dpm($eid,'eid');
 
-    $config = config('bueditor.editor.' . $eid);
-//dpm($editor);
-    $config->set('eid',$eid);
-    $config->set('name',$editor->name);
-    $config->set('pages',$editor->pages);
-    $config->set('excludes',$editor->excludes);
-    $config->set('iconpath',$editor->iconpath);
-    $config->set('librarypath',$editor->librarypath);
-    $config->set('spriteon',$editor->spriteon);
-    $config->set('spritename',$editor->spritename);
+  $config = config('bueditor.editor.' . $eid);
+  $config->set('eid',$eid);
+  $config->set('name',$editor->name);
+  $config->set('pages',$editor->pages);
+  $config->set('excludes',$editor->excludes);
+  $config->set('iconpath',$editor->iconpath);
+  $config->set('librarypath',$editor->librarypath);
+  $config->set('spriteon',$editor->spriteon);
+  $config->set('spritename',$editor->spritename);
 
-    //foreach ($buttons as $button) {
-    //  $button->eid = $editor->eid;
-    //  backdrop_write_record('bueditor_buttons', $button, bueditor_isupdate($button, 'bid'));
-    //}
-
-    // Check if bid exists else create higher one
-//dpm($buttons,'before');
-//  $i = 1;
+  // Use the array key as bid since they're unique
   foreach ($buttons as $k => $button) {
-    //if ($i < $button->bid && is_numeric($button->bid)) {
-      //$i = $button->bid;
-    //} elseif ($button->bid == "new_") {
-      //$button->bid = $i + 1;
-      //$i++;
-    //}
     $button->eid = $eid;
     $button->bid = $k;
   }
-//dpm($buttons,'after');
+
   $config->set('buttons',$buttons);
   $config->save();
 
   return $editor;
-  //}
-  //return FALSE;
 }
 
 /**
@@ -1060,10 +1036,8 @@ function bueditor_button_defaults($title = '') {
  * Load buttons by ids.
  */
 function bueditor_buttons_by_id($bids = array(), $eid) {
-  //$sql = 'SELECT * FROM {bueditor_buttons} WHERE bid IN (:bids) ORDER BY weight, title';
 
   $nubuttons = config_get('bueditor.editor.' . $eid, 'buttons');
-
   // Sort by weight then title.
   backdrop_sort($nubuttons, array(
     'weight' => SORT_NUMERIC,
@@ -1075,9 +1049,7 @@ function bueditor_buttons_by_id($bids = array(), $eid) {
     $but = (object) $button; // It expects an object
     $buttons[$but->eid] = $but;
   }
-
   return empty($bids) ? array() : $buttons;
-//  return empty($bids) ? array() : bueditor_query_buttons($sql, array(':bids' => $bids));
 }
 
 /**

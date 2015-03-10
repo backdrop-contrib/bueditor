@@ -22,21 +22,20 @@ function bueditor_editors($eid = 0) {
 
       $prefix = 'bueditor.editor.';
       $config_names = config_get_names_with_prefix($prefix);
+
       foreach ($config_names as $config_name) {
         $config = config($config_name);
         $nueditor = $config->get();
         $nue = (object) $nueditor; // It expects an object
         $editors[$nue->eid] = $nue;
       }
-      //dpm($nueditors,'nueditors');
 
-      //$result = db_query("SELECT * FROM {bueditor_editors} ORDER BY name");
-      //foreach ($result as $editor) {
-      //  $editors[$editor->eid] = $editor;
-      //}
+      // Sort by weight then title.
+      backdrop_sort($editors, array(
+        'title' => SORT_STRING,
+      ));
 
     }
-//dpm($editors,'editors');
     return $editors;
   }
   elseif (!isset($editors[$eid]) && !$gotall && is_numeric($eid) && $eid > 0) {
@@ -44,10 +43,7 @@ function bueditor_editors($eid = 0) {
     $nueditor = $config->get();
     $nue = (object) $nueditor; // It expects an object
     $editors[$nue->eid] = $nue;
-    //$editors[$eid] = db_query("SELECT * FROM {bueditor_editors} WHERE eid = :eid", array(':eid' => $eid))->fetchObject();
   }
-//dpm($editors,'editors');
-
   return isset($editors[$eid]) ? $editors[$eid] : FALSE;
 }
 
@@ -67,10 +63,10 @@ function bueditor_query_buttons($sql, $var = array()) {
  * All buttons of an editor.
  */
 function bueditor_buttons($eid) {
-  //$sql = 'SELECT * FROM {bueditor_buttons} WHERE eid = :eid ORDER BY weight, title';
-
   $nubuttons = config_get('bueditor.editor.' . $eid, 'buttons');
-
+  if (!$nubuttons) {
+    return array();
+  }
   // Sort by weight then title.
   backdrop_sort($nubuttons, array(
     'weight' => SORT_NUMERIC,
@@ -82,10 +78,7 @@ function bueditor_buttons($eid) {
     $but = (object) $button; // It expects an object
     $buttons[$but->bid] = $but;
   }
-dpm($buttons,'buttons');
-//dpm(bueditor_query_buttons($sql, array(':eid' => $eid)),'query_buttons');
-  return $eid ? $buttons : array();
-//  return $eid ? bueditor_query_buttons($sql, array(':eid' => $eid)) : array();
+  return $buttons;
 }
 
 /**

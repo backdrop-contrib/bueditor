@@ -104,12 +104,8 @@ function bueditor_settle($editor) {
  */
 function bueditor_editor_load($eid) {
   $config = config('bueditor.editor.' . $eid);
-  $nueditor = $config->get();
-  $nue = (object) $nueditor; // It expects an object
-//dpm($nue,'editor_load');
-  return $nue;
+  return (object) $config->get();
 
-  //return db_query("SELECT * FROM {bueditor_editors} WHERE eid = :eid", array(':eid' => $eid))->fetchObject();
 }
 
 /**
