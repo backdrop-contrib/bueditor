@@ -33,14 +33,14 @@ function bueditor_editors($eid = 0) {
       backdrop_sort($editors, array(
         'title' => SORT_STRING,
       ));
-
     }
     return $editors;
   }
   elseif (!isset($editors[$eid]) && !$gotall && is_numeric($eid) && $eid > 0) {
     $config = config('bueditor.editor.' . $eid);
-    $get_editor = $config->get();
-    $editors[$get_editor['eid']] = (object) $get_editor;
+    if ($get_editor = $config->get()) {
+      $editors[$get_editor['eid']] = (object) $get_editor;
+    }
   }
   return isset($editors[$eid]) ? $editors[$eid] : FALSE;
 }

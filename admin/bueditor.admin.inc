@@ -478,7 +478,6 @@ function bueditor_selaction_form() {
  */
 function bueditor_selaction_submit($form, &$form_state) {
   $bids = array_keys(array_filter($form_state['values']['checks']));
-debug($bids,'bids');
   $editor = (object) $form_state['values']['editor'];
   switch ($form_state['values']['selaction']) {
     case 'delete':
@@ -492,12 +491,6 @@ debug($bids,'bids');
       $form_state['redirect'] = 'admin/config/content/bueditor/' . $form_state['values']['copyto'];
       break;
   }
-  //don't forget to save editor specific changes.
-  //$buttons = array();
-  //foreach ($form_state['values']['buttons'] as $k => $button) {
-  //  $buttons[$k] = (object) $button;
-  //}
-  //$editor->eid && bueditor_write_editor($editor, $buttons);
 }
 
 /**

@@ -5,6 +5,10 @@
  * Implements the necessary hooks for the editor to work properly.
  */
 
+// TODO
+// Fix Sprites, seem not to be in files/bueditor
+// Use machine name instead of number for editors
+
  /**
  * Implements hook_config_info().
  */
@@ -13,11 +17,17 @@ function bueditor_config_info() {
     'label' => t('BUEditor settings'),
     'group' => t('BUEditor'),
   );
-  $prefixes['bueditor.editor.'] = array(
-    'label' => t('BUEditor editors'),
+  $prefixes['bueditor.editor'] = array(
+    'name_key' => array('eid'),
+    'label_callback' => 'bueditor_config_label_instance',
     'group' => t('BUEditor'),
   );
   return $prefixes;
+}
+
+function bueditor_config_label_instance($instance, $config_name) {
+  list($eid) = str_replace('bueditor.editor.', '', $config_name);
+  return 'BUEditor ' . $eid;
 }
 
 /**
