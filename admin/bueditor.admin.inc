@@ -22,14 +22,12 @@ function bueditor_admin() {
       check_plain($editor->name),
       l(t('Edit'), $path . '/' . $id) . ' | ' .
       l(t('Delete'), $path . '/' . $id . '/delete', array('attributes' => array('class' => array('eop-delete')))) . ' | ' .
-      l(t('Copy'), $path, array('attributes' => array('class' => array('eop-copy'), 'name' => 'Copy of ' . $editor->name), 'query' => array('eop' => 'copy', 'id' => $id, 'token' => $token))) . ' | ' .
       l(t('Export'), $path, array('attributes' => array('class' => array('eop-export')), 'query' => array('eop' => 'export', 'id' => $id, 'token' => $token)))
     );
   }
   $rows[] = array(array('data' =>
     l(t('Add new editor'), $path . '/new') . ' | ' .
-    l(t('Import editor'), $path . '/import') . ' | ' .
-    l(t('Add the default editor'), $path, array('attributes' => array('class' => array('eop-add-default'), 'name' => 'default editor'), 'query' => array('eop' => 'add_default', 'token' => $token)))
+    l(t('Import editor'), $path . '/import')
   , 'colspan' => 2));
   $output['title'] = array(
     '#markup' => '<h2 class="title">' . t('Available editors') . '</h2>'
@@ -818,14 +816,8 @@ function bueditor_eop() {
     $eop = $_GET['eop'];
     $name = isset($_GET['name']) ? check_plain($_GET['name']) : '';
     $editor = isset($_GET['id']) && isset($editors[$_GET['id']]) ? $editors[$_GET['id']] : NULL;
-    if ($eop == 'add_default') {
-      bueditor_eop_add_default($name);
-    }
-    elseif ($editor) {
+    if ($editor) {
       switch ($eop) {
-        case 'copy':
-          bueditor_eop_copy($editor, $name);
-          break;
         case 'delete':
           bueditor_eop_delete($editor);
           break;
@@ -836,31 +828,6 @@ function bueditor_eop() {
     }
   }
   backdrop_goto('admin/config/content/bueditor');
-}
-
-/**
- * Editor add_default operation.
- */
-function bueditor_eop_add_default($ename) {
-  if ($editor = bueditor_import_by_name('default', $ename)) {
-    bueditor_message_added($editor->name);
-  }
-  return $editor;
-}
-
-/**
- * Editor copy operation.
- */
-function bueditor_eop_copy($editor, $name) {
-  $editor = clone $editor;
-  $buttons = bueditor_buttons($editor->id);
-  $editor->id = NULL;
-  $editor->name = $name ? $name : 'Copy of ' . $editor->name;
-  array_walk($buttons, create_function('&$button', '$button->bid = NULL;'));
-  if ($editor = bueditor_write_editor($editor, $buttons)) {
-    bueditor_message_added($editor->name);
-  }
-  return $editor;
 }
 
 /**
