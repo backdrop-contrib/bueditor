@@ -8,15 +8,15 @@
 /**
  * Load and return editors by id.
  */
-function bueditor_editors($eid = 0) {
+function bueditor_editors($id = NULL) {
 
-  if (empty($eid)) {
+  if (empty($id)) {
     return FALSE;
   }
 
   static $editors = array(), $gotall = FALSE;
 
-  if ($eid === 'all') {
+  if ($id === 'all') {
     if (!$gotall) {
       $gotall = TRUE;
 
@@ -26,7 +26,7 @@ function bueditor_editors($eid = 0) {
       foreach ($config_names as $config_name) {
         $config = config($config_name);
         $get_editor = $config->get();
-        $editors[$get_editor['eid']] = (object) $get_editor;
+        $editors[$get_editor['id']] = (object) $get_editor;
       }
 
       // Sort by weight then title.
@@ -36,32 +36,20 @@ function bueditor_editors($eid = 0) {
     }
     return $editors;
   }
-  elseif (!isset($editors[$eid]) && !$gotall && is_numeric($eid) && $eid > 0) {
-    $config = config('bueditor.editor.' . $eid);
+  //elseif (!isset($editors[$id]) && !$gotall && $id != '') {
+    $config = config('bueditor.editor.' . $id);
     if ($get_editor = $config->get()) {
-      $editors[$get_editor['eid']] = (object) $get_editor;
+      $editors[$get_editor['id']] = (object) $get_editor;
     }
-  }
-  return isset($editors[$eid]) ? $editors[$eid] : FALSE;
-}
-
-/**
- * Fetch buttons by an sql query.
- */
-function bueditor_query_buttons($sql, $var = array()) {
-  $buttons = array();
-  $result = db_query($sql, $var);
-  foreach ($result as $button) {
-    $buttons[$button->bid] = $button;
-  }
-  return $buttons;
+  //}
+  return isset($editors[$id]) ? $editors[$id] : FALSE;
 }
 
 /**
  * All buttons of an editor.
  */
-function bueditor_buttons($eid) {
-  $get_buttons = config_get('bueditor.editor.' . $eid, 'buttons');
+function bueditor_buttons($id) {
+  $get_buttons = config_get('bueditor.editor.' . $id, 'buttons');
   if (!$get_buttons) {
     return array();
   }
@@ -81,9 +69,9 @@ function bueditor_buttons($eid) {
 /**
  * Processed buttons. Evaluate php code for php buttons and translate titles prefixed with t:.
  */
-function bueditor_processed_buttons($eid) {
+function bueditor_processed_buttons($id) {
   $buttons = array();
-  foreach (bueditor_buttons($eid) as $bid => $button) {
+  foreach (bueditor_buttons($id) as $bid => $button) {
     if (($content = $button->content) && substr($content, 0, 4) == 'php:') {
       if (!$content = bueditor_eval(substr($content, 4))) {
         // PHP returned false or nothing. include empty button in order not to break sprite index.
@@ -112,13 +100,13 @@ function _bueditor_textarea($element, $form_state) {
 
   // Get editors
   if (!isset($editors)) {
-    $editors = bueditor_user_eids($GLOBALS['user']);
+    $editors = bueditor_user_editor_ids($GLOBALS['user']);
     $editors[0] = bueditor_check_page($_GET['q'], $editors[0]);
   }
 
   // If the first editor does not settle try the second.
   if (!bueditor_preset_textarea($element['#id'], $editors[0]) && $editors[1]) {
-    if (!isset($editors[1]->eid)) {
+    if (!isset($editors[1]->id)) {
       $editors[1] = bueditor_check_page($_GET['q'], $editors[1]);
     }
     bueditor_preset_textarea($element['#id'], $editors[1]);
@@ -132,8 +120,8 @@ function _bueditor_textarea($element, $form_state) {
  */
 function bueditor_preset_textarea($tid, $editor) {
   if ($editor && !bueditor_check_match($editor->excludes, $tid)) {
-    bueditor_settle($editor);
-    $settings['BUE']['preset'][$tid] = 'e' . $editor->eid;
+    bueditor_settle($editor->id);
+    $settings['BUE']['preset'][$tid] = 'e' . $editor->id;
     backdrop_add_js($settings, 'setting');
     return TRUE;
   }
@@ -143,12 +131,12 @@ function bueditor_preset_textarea($tid, $editor) {
 /**
  * Include necessary js and css files for editor settlement.
  */
-function _bueditor_settle($editor) {
+function _bueditor_settle($id) {
   static $settled = array();
-  if (is_numeric($editor)) {
-    $editor = bueditor_editors($editor);
+  if (isset($id)) {
+    $editor = bueditor_editors($id);
   }
-  if ($editor && $editor->eid && !isset($settled[$editor->eid])) {
+  if ($id && !isset($settled[$id])) {
     $settings = array();
     $path = backdrop_get_path('module', 'bueditor');
     // Run once
@@ -162,14 +150,14 @@ function _bueditor_settle($editor) {
     }
     $editor->iconpath = bueditor_path_tr($editor->iconpath);
     bueditor_add_library($editor->librarypath);
-    $settings['BUE']['templates']['e' . $editor->eid] = array(
+    $settings['BUE']['templates']['e' . $editor->id] = array(
       'iconpath' => base_path() . $editor->iconpath,
-      'buttons' => bueditor_processed_buttons($editor->eid),
+      'buttons' => bueditor_processed_buttons($editor->id),
     );
     if ($editor->spriteon && $editor->spritename) {
       $sprite_path = bueditor_sprites_dir() . '/' . $editor->spritename;
       if (file_exists($sprite_path) && ($info = getimagesize($sprite_path))) {
-        $settings['BUE']['templates']['e' . $editor->eid]['sprite'] = array(
+        $settings['BUE']['templates']['e' . $editor->id]['sprite'] = array(
           'url' => file_create_url($sprite_path),
           'unit' => $info[1],
           'x1' => base_path() . $path . '/icons/x1.png',
@@ -177,9 +165,9 @@ function _bueditor_settle($editor) {
       }
     }
     backdrop_add_js($settings, 'setting');
-    $settled[$editor->eid] = TRUE;
+    $settled[$editor->id] = TRUE;
   }
-  return $editor && isset($settled[$editor->eid]);
+  return $editor && isset($settled[$editor->id]);
 }
 
 /**
@@ -216,7 +204,7 @@ function bueditor_get_library($library) {
 /**
  * Return the editor ids assigned to the user.
  */
-function bueditor_user_eids($user) {
+function bueditor_user_editor_ids($user) {
   $config = config('bueditor.settings');
   // User #1
   if ($user->uid == 1) {
@@ -241,7 +229,7 @@ function bueditor_user_eids($user) {
  * Check if the editor is visible in the page.
  */
 function bueditor_check_page($page, $editor) {
-  $editor = is_numeric($editor) ? bueditor_editors($editor) : $editor;
+  $editor = isset($editor) ? bueditor_editors($editor) : $editor;
   if ($editor) {
     if (backdrop_match_path($page, $editor->pages)) {
       return $editor;

@@ -18,7 +18,7 @@ function bueditor_config_info() {
     'group' => t('BUEditor'),
   );
   $prefixes['bueditor.editor'] = array(
-    'name_key' => array('eid'),
+    'name_key' => array('machine_name'),
     'label_callback' => 'bueditor_config_label_instance',
     'group' => t('BUEditor'),
   );
@@ -26,8 +26,8 @@ function bueditor_config_info() {
 }
 
 function bueditor_config_label_instance($instance, $config_name) {
-  list($eid) = str_replace('bueditor.editor.', '', $config_name);
-  return 'BUEditor ' . $eid;
+  list($machine_name) = str_replace('bueditor.editor.', '', $config_name);
+  return 'BUEditor ' . $machine_name;
 }
 
 /**
@@ -108,16 +108,16 @@ function bueditor_textarea($element, $form_state) {
 /**
  * Include necessary js and css files for editor settlement.
  */
-function bueditor_settle($editor) {
+function bueditor_settle($id) {
   bueditor_inc();
-  return _bueditor_settle($editor);
+  return _bueditor_settle($id);
 }
 
 /**
  * Load an editor by id. (Used by menu system)
  */
-function bueditor_editor_load($eid) {
-  $config = config('bueditor.editor.' . $eid);
+function bueditor_editor_load($id) {
+  $config = config('bueditor.editor.' . $id);
   return (object) $config->get();
 
 }

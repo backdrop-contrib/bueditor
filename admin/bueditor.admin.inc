@@ -17,13 +17,13 @@ function bueditor_admin() {
   $token = backdrop_get_token(date('ymd'));
   $header = array(t('Editor name'), t('Operations'));
   $rows = array();
-  foreach ($editors as $eid => $editor) {
+  foreach ($editors as $id => $editor) {
     $rows[] = array(
       check_plain($editor->name),
-      l(t('Edit'), $path . '/' . $eid) . ' | ' .
-      l(t('Delete'), $path . '/' . $eid . '/delete', array('attributes' => array('class' => array('eop-delete')))) . ' | ' .
-      l(t('Copy'), $path, array('attributes' => array('class' => array('eop-copy'), 'name' => 'Copy of ' . $editor->name), 'query' => array('eop' => 'copy', 'eid' => $eid, 'token' => $token))) . ' | ' .
-      l(t('Export'), $path, array('attributes' => array('class' => array('eop-export')), 'query' => array('eop' => 'export', 'eid' => $eid, 'token' => $token)))
+      l(t('Edit'), $path . '/' . $id) . ' | ' .
+      l(t('Delete'), $path . '/' . $id . '/delete', array('attributes' => array('class' => array('eop-delete')))) . ' | ' .
+      l(t('Copy'), $path, array('attributes' => array('class' => array('eop-copy'), 'name' => 'Copy of ' . $editor->name), 'query' => array('eop' => 'copy', 'id' => $id, 'token' => $token))) . ' | ' .
+      l(t('Export'), $path, array('attributes' => array('class' => array('eop-export')), 'query' => array('eop' => 'export', 'id' => $id, 'token' => $token)))
     );
   }
   $rows[] = array(array('data' =>
@@ -167,8 +167,8 @@ function bueditor_editor_options() {
   static $options;
   if (!isset($options)) {
     $options = array();
-    foreach (bueditor_editors('all') as $eid => $editor) {
-      $options[$eid] = $editor->name;
+    foreach (bueditor_editors('all') as $id => $editor) {
+      $options[$id] = $editor->name;
     }
   }
   return $options;
@@ -229,7 +229,7 @@ function bueditor_button_form($button = NULL) {
  */
 function bueditor_editor_form($form, &$form_state, $editor = NULL) {
   $editor = is_object($editor) ? $editor : bueditor_editor_defaults();
-  $editor->eid = isset($editor->eid) ? $editor->eid : '';
+  $editor->id = isset($editor->id) ? $editor->id : NULL;
 
   $form_state['cache'] = TRUE;
   $form = array(
@@ -237,16 +237,22 @@ function bueditor_editor_form($form, &$form_state, $editor = NULL) {
     '#theme' => 'bueditor_editor',
     '#attributes' => array('enctype' => 'multipart/form-data'),
   );
-  $form['editor']['eid'] = array(
-    '#type' => 'hidden',
-    '#value' => $editor->eid,
-  );
   $form['editor']['name'] = array(
     '#type' => 'textfield',
     '#title' => t('Editor name'),
     '#maxlength' => 255,
     '#default_value' => $editor->name,
     '#required' => TRUE,
+  );
+  $form['editor']['id'] = array(
+    '#type' => 'machine_name',
+    '#default_value' => $editor->id,
+    '#maxlength' => 32,
+    '#disabled' => isset($editor->id),
+    '#machine_name' => array(
+      'exists' => 'bueditor_id_exists',
+    ),
+    '#description' => t('A unique machine-readable name for this editor. It must only contain lowercase letters, numbers, and underscores.'),
   );
   $form['editor']['pages'] = array(
     '#type' => 'textarea',
@@ -281,14 +287,13 @@ function bueditor_editor_form($form, &$form_state, $editor = NULL) {
   );
 
   //buttons
-  foreach (bueditor_buttons($editor->eid) as $bid => $button) {
+  foreach (bueditor_buttons($editor->id) as $bid => $button) {
     $form['buttons'][$bid] = bueditor_button_form($button);
     $form['checks'][$bid] = array('#type' => 'checkbox');
   }
 
   //imported/copied buttons are previewed. not saved yet.
   if (isset($_SESSION['bueimport']) && $import = $_SESSION['bueimport']) {
-debug($import,'import');
     $import = is_array($import) ? $import : bueditor_import_csv_buttons($import);
     if (empty($import)) {
       backdrop_set_message(t('There is no button to import.'), 'warning');
@@ -305,7 +310,7 @@ debug($import,'import');
   //there are always two new buttons.
   $form['buttons']['new'] = $form['buttons']['new_'] = bueditor_button_form();
 
-  if ($editor->eid) {
+  if ($editor->id) {
     //actions for selected buttons
     $form += bueditor_selaction_form();
     //button import
@@ -330,12 +335,28 @@ debug($import,'import');
 }
 
 /**
+ * Check that editor id exists
+ */
+function bueditor_id_exists($value) {
+  $prefix = 'bueditor.editor.';
+  $config_names = config_get_names_with_prefix($prefix);
+
+  foreach ($config_names as $config_name) {
+    $config = config($config_name);
+    $id = $config->get('id');
+    if ($value == $id) {
+      return TRUE;
+    }
+  }
+}
+
+/**
  * Editor form theming.
  */
 function bueditor_editor_theme($variables) {
   $form = $variables['form'];
   $path = backdrop_get_path('module', 'bueditor');
-  $eid = $form['editor']['eid']['#value'];
+  $id = $form['editor']['id']['#value'];
   $header = array(array(
     'data' => t('Title'),
     'class' => array('th-title'),
@@ -381,7 +402,7 @@ function bueditor_editor_theme($variables) {
   }
   $name = theme('fieldset', array('element' => array(
     '#title' => t('Editor name'),
-    '#children' => backdrop_render($form['editor']['name']),
+    '#children' => backdrop_render($form['editor']['name']) . backdrop_render($form['editor']['id']),
     '#attributes' => array(),
   )));
   $visibility = theme('fieldset', array('element' => array(
@@ -394,7 +415,7 @@ function bueditor_editor_theme($variables) {
     '#children' => backdrop_render($form['editor']['iconpath']) . backdrop_render($form['editor']['spriteon']) . backdrop_render($form['editor']['librarypath']),
     '#attributes' => array(),
   )));
-  $import = $eid ? theme('fieldset', array('element' => array(
+  $import = $id ? theme('fieldset', array('element' => array(
     '#title' => t('Import Buttons'),
     '#children' => t('<em>You can either upload a CSV file exported from BUEditor 6.x-1.x or earlier</em> !csvfield <em>OR paste the editor code containing the buttons</em> !codefield', array('!csvfield' => backdrop_render($form['importcsv']), '!codefield' => backdrop_render($form['importcode']))) . backdrop_render($form['import']),
     '#attributes' => array(),
@@ -404,12 +425,12 @@ function bueditor_editor_theme($variables) {
     'rows' => $rows,
     'attributes' => array('class' => array('button-table'), 'id' => 'button-table'),
   ));
-  $selaction = $eid ? '<div id="sel-action-wrapper">' . backdrop_render($form['selaction']) . backdrop_render($form['copyto']) . backdrop_render($form['go']) . '</div>' : '';
+  $selaction = $id ? '<div id="sel-action-wrapper">' . backdrop_render($form['selaction']) . backdrop_render($form['copyto']) . backdrop_render($form['go']) . '</div>' : '';
 
   $timer = timer_read('page');
   $demo = '';
-  if ($eid && !isset($_GET['nodemo']) && bueditor_settle($eid)) {
-    $set['BUE']['preset']['edit-demo-value'] = "e$eid";
+  if ($id && !isset($_GET['nodemo']) && bueditor_settle($id)) {
+    $set['BUE']['preset']['edit-demo-value'] = "e$id";
     $demo = backdrop_render($form['demo']);
     $set['BUE']['demotime'] = round(timer_read('page') - $timer);
   }
@@ -441,9 +462,9 @@ function bueditor_editor_submit($form, &$form_state) {
       $buttons[] = (object) $button;
     }
   }
-  $old = $editor->eid;
+  $old = $editor->id;
   if ($editor = bueditor_write_editor($editor, $buttons)) {
-    $form_state['redirect'] = 'admin/config/content/bueditor/' . $editor->eid;
+    $form_state['redirect'] = 'admin/config/content/bueditor/' . $editor->id;
     $old ? backdrop_set_message(t('The changes have been saved.')) : bueditor_message_added($editor->name);
   }
 }
@@ -481,13 +502,13 @@ function bueditor_selaction_submit($form, &$form_state) {
   $editor = (object) $form_state['values']['editor'];
   switch ($form_state['values']['selaction']) {
     case 'delete':
-      bueditor_delete_buttons($bids, $editor->eid);
+      bueditor_delete_buttons($bids, $editor->id);
       break;
     case 'export':
-      bueditor_export_buttons($bids, $editor->eid);
+      bueditor_export_buttons($bids, $editor->id);
       break;
     case 'copyto':
-      $_SESSION['bueimport'] = bueditor_buttons_by_id($bids, $editor->eid);
+      $_SESSION['bueimport'] = bueditor_buttons_by_id($bids, $editor->id);
       $form_state['redirect'] = 'admin/config/content/bueditor/' . $form_state['values']['copyto'];
       break;
   }
@@ -496,8 +517,8 @@ function bueditor_selaction_submit($form, &$form_state) {
 /**
  * Delete buttons.
  */
-function bueditor_delete_buttons($bids = array(), $eid) {
-  $config = config('bueditor.editor.' . $eid);
+function bueditor_delete_buttons($bids = array(), $id) {
+  $config = config('bueditor.editor.' . $id);
   $buttons = $config->get('buttons');
   if (!empty($bids)) {
     foreach ($bids as $bid) {
@@ -512,9 +533,9 @@ function bueditor_delete_buttons($bids = array(), $eid) {
 /**
  * Export buttons using var_export. The genarated code can also be imported as an editor.
  */
-function bueditor_export_buttons($bids = array(), $eid) {
+function bueditor_export_buttons($bids = array(), $id) {
   $editor = array();
-  $editor['buttons'] = bueditor_exportable_buttons(bueditor_buttons_by_id($bids, $eid));
+  $editor['buttons'] = bueditor_exportable_buttons(bueditor_buttons_by_id($bids, $id));
   if (!empty($editor['buttons'])) {
     bueditor_export_text(var_export($editor, TRUE), 'bueditor.buttons.txt');
   }
@@ -592,7 +613,7 @@ function bueditor_delete_form($form, &$form_state, $editor) {
  */
 function bueditor_delete_form_submit($form, &$form_state) {
   $editor = $form_state['build_info']['args'][0];
-  bueditor_delete_editor($editor->eid);
+  bueditor_delete_editor($editor->id);
   backdrop_set_message(t('Editor %name has been deleted.', array('%name' => $editor->name)));
   $form_state['redirect'] = 'admin/config/content/bueditor';
 }
@@ -600,14 +621,14 @@ function bueditor_delete_form_submit($form, &$form_state) {
 /**
  * Delete an editor.
  */
-function bueditor_delete_editor($eid) {
-  config('bueditor.editor.' . $eid)->delete();
+function bueditor_delete_editor($id) {
+  config('bueditor.editor.' . $id)->delete();
 
   //update roles
   $roles = config_get('bueditor.settings', 'bueditor_roles');
   foreach ($roles as $rid => $role) {
-    $roles[$rid]['editor'] = $eid == $role['editor'] ? 0 : $role['editor'];
-    $roles[$rid]['alt'] = $eid == $role['alt'] ? 0 : $role['alt'];
+    $roles[$rid]['editor'] = $id == $role['editor'] ? 0 : $role['editor'];
+    $roles[$rid]['alt'] = $id == $role['alt'] ? 0 : $role['alt'];
   }
   config_set('bueditor.settings', 'bueditor_roles', $roles);
 }
@@ -622,6 +643,15 @@ function bueditor_editor_import_form($form, &$form_state) {
     '#title' => t('Editor name'),
     '#maxlength' => 255,
     '#required' => TRUE,
+  );
+  $form['id'] = array(
+    '#type' => 'machine_name',
+    '#maxlength' => 32,
+    //'#disabled' => false,
+    '#machine_name' => array(
+      'exists' => 'bueditor_id_exists',
+    ),
+    '#description' => t('A unique machine-readable name for this editor. It must only contain lowercase letters, numbers, and underscores.'),
   );
   $form['dirname'] = array(
     '#type' => 'textfield',
@@ -667,7 +697,7 @@ function bueditor_editor_import_validate($form, &$form_state) {
     }
   }
   $editor->name =  $form_state['values']['name'];
-  $editor->eid = $editor->overwrite = empty($form_state['values']['overwrite']) ? NULL : $form_state['values']['overwrite'];
+  $editor->id = !empty($form_state['values']['overwrite']) ? $form_state['values']['overwrite'] : $form_state['values']['id'];
   $form_state['editor'] = $editor;
 }
 
@@ -677,7 +707,7 @@ function bueditor_editor_import_validate($form, &$form_state) {
 function bueditor_editor_import_submit($form, &$form_state) {
   if ($editor = bueditor_save_import($form_state['editor'])) {
     bueditor_message_added($editor->name);
-    $form_state['redirect'] = 'admin/config/content/bueditor/' . $editor->eid;
+    $form_state['redirect'] = 'admin/config/content/bueditor/' . $editor->id;
   }
 }
 
@@ -748,12 +778,9 @@ function bueditor_save_import($editor) {
 
   //get rid of some unwanted or possibly big variables
   unset($editor->custom_path, $editor->buttons, $editor->library, $editor->icons);
-  if (empty($editor->overwrite)) {
-    unset($editor->eid);
-  }
   // New buttons shall replace the old ones.
-  elseif (!empty($editor->eid)) {
-    $config = config('bueditor.editor.' . $editor->eid);
+  if (!empty($editor->id)) {
+    $config = config('bueditor.editor.' . $editor->id);
     $config->clear('buttons');
   }
 
@@ -790,7 +817,7 @@ function bueditor_eop() {
     $editors = bueditor_editors('all');
     $eop = $_GET['eop'];
     $name = isset($_GET['name']) ? check_plain($_GET['name']) : '';
-    $editor = isset($_GET['eid']) && isset($editors[$_GET['eid']]) ? $editors[$_GET['eid']] : NULL;
+    $editor = isset($_GET['id']) && isset($editors[$_GET['id']]) ? $editors[$_GET['id']] : NULL;
     if ($eop == 'add_default') {
       bueditor_eop_add_default($name);
     }
@@ -826,8 +853,8 @@ function bueditor_eop_add_default($ename) {
  */
 function bueditor_eop_copy($editor, $name) {
   $editor = clone $editor;
-  $buttons = bueditor_buttons($editor->eid);
-  $editor->eid = NULL;
+  $buttons = bueditor_buttons($editor->id);
+  $editor->id = NULL;
   $editor->name = $name ? $name : 'Copy of ' . $editor->name;
   array_walk($buttons, create_function('&$button', '$button->bid = NULL;'));
   if ($editor = bueditor_write_editor($editor, $buttons)) {
@@ -863,7 +890,7 @@ function bueditor_varexport_editor($editor) {
   $buepath = backdrop_get_path('module', 'bueditor');
 
   //include buttons
-  $editor['buttons'] = bueditor_exportable_buttons(bueditor_buttons($editor['eid']));
+  $editor['buttons'] = bueditor_exportable_buttons(bueditor_buttons($editor['id']));
 
   //include icons if they are not in default icon directory.
   $editor['icons'] = array();
@@ -880,7 +907,7 @@ function bueditor_varexport_editor($editor) {
     $editor['library'][$key] = $buelib == dirname($filepath) || strpos($key, '://') ? '' : file_get_contents($filepath);
   }
 
-  unset($editor['eid'], $editor['librarypath'], $editor['spritename']);
+  unset($editor['id'], $editor['librarypath'], $editor['spritename']);
   return var_export($editor, TRUE);
 }
 
@@ -891,7 +918,7 @@ function bueditor_exportable_buttons($buttons) {
   $new_buttons = array();
   if (is_array($buttons)) {
     foreach ($buttons as $bid => $button) {
-      unset($button->bid, $button->eid);
+      unset($button->bid, $button->id);
       $new_buttons[] = (array) $button;
     }
   }
@@ -916,25 +943,13 @@ function bueditor_write_editor($editor, $buttons = array()) {
   if (isset($editor->spriteon) && $editor->spriteon) {
     include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'bueditor') . '/admin/bueditor.sprite.inc';
     $editor->spritename = bueditor_sprite($editor, $buttons);
-  }
-
-  if (!isset($editor->eid)) {
-    $editor->eid = NULL;
-  }
-  if (!is_numeric($editor->eid)) {
-    $prefix = 'bueditor.editor.';
-    $config_names = config_get_names_with_prefix($prefix);
-    foreach ($config_names as $k => $config_name) {
-      $config_names[$k] = substr($config_name, -1);
-    }
-    $eid = max($config_names) + 1;
   } else {
-    $eid = $editor->eid;
+    $editor->spritename = '';
   }
 
-  $config = config('bueditor.editor.' . $eid);
-  $config->set('eid',$eid);
+  $config = config('bueditor.editor.' . $editor->id);
   $config->set('name',$editor->name);
+  $config->set('id',$editor->id);
   $config->set('pages',$editor->pages);
   $config->set('excludes',$editor->excludes);
   $config->set('iconpath',$editor->iconpath);
@@ -944,7 +959,7 @@ function bueditor_write_editor($editor, $buttons = array()) {
 
   // Use the array key as bid since they're unique
   foreach ($buttons as $k => $button) {
-    $button->eid = $eid;
+    //$button->id = $editor->id;
     $button->bid = $k;
   }
 
@@ -1032,9 +1047,9 @@ function bueditor_button_defaults($title = '') {
 /**
  * Load buttons by ids.
  */
-function bueditor_buttons_by_id($bids = array(), $eid) {
+function bueditor_buttons_by_id($bids = array(), $id) {
 
-  $get_buttons = config_get('bueditor.editor.' . $eid, 'buttons');
+  $get_buttons = config_get('bueditor.editor.' . $id, 'buttons');
   // Sort by weight then title.
   backdrop_sort($get_buttons, array(
     'weight' => SORT_NUMERIC,
@@ -1094,6 +1109,7 @@ function bueditor_import_by_name($name, $ename = '') {
     if ($editor = bueditor_exec_editor_code($code)) {
       if ($ename) {
         $editor->name = $ename;
+        //$editor->id = $id;
       }
       return bueditor_save_import($editor);
     }
