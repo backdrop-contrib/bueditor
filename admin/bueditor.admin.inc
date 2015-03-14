@@ -235,14 +235,14 @@ function bueditor_editor_form($form, &$form_state, $editor = NULL) {
     '#theme' => 'bueditor_editor',
     '#attributes' => array('enctype' => 'multipart/form-data'),
   );
-  $form['editor']['name'] = array(
+  $form['name'] = array(
     '#type' => 'textfield',
     '#title' => t('Editor name'),
     '#maxlength' => 255,
     '#default_value' => $editor->name,
     '#required' => TRUE,
   );
-  $form['editor']['id'] = array(
+  $form['id'] = array(
     '#type' => 'machine_name',
     '#default_value' => $editor->id,
     '#maxlength' => 32,
@@ -354,7 +354,7 @@ function bueditor_id_exists($value) {
 function bueditor_editor_theme($variables) {
   $form = $variables['form'];
   $path = backdrop_get_path('module', 'bueditor');
-  $id = $form['editor']['id']['#value'];
+  $id = $form['id']['#value'];
   $header = array(array(
     'data' => t('Title'),
     'class' => array('th-title'),
@@ -395,12 +395,12 @@ function bueditor_editor_theme($variables) {
   }
 
   //set title
-  if ($form['editor']['name']['#value']) {
-    backdrop_set_title(t('Settings for the editor @name', array('@name' => $form['editor']['name']['#value'])));
+  if ($form['name']['#value']) {
+    backdrop_set_title(t('Settings for the editor @name', array('@name' => $form['name']['#value'])));
   }
-  $name = theme('fieldset', array('element' => array(
+  $name = theme_fieldset(array('element' => array(
     '#title' => t('Editor name'),
-    '#children' => backdrop_render($form['editor']['name']) . backdrop_render($form['editor']['id']),
+    '#children' => backdrop_render($form['name']) . backdrop_render($form['id']),
     '#attributes' => array(),
   )));
   $visibility = theme('fieldset', array('element' => array(
@@ -452,6 +452,8 @@ function bueditor_editor_theme($variables) {
  */
 function bueditor_editor_submit($form, &$form_state) {
   $editor = (object) $form_state['values']['editor'];
+  $editor->name = $form_state['values']['name'];
+  $editor->id = $form_state['values']['id'];
   $buttons = array();
   foreach ($form_state['values']['buttons'] as $bid => $button) {
     if ($button['title']) {
@@ -645,7 +647,6 @@ function bueditor_editor_import_form($form, &$form_state) {
   $form['id'] = array(
     '#type' => 'machine_name',
     '#maxlength' => 32,
-    //'#disabled' => false,
     '#machine_name' => array(
       'exists' => 'bueditor_id_exists',
     ),
