@@ -1079,9 +1079,9 @@ function bueditor_import_by_name($name, $ename = '') {
   $file = backdrop_get_path('module', 'bueditor') . '/import/' . $name . '.bueditor.txt';
   if ($code = file_get_contents($file)) {
     if ($editor = bueditor_exec_editor_code($code)) {
+      $editor->id = $name;
       if ($ename) {
         $editor->name = $ename;
-        $editor->id = $ename;
       }
       return bueditor_save_import($editor);
     }
