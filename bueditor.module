@@ -5,10 +5,6 @@
  * Implements the necessary hooks for the editor to work properly.
  */
 
-// TODO
-// Fix Sprites, seem not to be in files/bueditor
-// Use machine name instead of number for editors
-
  /**
  * Implements hook_config_info().
  */

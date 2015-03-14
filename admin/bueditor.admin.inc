@@ -500,6 +500,7 @@ function bueditor_selaction_form() {
 function bueditor_selaction_submit($form, &$form_state) {
   $bids = array_keys(array_filter($form_state['values']['checks']));
   $editor = (object) $form_state['values']['editor'];
+  $editor->id = $form_state['values']['id'];
   switch ($form_state['values']['selaction']) {
     case 'delete':
       bueditor_delete_buttons($bids, $editor->id);
@@ -1025,8 +1026,11 @@ function bueditor_buttons_by_id($bids = array(), $id) {
   ));
 
   $buttons = array();
+  $bids_keys = array_combine(array_values($bids), array_values($bids));
   foreach ($get_buttons as $button) {
-    $buttons[$button['bid']] = (object) $button;
+    if (array_key_exists($button['bid'], $bids_keys)) {
+      $buttons[$button['bid']] = (object) $button;
+    }
   }
   return empty($bids) ? array() : $buttons;
 }
