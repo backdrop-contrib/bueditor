@@ -46,8 +46,8 @@ function bueditor_update_1001() {
       $i++;
     }
 
-    $config = config('bueditor.editor.' . $editor->eid);
-    $config->set('eid',$eid);
+    $config = config('bueditor.editor.editor_' . $editor->eid);
+    $config->set('id', 'editor_' . $eid);
     $config->set('name',$editor->name);
     $config->set('pages',$editor->pages);
     $config->set('excludes',$editor->excludes);

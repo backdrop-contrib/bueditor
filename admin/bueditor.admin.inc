@@ -1081,7 +1081,7 @@ function bueditor_import_by_name($name, $ename = '') {
     if ($editor = bueditor_exec_editor_code($code)) {
       if ($ename) {
         $editor->name = $ename;
-        //$editor->id = $id;
+        $editor->id = $ename;
       }
       return bueditor_save_import($editor);
     }
