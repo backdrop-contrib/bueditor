@@ -22,8 +22,7 @@ function bueditor_config_info() {
 }
 
 function bueditor_config_label_instance($instance, $config_name) {
-  list($machine_name) = str_replace('bueditor.editor.', '', $config_name);
-  return 'BUEditor ' . $machine_name;
+  return 'BUEditor ' . config_get($config_name, 'name');
 }
 
 /**
