@@ -13,7 +13,7 @@ function bueditor_sprite($editor, $buttons = array()) {
     uasort($buttons, create_function('$b1,$b2', 'return $b1->weight - $b2->weight;'));
     return bueditor_sprite_buttons($buttons, $editor->iconpath);
   }
-  elseif (isset($editor->eid) && $editor->eid > 0) {
+  elseif (isset($editor->id) && $editor->id != '') {
     return bueditor_sprite_editor($editor);
   }
   return '';
@@ -23,7 +23,7 @@ function bueditor_sprite($editor, $buttons = array()) {
  * Create an icon sprite for an editor.
  */
 function bueditor_sprite_editor($editor) {
-  return bueditor_sprite_buttons(bueditor_buttons($editor->eid), $editor->iconpath);
+  return bueditor_sprite_buttons(bueditor_buttons($editor->id), $editor->iconpath);
 }
 
 /**
