@@ -1,18 +1,25 @@
 
 .bue-ui {
-  margin: 1px 0px;
+  margin: 0;
+  padding: 6px 8px;
+  background: #eee;
+  border: 1px solid #eee;
 }
 .bue-button {
-  margin: 1px;
-  border: 1px solid #ccc;
   cursor: pointer;
   padding: 0;
+  margin: 0 2px 0 2px;
+  height: 20px;
+  border: 1px solid #a6a6a6;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
 }
 .bue-button:hover {
   border-color: #fc6;
 }
 .bue-text-button {
-  height: 22px;
+  height: 20px;
   font-size: 11px;
   font-weight: bold;
   background-color: #fff;
