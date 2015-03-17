@@ -1,0 +1,183 @@
+array (
+  'name' => 'Markdown',
+  'pages' => 'node/*
+comment/*',
+  'excludes' => 'edit-log
+edit-menu-description',
+  'iconpath' => '%BUEDITOR/icons',
+  'spriteon' => '1',
+  'buttons' =>
+  array (
+    0 =>
+    array (
+      'title' => 'Make selected text into a header',
+      'content' => 'js:  markdownEditor.header();',
+      'icon' => 'headers.png',
+      'accesskey' => 'H',
+      'weight' => '0',
+    ),
+    1 =>
+    array (
+      'title' => 'Italics: Make selected text emphasized',
+      'content' => 'js: markdownEditor.emphasis();',
+      'icon' => 'italic.png',
+      'accesskey' => 'I',
+      'weight' => '1',
+    ),
+    2 =>
+    array (
+      'title' => 'Bold: Make selected text strong',
+      'content' => 'js: markdownEditor.strongEmphasis();',
+      'icon' => 'bold.png',
+      'accesskey' => 'B',
+      'weight' => '2',
+    ),
+    3 =>
+    array (
+      'title' => 'Format selected text as code',
+      'content' => 'js: markdownEditor.codeInline();',
+      'icon' => 'code.png',
+      'accesskey' => '',
+      'weight' => '3',
+    ),
+    4 =>
+    array (
+      'title' => 'Format selected text as a code block',
+      'content' => 'js: markdownEditor.codeBlock();',
+      'icon' => 'code-block.png',
+      'accesskey' => '',
+      'weight' => '4',
+    ),
+    5 =>
+    array (
+      'title' => 'Make selected text into a block quote',
+      'content' => 'js: markdownEditor.blockQuote();',
+      'icon' => 'quote.png',
+      'accesskey' => 'Q',
+      'weight' => '5',
+    ),
+    6 =>
+    array (
+      'title' => 'Make selected text into an ordered list (numbered)',
+      'content' => 'js: markdownEditor.orderedList();',
+      'icon' => 'ol.png',
+      'accesskey' => 'O',
+      'weight' => '6',
+    ),
+    7 =>
+    array (
+      'title' => 'Make selected text into an unordered list (bullets)',
+      'content' => 'js: markdownEditor.unorderedList();',
+      'icon' => 'ul.png',
+      'accesskey' => 'N',
+      'weight' => '7',
+    ),
+    8 =>
+    array (
+      'title' => 'Insert a definition list',
+      'content' => 'js:  new markdownEditor.DefinitionList();',
+      'icon' => 'dl.png',
+      'accesskey' => '',
+      'weight' => '8',
+    ),
+    9 =>
+    array (
+      'title' => 'Insert a table',
+      'content' => 'js:  new markdownEditor.Table();',
+      'icon' => 'table.png',
+      'accesskey' => 'T',
+      'weight' => '9',
+    ),
+    10 =>
+    array (
+      'title' => 'Insert an abbreviation (word or acronym with definition)',
+      'content' => 'js:  markdownEditor.abbreviation();',
+      'icon' => 'abbreviation.png',
+      'accesskey' => '',
+      'weight' => '10',
+    ),
+    11 =>
+    array (
+      'title' => 'Insert a footnote',
+      'content' => 'js:  markdownEditor.footnote();',
+      'icon' => 'footnote.png',
+      'accesskey' => 'F',
+      'weight' => '11',
+    ),
+    12 =>
+    array (
+      'title' => 'Make text into an autolink (turns URLs in links, turns words into section identifiers for navigating the document)',
+      'content' => 'js:  markdownEditor.autoLink();',
+      'icon' => 'autolink.png',
+      'accesskey' => 'A',
+      'weight' => '12',
+    ),
+    13 =>
+    array (
+      'title' => 'Make text into a link (turns text into a link with more options)',
+      'content' => 'js:  markdownEditor.link();',
+      'icon' => 'link.png',
+      'accesskey' => 'L',
+      'weight' => '13',
+    ),
+    14 =>
+    array (
+      'title' => 'Insert an image',
+      'content' => 'js:  markdownEditor.image();',
+      'icon' => 'image.png',
+      'accesskey' => 'M',
+      'weight' => '14',
+    ),
+    15 =>
+    array (
+      'title' => 'Insert a line break',
+      'content' => 'js: markdownEditor.lineBreak();',
+      'icon' => 'line.png',
+      'accesskey' => 'R',
+      'weight' => '15',
+    ),
+    16 =>
+    array (
+      'title' => 'Insert a horizontal ruler (horizontal line)',
+      'content' => 'js: markdownEditor.horizontalRuler();',
+      'icon' => 'hr.png',
+      'accesskey' => '',
+      'weight' => '16',
+    ),
+    17 =>
+    array (
+      'title' => 'Teaser break',
+      'content' => '<!--break-->',
+      'icon' => 'teaserbr.png',
+      'accesskey' => '',
+      'weight' => '17',
+    ),
+    18 =>
+    array (
+      'title' => 'Preview',
+      'content' => 'js: E.prvAjax();',
+      'icon' => 'preview.png',
+      'accesskey' => 'P',
+      'weight' => '18',
+    ),
+    19 =>
+    array (
+      'title' => 'Help',
+      'content' => 'js: E.help(\'fadeIn\');',
+      'icon' => 'help.png',
+      'accesskey' => '',
+      'weight' => '19',
+    ),
+  ),
+  'icons' =>
+  array (
+  ),
+  'library' =>
+  array (
+    '%BUEDITOR/library/bue.min.default.js' => '',
+    '%BUEDITOR/library/markdowneditor/markdowneditor.css' => '',
+    '%BUEDITOR/library/markdowneditor/markdowneditor_popup.css' => '',
+    '%BUEDITOR/library/markdowneditor/markdowneditor.js' => '',
+  ),
+)
+

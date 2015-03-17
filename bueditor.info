@@ -3,5 +3,7 @@ description = "A plain textarea editor aiming to facilitate code writing."
 backdrop = "1.x"
 package = "Content authoring"
 configure = "admin/config/content/bueditor"
-; Information added by Backdrop.org packaging script on 2014-05-16
-version = "1.x-1.x"
+version = "1.x-2.x-dev"
+recommends[] = ajax_markup
+recommends[] = markdown
+recommends[] = bbcode
