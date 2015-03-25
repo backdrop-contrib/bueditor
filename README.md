@@ -33,10 +33,9 @@ for complete text.
 CURRENT MAINTAINERS
 ---------------    
 
-Looking for maintainers. Herb v/d Dool (@herbdool) is currently minimally maintaining the 1.x-2.x branch.
+Looking for maintainers. [@herbdool](https://github.com/herbdool) is currently minimally maintaining the 1.x-2.x branch.
 
 CREDITS   
 ---------------
 
-This module was ported to Backdrop by @docwilmot. It was created on Drupal by Ufku 
-(https://www.drupal.org/u/ufku). 
+This module was ported to Backdrop by [@docwilmot](https://github.com/docwilmot). BUEditor was originally [created for Drupal](https://www.drupal.org/project/bueditor) by [Ufku](https://www.drupal.org/u/ufku). 
