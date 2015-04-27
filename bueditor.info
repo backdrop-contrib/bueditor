@@ -1,9 +1,9 @@
 name = "BUEditor"
 description = "A plain textarea editor aiming to facilitate code writing."
 backdrop = "1.x"
+type = module
 package = "Content authoring"
 configure = "admin/config/content/bueditor"
-version = "1.x-2.x-dev"
 recommends[] = ajax_markup
 recommends[] = markdown
 recommends[] = bbcode
