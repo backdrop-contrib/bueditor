@@ -33,7 +33,7 @@ for complete text.
 CURRENT MAINTAINERS
 ---------------    
 
-Looking for maintainers. [@herbdool](https://github.com/herbdool) is currently minimally maintaining the 1.x-2.x branch.
+* [@alanmels](https://github.com/alanmels).
 
 CREDITS   
 ---------------
