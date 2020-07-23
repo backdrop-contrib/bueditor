@@ -943,7 +943,9 @@ function bueditor_write_editor($editor, $buttons = array()) {
  */
 function bueditor_icons($path) {
   $icons = file_scan_directory($path, '/\.(png|gif|jpg)$/', array('recurse' => FALSE, 'key' => 'filename'));
-  array_walk($icons, create_function('&$value', '$value = 1;'));
+  array_walk($icons, function(&$value) {
+    $value = 1;
+  });
   return $icons;
 }
 
