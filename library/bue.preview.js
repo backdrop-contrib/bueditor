@@ -57,12 +57,12 @@ E.prvHide = function() {
     return E.prvHide();
   }
   if (!($xM = $.ajaxMarkup)) {
-    return E.prvShow(Backdrop.t('Preview requires <a href="http://backdrop.org/project/ajax_markup">Ajax markup</a> module with proper permissions set.'));
+    return E.prvShow(Backdrop.t('Preview requires <a href="https://backdropcms.org/project/ajax_markup">Ajax Markup</a> module with proper permissions set.'));
   }
   if (format && format.call) {
     callback = format;
     format = 0;
-  } 
+  }
   E.prvShow('<div class="bue-prv-loading">' + Backdrop.t('Loading...') + '</div>');
   $xM(E.getContent(), format || $xM.getFormat(E.textArea), function(output, status, request) {
     E.prvOn && E.prvShow(status ? output : output.replace(/\n/g, '<br />')) && (callback || Backdrop.attachBehaviors)(E.preview);
