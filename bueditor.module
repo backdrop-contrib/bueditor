@@ -64,6 +64,17 @@ function bueditor_menu() {
 }
 
 /**
+ * Implements hook_editor_info().
+ */
+function bueditor_editor_info() {
+  $editors['bueditor'] = array(
+    'label' => t('BUEditor'),
+    'library' => array('bueditor', 'backdrop.bueditor'),
+  );
+  return $editors;
+}
+
+/**
  * Implements hook_permission().
  */
 function bueditor_permission() {
