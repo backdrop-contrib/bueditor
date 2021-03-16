@@ -59,8 +59,7 @@ function bueditor_update_1001() {
     $config->save();
   }
 
-  backdrop_uninstall_schema('bueditor_editors');
-  backdrop_uninstall_schema('bueditor_buttons');
+  backdrop_uninstall_schema('bueditor');
 }
 
 /**
