@@ -47,15 +47,15 @@ function bueditor_update_1001() {
     }
 
     $config = config('bueditor.editor.editor_' . $editor->eid);
-    $config->set('id', 'editor_' . $eid);
-    $config->set('name',$editor->name);
-    $config->set('pages',$editor->pages);
-    $config->set('excludes',$editor->excludes);
-    $config->set('iconpath',$editor->iconpath);
-    $config->set('librarypath',$editor->librarypath);
-    $config->set('spriteon',$editor->spriteon);
-    $config->set('spritename',$editor->spritename);
-    $config->set('buttons',$buttons);
+    $config->set('id', 'editor_' . $editor->eid);
+    $config->set('name', $editor->name);
+    $config->set('pages', $editor->pages);
+    $config->set('excludes', $editor->excludes);
+    $config->set('iconpath', $editor->iconpath);
+    $config->set('librarypath', $editor->librarypath);
+    $config->set('spriteon', $editor->spriteon);
+    $config->set('spritename', $editor->spritename);
+    $config->set('buttons', $buttons);
     $config->save();
   }
 
