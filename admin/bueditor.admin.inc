@@ -518,7 +518,7 @@ function bueditor_selaction_submit($form, &$form_state) {
 /**
  * Delete buttons.
  */
-function bueditor_delete_buttons($bids = array(), $id) {
+function bueditor_delete_buttons(array $bids, $id) {
   $config = config('bueditor.editor.' . $id);
   $buttons = $config->get('buttons');
   if (!empty($bids)) {
@@ -534,7 +534,7 @@ function bueditor_delete_buttons($bids = array(), $id) {
 /**
  * Export buttons using var_export. The genarated code can also be imported as an editor.
  */
-function bueditor_export_buttons($bids = array(), $id) {
+function bueditor_export_buttons(array $bids, $id) {
   $editor = array();
   $editor['buttons'] = bueditor_exportable_buttons(bueditor_buttons_by_id($bids, $id));
   if (!empty($editor['buttons'])) {
@@ -908,7 +908,7 @@ function bueditor_exec_editor_code($code) {
 /**
  * Update/insert an editor.
  */
-function bueditor_write_editor($editor, $buttons = array()) {
+function bueditor_write_editor($editor, array $buttons) {
   if (isset($editor->spriteon) && $editor->spriteon) {
     include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'bueditor') . '/admin/bueditor.sprite.inc';
     $editor->spritename = bueditor_sprite($editor, $buttons);
@@ -1018,7 +1018,7 @@ function bueditor_button_defaults($title = '') {
 /**
  * Load buttons by ids.
  */
-function bueditor_buttons_by_id($bids = array(), $id) {
+function bueditor_buttons_by_id(array $bids, $id) {
 
   $get_buttons = config_get('bueditor.editor.' . $id, 'buttons');
   // Sort by weight then title.
