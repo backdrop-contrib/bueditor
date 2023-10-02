@@ -14,14 +14,6 @@ function bueditor_install() {
 }
 
 /**
- * Implements hook_uninstall()
- */
-function bueditor_uninstall() {
-  db_query('DROP TABLE {bueditor_editors}');
-  db_query('DROP TABLE {bueditor_buttons}');
-}
-
-/**
  * Converts BUEditor settings to config.
  */
 function bueditor_update_1000() {
